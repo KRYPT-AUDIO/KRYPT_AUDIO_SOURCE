@@ -427,6 +427,14 @@ Future<void> initialisation() async {
     logger.log('Initialization Error', error: e, stackTrace: stackTrace);
   }
 
+  // Browsers do not expose an application documents directory through the
+  // native path_provider channel. Hive already provides persistent browser
+  // storage, so skip native filesystem setup on Web.
+  if (kIsWeb) {
+    applicationDirPath = '';
+    return;
+  }
+
   applicationDirPath = (await getApplicationDocumentsDirectory()).path;
   await FilePaths.ensureDirectoriesExist();
 }
