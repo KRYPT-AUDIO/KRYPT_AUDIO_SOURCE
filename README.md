@@ -18,7 +18,7 @@ the app for the complete author tutorial and permission guidance.
 [![Forks](https://img.shields.io/github/forks/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE?style=flat-square&color=D3BEAB)](https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/fork)
 [![Downloads](https://img.shields.io/github/downloads/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/total?style=flat-square&color=D3BEAB)](https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/releases)
 [![GitHub release](https://img.shields.io/github/v/release/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE?color=D3BEAB)](https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/releases)
-[![License](https://img.shields.io/github/license/drizzy-palace/KRYPT_AUDIO?color=D3BEAB)](LICENSE)
+[![License](https://img.shields.io/github/license/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE?color=D3BEAB)](LICENSE)
 
 ---
 
@@ -58,7 +58,7 @@ Material UI & accent colors & dynamic colors (Android 12+) <br/>
 
 ## Screenshots
 
-| ![Screenshot 1](https://raw.githubusercontent.com/drizzy-palace/KRYPT_AUDIO/main/fastlane/metadata/android/en-US/images/phoneScreenshots/01.jpg) | ![Screenshot 2](https://raw.githubusercontent.com/drizzy-palace/KRYPT_AUDIO/main/fastlane/metadata/android/en-US/images/phoneScreenshots/02.jpg) | ![Screenshot 3](https://raw.githubusercontent.com/drizzy-palace/KRYPT_AUDIO/main/fastlane/metadata/android/en-US/images/phoneScreenshots/03.jpg) | ![Screenshot 4](https://raw.githubusercontent.com/drizzy-palace/KRYPT_AUDIO/main/fastlane/metadata/android/en-US/images/phoneScreenshots/04.jpg) |
+| ![Screenshot 1](https://raw.githubusercontent.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/main/fastlane/metadata/android/en-US/images/phoneScreenshots/01.jpg) | ![Screenshot 2](https://raw.githubusercontent.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/main/fastlane/metadata/android/en-US/images/phoneScreenshots/02.jpg) | ![Screenshot 3](https://raw.githubusercontent.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/main/fastlane/metadata/android/en-US/images/phoneScreenshots/03.jpg) | ![Screenshot 4](https://raw.githubusercontent.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/main/fastlane/metadata/android/en-US/images/phoneScreenshots/04.jpg) |
 |----------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------|
 
 ---
@@ -77,7 +77,7 @@ Material UI & accent colors & dynamic colors (Android 12+) <br/>
 ## Download
 
 
-[<img src="https://github.com/drizzy-palace/KRYPT_AUDIO/raw/main/.github/assets/get-it-on-github.png" alt="Get it on Github" height="80">](https://github.com/drizzy-palace/KRYPT_AUDIO/releases/latest)
+[<img src="https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/raw/main/.github/assets/get-it-on-github.png" alt="Get it on Github" height="80">](https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/releases/latest)
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" alt="Get it on Fdroid" height="80">](https://f-droid.org/packages/com.gokadzev.musify.fdroid)
 
 
@@ -87,8 +87,8 @@ Material UI & accent colors & dynamic colors (Android 12+) <br/>
 
 Special thanks to all contributors for their time and effort.
 
-<a href="https://github.com/drizzy-palace/KRYPT_AUDIO/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=drizzy-palace/KRYPT_AUDIO" alt="Contributors"/>
+<a href="https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=KRYPT-AUDIO/KRYPT_AUDIO_SOURCE" alt="Contributors"/>
 </a>
 
 
@@ -96,19 +96,19 @@ Special thanks to all contributors for their time and effort.
 
 ## Contribute
 
-Contributions are always welcome. Please read our [contributing guidelines](https://github.com/drizzy-palace/KRYPT_AUDIO/blob/master/CONTRIBUTING.md) before contributing.
+Contributions are always welcome. Please read our [contributing guidelines](https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/blob/master/CONTRIBUTING.md) before contributing.
 
 ---
 
 ## F.A.Q
 
-You can see frequently asked questions and their answers [here](https://github.com/drizzy-palace/KRYPT_AUDIO/discussions/728).
+You can see frequently asked questions and their answers [here](https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/discussions/728).
 
 ---
 
 ## Credits
 
-[My Brain](https://github.com/drizzy-palace/KRYPT_AUDIO) - Original inspiration for the concept and name. It is now completely reimplemented with new design and branding.
+[My Brain](https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE) - Original inspiration for the concept and name. It is now completely reimplemented with new design and branding.
 
 
 ---
@@ -125,7 +125,7 @@ all copyright notices, disclose all changes made, and use the same GPL v3.0 lice
 Prohibited: Closed-source distributions or commercial redistribution of modified versions.
 ```
 
-See the [GNU General Public License](https://github.com/drizzy-palace/KRYPT_AUDIO/blob/main/LICENSE) for full details.
+See the [GNU General Public License](https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/blob/main/LICENSE) for full details.
 
 ---
 
