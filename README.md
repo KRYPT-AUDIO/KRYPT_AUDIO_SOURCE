@@ -1,5 +1,5 @@
 <div align="center">
-<img src="https://github.com/drizzy-palace/KRYPT_AUDIO/raw/main/.github/assets/KRYPT-Audio-banner.png" width="100%">
+<img src="https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/raw/main/.github/assets/KRYPT-Audio-banner.png" width="100%">
 
 # KRYPT AUDIO
 
@@ -14,10 +14,10 @@ package is a ZIP archive with the custom `.kryptplugin` extension and contains
 `--krypt-*` CSS tokens. Open **Settings → Plugin Marketplace → Plugin guide** in
 the app for the complete author tutorial and permission guidance.
 
-[![Stars](https://img.shields.io/github/stars/drizzy-palace/KRYPT_AUDIO?style=flat-square&color=D3BEAB)](https://github.com/drizzy-palace/KRYPT_AUDIO/stargazers)
-[![Forks](https://img.shields.io/github/forks/drizzy-palace/KRYPT_AUDIO?style=flat-square&color=D3BEAB)](https://github.com/drizzy-palace/KRYPT_AUDIO/fork)
-[![Downloads](https://img.shields.io/github/downloads/drizzy-palace/KRYPT_AUDIO/total?style=flat-square&color=D3BEAB)](https://github.com/drizzy-palace/KRYPT_AUDIO/releases)
-[![GitHub release](https://img.shields.io/github/v/release/drizzy-palace/KRYPT_AUDIO?color=D3BEAB)](https://github.com/drizzy-palace/KRYPT_AUDIO/releases)
+[![Stars](https://img.shields.io/github/stars/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE?style=flat-square&color=D3BEAB)](https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/stargazers)
+[![Forks](https://img.shields.io/github/forks/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE?style=flat-square&color=D3BEAB)](https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/fork)
+[![Downloads](https://img.shields.io/github/downloads/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/total?style=flat-square&color=D3BEAB)](https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/releases)
+[![GitHub release](https://img.shields.io/github/v/release/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE?color=D3BEAB)](https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/releases)
 [![License](https://img.shields.io/github/license/drizzy-palace/KRYPT_AUDIO?color=D3BEAB)](LICENSE)
 
 ---

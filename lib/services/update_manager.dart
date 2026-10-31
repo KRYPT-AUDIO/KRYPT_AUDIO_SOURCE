@@ -28,9 +28,9 @@ import 'package:musify/utilities/platform_utils.dart';
 import 'package:musify/widgets/auto_format_text.dart';
 
 const String githubReleasesUrl =
-    'https://api.github.com/repos/drizzy-palace/KRYPT_AUDIO/releases/latest';
+    'https://api.github.com/repos/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/releases/latest';
 const String githubReleasesPageUrl =
-    'https://github.com/drizzy-palace/KRYPT_AUDIO/releases/latest';
+    'https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/releases/latest';
 const String checkUrl =
     'https://raw.githubusercontent.com/gokadzev/Musify/update/check.json';
 
