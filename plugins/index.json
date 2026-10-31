@@ -1,0 +1,272 @@
+[
+  {
+    "id": "neon-glass",
+    "name": "Neon Glass",
+    "version": "1.0.0",
+    "description": "Futuristic purple-and-blue Liquid Glass surfaces with glowing accents and ambient depth.",
+    "author": "Synapse Labs UK Ltd",
+    "minAppVersion": "1.0.2",
+    "entryScript": "plugin.js",
+    "stylesheet": "theme.css",
+    "permissions": [
+      "theme",
+      "theme"
+    ],
+    "downloadUrl": "https://raw.githubusercontent.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/main/plugins/official/neon-glass/neon-glass.kryptplugin",
+    "repositoryUrl": "https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/tree/main/plugins/official/neon-glass",
+    "capability": "theme",
+    "packageSizeBytes": 1143
+  },
+  {
+    "id": "amoled-black",
+    "name": "AMOLED Black",
+    "version": "1.0.0",
+    "description": "Pure-black AMOLED theme with vibrant purple highlights and minimal visual distraction.",
+    "author": "Synapse Labs UK Ltd",
+    "minAppVersion": "1.0.2",
+    "entryScript": "plugin.js",
+    "stylesheet": "theme.css",
+    "permissions": [
+      "theme",
+      "theme"
+    ],
+    "downloadUrl": "https://raw.githubusercontent.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/main/plugins/official/amoled-black/amoled-black.kryptplugin",
+    "repositoryUrl": "https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/tree/main/plugins/official/amoled-black",
+    "capability": "theme",
+    "packageSizeBytes": 1113
+  },
+  {
+    "id": "cyberpunk-2077",
+    "name": "Cyberpunk 2077",
+    "version": "1.0.0",
+    "description": "Neon cyberpunk palette with high-tech borders, electric yellow and magenta highlights.",
+    "author": "Synapse Labs UK Ltd",
+    "minAppVersion": "1.0.2",
+    "entryScript": "plugin.js",
+    "stylesheet": "theme.css",
+    "permissions": [
+      "theme",
+      "theme"
+    ],
+    "downloadUrl": "https://raw.githubusercontent.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/main/plugins/official/cyberpunk-2077/cyberpunk-2077.kryptplugin",
+    "repositoryUrl": "https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/tree/main/plugins/official/cyberpunk-2077",
+    "capability": "theme",
+    "packageSizeBytes": 1133
+  },
+  {
+    "id": "visualizer-pro",
+    "name": "Visualizer Pro",
+    "version": "1.0.0",
+    "description": "Music-reactive visualizer preset with spectrum bars, waveform styling and beat-synced motion tokens.",
+    "author": "Synapse Labs UK Ltd",
+    "minAppVersion": "1.0.2",
+    "entryScript": "plugin.js",
+    "stylesheet": "theme.css",
+    "permissions": [
+      "theme",
+      "visualizer"
+    ],
+    "downloadUrl": "https://raw.githubusercontent.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/main/plugins/official/visualizer-pro/visualizer-pro.kryptplugin",
+    "repositoryUrl": "https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/tree/main/plugins/official/visualizer-pro",
+    "capability": "visualizer",
+    "packageSizeBytes": 1147
+  },
+  {
+    "id": "lyrics-plus",
+    "name": "Lyrics Plus",
+    "version": "1.0.0",
+    "description": "Enhanced lyrics typography, active-line highlighting and synchronized presentation preset.",
+    "author": "Synapse Labs UK Ltd",
+    "minAppVersion": "1.0.2",
+    "entryScript": "plugin.js",
+    "stylesheet": "theme.css",
+    "permissions": [
+      "theme",
+      "lyrics"
+    ],
+    "downloadUrl": "https://raw.githubusercontent.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/main/plugins/official/lyrics-plus/lyrics-plus.kryptplugin",
+    "repositoryUrl": "https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/tree/main/plugins/official/lyrics-plus",
+    "capability": "lyrics",
+    "packageSizeBytes": 1140
+  },
+  {
+    "id": "basshead",
+    "name": "Basshead",
+    "version": "1.0.0",
+    "description": "Dark bass-driven styling with pulsing accents, aggressive contrast and heavy music energy.",
+    "author": "Synapse Labs UK Ltd",
+    "minAppVersion": "1.0.2",
+    "entryScript": "plugin.js",
+    "stylesheet": "theme.css",
+    "permissions": [
+      "theme",
+      "theme"
+    ],
+    "downloadUrl": "https://raw.githubusercontent.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/main/plugins/official/basshead/basshead.kryptplugin",
+    "repositoryUrl": "https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/tree/main/plugins/official/basshead",
+    "capability": "theme",
+    "packageSizeBytes": 1116
+  },
+  {
+    "id": "midnight-blue",
+    "name": "Midnight Blue",
+    "version": "1.0.0",
+    "description": "Clean midnight-blue interface with electric-blue highlights and elegant gradients.",
+    "author": "Synapse Labs UK Ltd",
+    "minAppVersion": "1.0.2",
+    "entryScript": "plugin.js",
+    "stylesheet": "theme.css",
+    "permissions": [
+      "theme",
+      "theme"
+    ],
+    "downloadUrl": "https://raw.githubusercontent.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/main/plugins/official/midnight-blue/midnight-blue.kryptplugin",
+    "repositoryUrl": "https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/tree/main/plugins/official/midnight-blue",
+    "capability": "theme",
+    "packageSizeBytes": 1112
+  },
+  {
+    "id": "minimal-player",
+    "name": "Minimal Player",
+    "version": "1.0.0",
+    "description": "Distraction-free player preset focused on album artwork, progress and essential controls.",
+    "author": "Synapse Labs UK Ltd",
+    "minAppVersion": "1.0.2",
+    "entryScript": "plugin.js",
+    "stylesheet": "theme.css",
+    "permissions": [
+      "theme",
+      "player"
+    ],
+    "downloadUrl": "https://raw.githubusercontent.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/main/plugins/official/minimal-player/minimal-player.kryptplugin",
+    "repositoryUrl": "https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/tree/main/plugins/official/minimal-player",
+    "capability": "player",
+    "packageSizeBytes": 1133
+  },
+  {
+    "id": "album-art-glow",
+    "name": "Album Art Glow",
+    "version": "1.0.0",
+    "description": "Dynamic ambient-colour preset driven by the currently playing album artwork.",
+    "author": "Synapse Labs UK Ltd",
+    "minAppVersion": "1.0.2",
+    "entryScript": "plugin.js",
+    "stylesheet": "theme.css",
+    "permissions": [
+      "theme",
+      "player"
+    ],
+    "downloadUrl": "https://raw.githubusercontent.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/main/plugins/official/album-art-glow/album-art-glow.kryptplugin",
+    "repositoryUrl": "https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/tree/main/plugins/official/album-art-glow",
+    "capability": "player",
+    "packageSizeBytes": 1151
+  },
+  {
+    "id": "retro-wave",
+    "name": "Retro Wave",
+    "version": "1.0.0",
+    "description": "Synthwave-inspired neon pinks, purple gradients and 80s visual energy.",
+    "author": "Synapse Labs UK Ltd",
+    "minAppVersion": "1.0.2",
+    "entryScript": "plugin.js",
+    "stylesheet": "theme.css",
+    "permissions": [
+      "theme",
+      "theme"
+    ],
+    "downloadUrl": "https://raw.githubusercontent.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/main/plugins/official/retro-wave/retro-wave.kryptplugin",
+    "repositoryUrl": "https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/tree/main/plugins/official/retro-wave",
+    "capability": "theme",
+    "packageSizeBytes": 1123
+  },
+  {
+    "id": "listening-stats-plus",
+    "name": "Listening Stats Plus",
+    "version": "1.0.0",
+    "description": "Listening statistics preset with breakdown cards, trend visuals and chart-ready colour tokens.",
+    "author": "Synapse Labs UK Ltd",
+    "minAppVersion": "1.0.2",
+    "entryScript": "plugin.js",
+    "stylesheet": "theme.css",
+    "permissions": [
+      "theme",
+      "stats"
+    ],
+    "downloadUrl": "https://raw.githubusercontent.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/main/plugins/official/listening-stats-plus/listening-stats-plus.kryptplugin",
+    "repositoryUrl": "https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/tree/main/plugins/official/listening-stats-plus",
+    "capability": "stats",
+    "packageSizeBytes": 1160
+  },
+  {
+    "id": "playlist-studio",
+    "name": "Playlist Studio",
+    "version": "1.0.0",
+    "description": "Playlist organisation preset with artwork-forward cards, colour labels and customisation tokens.",
+    "author": "Synapse Labs UK Ltd",
+    "minAppVersion": "1.0.2",
+    "entryScript": "plugin.js",
+    "stylesheet": "theme.css",
+    "permissions": [
+      "theme",
+      "playlists"
+    ],
+    "downloadUrl": "https://raw.githubusercontent.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/main/plugins/official/playlist-studio/playlist-studio.kryptplugin",
+    "repositoryUrl": "https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/tree/main/plugins/official/playlist-studio",
+    "capability": "playlists",
+    "packageSizeBytes": 1139
+  },
+  {
+    "id": "smooth-transitions",
+    "name": "Smooth Transitions",
+    "version": "1.0.0",
+    "description": "Enhanced transition timing and easing preset for tracks, screens and player states.",
+    "author": "Synapse Labs UK Ltd",
+    "minAppVersion": "1.0.2",
+    "entryScript": "plugin.js",
+    "stylesheet": "theme.css",
+    "permissions": [
+      "theme",
+      "motion"
+    ],
+    "downloadUrl": "https://raw.githubusercontent.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/main/plugins/official/smooth-transitions/smooth-transitions.kryptplugin",
+    "repositoryUrl": "https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/tree/main/plugins/official/smooth-transitions",
+    "capability": "motion",
+    "packageSizeBytes": 1161
+  },
+  {
+    "id": "glass-everywhere",
+    "name": "Glass Everywhere",
+    "version": "1.0.0",
+    "description": "Consistent translucent glass treatment across supported cards, menus and interface surfaces.",
+    "author": "Synapse Labs UK Ltd",
+    "minAppVersion": "1.0.2",
+    "entryScript": "plugin.js",
+    "stylesheet": "theme.css",
+    "permissions": [
+      "theme",
+      "theme"
+    ],
+    "downloadUrl": "https://raw.githubusercontent.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/main/plugins/official/glass-everywhere/glass-everywhere.kryptplugin",
+    "repositoryUrl": "https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/tree/main/plugins/official/glass-everywhere",
+    "capability": "theme",
+    "packageSizeBytes": 1134
+  },
+  {
+    "id": "krypt-essentials",
+    "name": "KRYPT Essentials",
+    "version": "1.0.0",
+    "description": "Small interface refinements and quality-of-life defaults bundled into one official preset.",
+    "author": "Synapse Labs UK Ltd",
+    "minAppVersion": "1.0.2",
+    "entryScript": "plugin.js",
+    "stylesheet": "theme.css",
+    "permissions": [
+      "theme",
+      "quality-of-life"
+    ],
+    "downloadUrl": "https://raw.githubusercontent.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/main/plugins/official/krypt-essentials/krypt-essentials.kryptplugin",
+    "repositoryUrl": "https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/tree/main/plugins/official/krypt-essentials",
+    "capability": "quality-of-life",
+    "packageSizeBytes": 1161
+  }
+]

@@ -18,7 +18,7 @@ import 'package:musify/models/plugin_manifest.dart';
 /// The marketplace branch should contain an index.json and one package per
 /// plugin. Packages use the custom .kryptplugin extension but are ZIP files.
 const pluginMarketplaceIndexUrl =
-    'https://raw.githubusercontent.com/drizzy-palace/KRYPT_AUDIO/plugins/index.json';
+    'https://raw.githubusercontent.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/main/plugins/index.json';
 
 class KryptPluginService extends ChangeNotifier {
   KryptPluginService._();
@@ -29,8 +29,7 @@ class KryptPluginService extends ChangeNotifier {
   final Map<String, InstalledKryptPlugin> _installed = {};
   Map<String, String> _themeTokens = const {};
 
-  List<InstalledKryptPlugin> get installed =>
-      _installed.values.toList(growable: false);
+  List<InstalledKryptPlugin> get installed => _installed.values.toList(growable: false);
   Map<String, String> get themeTokens => _themeTokens;
 
   Future<void> initialize() async {
@@ -46,8 +45,7 @@ class KryptPluginService extends ChangeNotifier {
       throw HttpException('Marketplace returned ${response.statusCode}');
     }
     final decoded = jsonDecode(response.body);
-    if (decoded is! List)
-      throw const FormatException('Marketplace index must be a JSON array');
+    if (decoded is! List) throw const FormatException('Marketplace index must be a JSON array');
     return decoded
         .whereType<Map<String, dynamic>>()
         .map(KryptPluginManifest.fromJson)
@@ -77,8 +75,7 @@ class KryptPluginService extends ChangeNotifier {
         await output.writeAsBytes(file.content as List<int>, flush: true);
       }
       final manifestFile = File('${staging.path}/manifest.json');
-      if (!await manifestFile.exists())
-        throw const FormatException('Package has no manifest.json');
+      if (!await manifestFile.exists()) throw const FormatException('Package has no manifest.json');
       final installedManifest = KryptPluginManifest.fromJson(
         jsonDecode(await manifestFile.readAsString()) as Map<String, dynamic>,
       );
@@ -135,9 +132,7 @@ class KryptPluginService extends ChangeNotifier {
   Future<void> applyEnabledThemes() async {
     final tokens = <String, String>{};
     for (final plugin in _installed.values.where((item) => item.enabled)) {
-      final stylesheet = File(
-        '${plugin.directoryPath}/${plugin.manifest.stylesheet}',
-      );
+      final stylesheet = File('${plugin.directoryPath}/${plugin.manifest.stylesheet}');
       if (!await stylesheet.exists()) continue;
       tokens.addAll(_parseThemeTokens(await stylesheet.readAsString()));
     }
@@ -146,19 +141,13 @@ class KryptPluginService extends ChangeNotifier {
 
   Map<String, String> _parseThemeTokens(String css) {
     final tokens = <String, String>{};
-    final block =
-        RegExp(
-          r':root\s*\{([^}]*)\}',
-          dotAll: true,
-        ).firstMatch(css)?.group(1) ??
-        css;
+    final block = RegExp(r':root\s*\{([^}]*)\}', dotAll: true).firstMatch(css)?.group(1) ?? css;
     for (final declaration in block.split(';')) {
       final parts = declaration.split(':');
       if (parts.length < 2) continue;
       final key = parts.first.trim();
       final value = parts.sublist(1).join(':').trim();
-      if (key.startsWith('--krypt-') && value.length <= 120)
-        tokens[key] = value;
+      if (key.startsWith('--krypt-') && value.length <= 120) tokens[key] = value;
     }
     return tokens;
   }
@@ -170,9 +159,7 @@ class KryptPluginService extends ChangeNotifier {
     if (values is! List) return;
     for (final value in values.whereType<Map<String, dynamic>>()) {
       try {
-        final manifest = KryptPluginManifest.fromJson(
-          value['manifest'] as Map<String, dynamic>,
-        );
+        final manifest = KryptPluginManifest.fromJson(value['manifest'] as Map<String, dynamic>);
         final path = value['directoryPath'] as String;
         if (await Directory(path).exists()) {
           _installed[manifest.id] = InstalledKryptPlugin(
@@ -188,36 +175,27 @@ class KryptPluginService extends ChangeNotifier {
 
   Future<void> _persistInstalled() async {
     final file = File('${_root!.path}/installed.json');
-    await file.writeAsString(
-      jsonEncode(
-        _installed.values
-            .map(
-              (plugin) => {
-                'manifest': {
-                  'id': plugin.manifest.id,
-                  'name': plugin.manifest.name,
-                  'version': plugin.manifest.version,
-                  'description': plugin.manifest.description,
-                  'author': plugin.manifest.author,
-                  'minAppVersion': plugin.manifest.minAppVersion,
-                  'entryScript': plugin.manifest.entryScript,
-                  'stylesheet': plugin.manifest.stylesheet,
-                  'permissions': plugin.manifest.permissions,
-                  'downloadUrl': plugin.manifest.downloadUrl,
-                  'iconUrl': plugin.manifest.iconUrl,
-                  'repositoryUrl': plugin.manifest.repositoryUrl,
-                },
-                'directoryPath': plugin.directoryPath,
-                'enabled': plugin.enabled,
-              },
-            )
-            .toList(),
-      ),
-    );
+    await file.writeAsString(jsonEncode(_installed.values.map((plugin) => {
+      'manifest': {
+        'id': plugin.manifest.id,
+        'name': plugin.manifest.name,
+        'version': plugin.manifest.version,
+        'description': plugin.manifest.description,
+        'author': plugin.manifest.author,
+        'minAppVersion': plugin.manifest.minAppVersion,
+        'entryScript': plugin.manifest.entryScript,
+        'stylesheet': plugin.manifest.stylesheet,
+        'permissions': plugin.manifest.permissions,
+        'downloadUrl': plugin.manifest.downloadUrl,
+        'iconUrl': plugin.manifest.iconUrl,
+        'repositoryUrl': plugin.manifest.repositoryUrl,
+      },
+      'directoryPath': plugin.directoryPath,
+      'enabled': plugin.enabled,
+    }).toList()));
   }
 
-  bool _isCompatible(String minimum) =>
-      _compareVersions(appVersion, minimum) >= 0;
+  bool _isCompatible(String minimum) => _compareVersions(appVersion, minimum) >= 0;
 
   void _validateEntry(Directory root, String relativePath) {
     final safe = _safeRelativePath(relativePath);
@@ -235,24 +213,14 @@ class KryptPluginService extends ChangeNotifier {
   }
 
   void _ensureInitialized() {
-    if (_root == null)
-      throw StateError('KryptPluginService has not been initialized');
+    if (_root == null) throw StateError('KryptPluginService has not been initialized');
   }
 
   int _compareVersions(String left, String right) {
     final a = left.split('.').map((value) => int.tryParse(value) ?? 0).toList();
-    final b = right
-        .split('.')
-        .map((value) => int.tryParse(value) ?? 0)
-        .toList();
-    for (
-      var index = 0;
-      index < (a.length > b.length ? a.length : b.length);
-      index++
-    ) {
-      final comparison = (index < a.length ? a[index] : 0).compareTo(
-        index < b.length ? b[index] : 0,
-      );
+    final b = right.split('.').map((value) => int.tryParse(value) ?? 0).toList();
+    for (var index = 0; index < (a.length > b.length ? a.length : b.length); index++) {
+      final comparison = (index < a.length ? a[index] : 0).compareTo(index < b.length ? b[index] : 0);
       if (comparison != 0) return comparison;
     }
     return 0;
@@ -260,5 +228,4 @@ class KryptPluginService extends ChangeNotifier {
 }
 
 @visibleForTesting
-String safePluginPathForTest(String path) =>
-    KryptPluginService.instance._safeRelativePath(path);
+String safePluginPathForTest(String path) => KryptPluginService.instance._safeRelativePath(path);
