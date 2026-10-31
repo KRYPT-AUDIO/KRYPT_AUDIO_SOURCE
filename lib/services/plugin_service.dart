@@ -34,6 +34,11 @@ class KryptPluginService extends ChangeNotifier {
   Map<String, String> get themeTokens => _themeTokens;
 
   Future<void> initialize() async {
+    // Browser builds do not expose the native application documents channel.
+    // The plugin marketplace remains available on native platforms while the
+    // core Web player starts without attempting native filesystem access.
+    if (kIsWeb) return;
+
     final directory = await getApplicationDocumentsDirectory();
     _root = Directory('${directory.path}/krypt_plugins');
     await _root!.create(recursive: true);
