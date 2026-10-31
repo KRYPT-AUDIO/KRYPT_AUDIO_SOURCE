@@ -91,7 +91,10 @@ jobs:
           set -euo pipefail
           APK=build/app/outputs/flutter-apk/app-github-release.apk
           test -s "$APK"
-          apksigner verify --verbose "$APK"
+          APKSIGNER="$(find "${ANDROID_HOME:-$ANDROID_SDK_ROOT}/build-tools" -type f -name apksigner -perm -111 | sort -V | tail -n 1)"
+          test -n "$APKSIGNER"
+          echo "Using $APKSIGNER"
+          "$APKSIGNER" verify --verbose "$APK"
           sha256sum "$APK" | tee build/app/outputs/flutter-apk/app-github-release.apk.sha256
           file "$APK"
 
