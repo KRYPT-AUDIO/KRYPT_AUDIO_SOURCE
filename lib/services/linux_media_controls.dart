@@ -110,8 +110,10 @@ class LinuxMediaControls extends DBusObject {
         : '/org/mpris/MediaPlayer2/track/t${utf8.encode(_item!.id).map((b) => b.toRadixString(16).padLeft(2, '0')).join()}',
   );
 
-  int get _position => (position?.call() ?? _state.position).inMicroseconds
-      .clamp(0, _item?.duration?.inMicroseconds ?? 0x7fffffffffffffff);
+  int get _position => (position?.call() ?? _state.position)
+      .inMicroseconds
+      .clamp(0, _item?.duration?.inMicroseconds ?? 8640000000000000)
+      .toInt();
 
   Map<String, DBusValue> get _rootProperties => {
     'CanQuit': const DBusBoolean(false),

@@ -1,0 +1,15 @@
+{
+  "routes": [
+    { "path": "/", "title": "KRYPT AUDIO" },
+    { "path": "/home", "title": "Home — KRYPT AUDIO" },
+    { "path": "/search", "title": "Search — KRYPT AUDIO" },
+    { "path": "/library", "title": "Library — KRYPT AUDIO" },
+    { "path": "/settings", "title": "Settings — KRYPT AUDIO" },
+    { "path": "/settings/about", "title": "About — KRYPT AUDIO" },
+    { "path": "/settings/donate", "title": "Support KRYPT AUDIO" },
+    { "path": "/settings/equalizer", "title": "Equalizer — KRYPT AUDIO" },
+    { "path": "/home/playlist/:playlistId", "title": "Playlist — KRYPT AUDIO" },
+    { "path": "/home/artist/:artistId", "title": "Artist — KRYPT AUDIO" },
+    { "path": "/home/album/:albumId", "title": "Album — KRYPT AUDIO" }
+  ]
+}
