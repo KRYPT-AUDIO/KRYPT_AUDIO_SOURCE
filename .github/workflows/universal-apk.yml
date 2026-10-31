@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: universal-apk-${{ github.ref }}
@@ -25,6 +25,16 @@ jobs:
     steps:
       - name: Check out source
         uses: actions/checkout@v4
+
+      - name: Read app version
+        id: app_version
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="$(sed -n 's/^version: \([0-9][0-9.]*\)+.*$/\1/p' pubspec.yaml | head -n 1)"
+          test -n "$VERSION"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=V$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Set up Java
         uses: actions/setup-java@v4
@@ -107,6 +117,20 @@ jobs:
             build/app/outputs/flutter-apk/app-github-release.apk.sha256
           if-no-files-found: error
           retention-days: 30
+
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.app_version.outputs.tag }}
+          name: KRYPT Audio V${{ steps.app_version.outputs.version }} — Automatic Update
+          body: |
+            Automated universal Android release for KRYPT AUDIO V${{ steps.app_version.outputs.version }}.
+
+            This release was built from commit `${{ github.sha }}` and includes the APK produced by the `main` branch workflow.
+          make_latest: true
+          files: |
+            build/app/outputs/flutter-apk/app-github-release.apk
+            build/app/outputs/flutter-apk/app-github-release.apk.sha256
 
       - name: Clean signing material
         if: always()
