@@ -1,0 +1,110 @@
+name: Build Universal Android APK
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: universal-apk-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  JAVA_VERSION: '17'
+  FLUTTER_CHANNEL: stable
+
+jobs:
+  build:
+    name: Build universal release APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: zulu
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: gradle
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: ${{ env.FLUTTER_CHANNEL }}
+          cache: true
+
+      - name: Resolve dependencies
+        run: flutter pub get
+
+      - name: Analyze Dart source
+        run: flutter analyze --no-fatal-infos
+
+      - name: Prepare Android signing key
+        env:
+          SIGNING_KEYSTORE_BASE64: ${{ secrets.KRYPT_ANDROID_KEYSTORE_BASE64 }}
+          SIGNING_STORE_PASSWORD: ${{ secrets.KRYPT_ANDROID_STORE_PASSWORD }}
+          SIGNING_KEY_PASSWORD: ${{ secrets.KRYPT_ANDROID_KEY_PASSWORD }}
+          SIGNING_KEY_ALIAS: ${{ secrets.KRYPT_ANDROID_KEY_ALIAS }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -n "${SIGNING_KEYSTORE_BASE64:-}" && -n "${SIGNING_STORE_PASSWORD:-}" && -n "${SIGNING_KEY_PASSWORD:-}" && -n "${SIGNING_KEY_ALIAS:-}" ]]; then
+            echo "$SIGNING_KEYSTORE_BASE64" | base64 --decode > android/app/key.jks
+            cat > android/key.properties <<EOF
+          storePassword=$SIGNING_STORE_PASSWORD
+          keyPassword=$SIGNING_KEY_PASSWORD
+          keyAlias=$SIGNING_KEY_ALIAS
+          storeFile=key.jks
+          EOF
+            echo 'Using the configured KRYPT Android release signing key.'
+          else
+            echo 'Production signing secrets are not configured; generating a CI-only signing key.'
+            keytool -genkeypair -v \
+              -keystore android/app/key.jks \
+              -storepass krypt-ci-only \
+              -keypass krypt-ci-only \
+              -alias krypt-audio-ci \
+              -keyalg RSA \
+              -keysize 2048 \
+              -validity 3650 \
+              -dname 'CN=KRYPT AUDIO CI, O=Synapse Labs UK Ltd, C=GB'
+            cat > android/key.properties <<'EOF'
+          storePassword=krypt-ci-only
+          keyPassword=krypt-ci-only
+          keyAlias=krypt-audio-ci
+          storeFile=key.jks
+          EOF
+          fi
+
+      - name: Build universal APK
+        run: flutter build apk --release --flavor github
+
+      - name: Verify APK and calculate checksum
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK=build/app/outputs/flutter-apk/app-github-release.apk
+          test -s "$APK"
+          apksigner verify --verbose "$APK"
+          sha256sum "$APK" | tee build/app/outputs/flutter-apk/app-github-release.apk.sha256
+          file "$APK"
+
+      - name: Upload universal APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: KRYPT-AUDIO-universal-${{ github.sha }}
+          path: |
+            build/app/outputs/flutter-apk/app-github-release.apk
+            build/app/outputs/flutter-apk/app-github-release.apk.sha256
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Clean signing material
+        if: always()
+        run: rm -f android/app/key.jks android/key.properties
