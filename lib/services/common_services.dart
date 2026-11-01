@@ -353,8 +353,14 @@ Future<List> _getRecommendationsFromMixedSources() async {
   ];
 
   if (globalSongs.isEmpty) {
-    const playlistId = 'PLgzTt0k8mXzEk586ze4BjvDXR7c-TUSnx';
-    globalSongs = await getSongsFromPlaylist(playlistId);
+    if (kIsWeb) {
+      // The Web build uses official Data API results as its home seed. This
+      // avoids depending on playlist-page scraping before a user searches.
+      globalSongs = await fetchSongsList('new music official music videos');
+    } else {
+      const playlistId = 'PLgzTt0k8mXzEk586ze4BjvDXR7c-TUSnx';
+      globalSongs = await getSongsFromPlaylist(playlistId);
+    }
   }
   recommendationSources.add(globalSongs.take(10));
 
