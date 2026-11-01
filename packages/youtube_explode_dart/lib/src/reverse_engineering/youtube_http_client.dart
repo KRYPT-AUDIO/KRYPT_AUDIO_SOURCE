@@ -17,6 +17,15 @@ class YoutubeHttpClient extends http.BaseClient {
   final http.Client _httpClient;
   static final _logger = Logger('YoutubeExplode.HttpClient');
 
+  // dart.library.js_util is a compile-time flag supplied by Dart on Web.
+  // Keeping this inside the package means native clients retain their direct
+  // YouTube behavior while browser requests can use the KRYPT API bridge.
+  static const _isWeb = bool.fromEnvironment('dart.library.js_util');
+  static const _webProxyBaseUrl = String.fromEnvironment(
+    'KRYPT_WEB_API_BASE_URL',
+    defaultValue: 'https://synapselabs.uk/krypt-audio/api',
+  );
+
   // Flag to interrupt receiving stream.
   bool _closed = false;
 
@@ -37,6 +46,24 @@ class YoutubeHttpClient extends http.BaseClient {
   /// Initialize an instance of [YoutubeHttpClient]
   YoutubeHttpClient([http.Client? httpClient])
       : _httpClient = httpClient ?? http.Client();
+
+  Uri _routeWebRequest(Uri url) {
+    if (!_isWeb || _webProxyBaseUrl.isEmpty) return url;
+    if (url.host.endsWith('synapselabs.uk') &&
+        url.path.contains('/krypt-audio/api/')) {
+      return url;
+    }
+    final host = url.host.toLowerCase();
+    final proxyable = host.endsWith('youtube.com') ||
+        host.endsWith('googlevideo.com') ||
+        host.endsWith('ytimg.com') ||
+        host.endsWith('ggpht.com') ||
+        host.endsWith('googleusercontent.com');
+    if (!proxyable) return url;
+    return Uri.parse('$_webProxyBaseUrl/proxy.php').replace(
+      queryParameters: {'url': url.toString()},
+    );
+  }
 
   /// Throws if something is wrong with the response.
   void _validateResponse(http.BaseResponse response, int statusCode) {
@@ -366,6 +393,16 @@ class YoutubeHttpClient extends http.BaseClient {
   @override
   Future<http.StreamedResponse> send(http.BaseRequest request) async {
     if (_closed) throw HttpClientClosedException();
+
+    final routedUrl = _routeWebRequest(request.url);
+    if (routedUrl != request.url) {
+      final original = request;
+      final replacement = http.StreamedRequest(original.method, routedUrl)
+        ..headers.addAll(original.headers)
+        ..contentLength = original.contentLength;
+      await original.finalize().pipe(replacement.sink);
+      request = replacement;
+    }
 
     // Apply default headers if they are not already present
     headers.forEach((key, value) {
