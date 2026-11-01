@@ -68,44 +68,30 @@ class _NowPlayingPageState extends State<NowPlayingPage> {
             return Column(
               children: [
                 _buildAppBar(context, colorScheme),
-                _buildOfficialWebPlayer(metadata),
-                Expanded(
-                  child: isLargeScreen
-                      ? _DesktopLayout(
-                          metadata: metadata,
-                          size: size,
-                          adjustedIconSize: baseIconSize,
-                          adjustedMiniIconSize: miniIconSize,
-                          lyricsController: _lyricsController,
-                        )
-                      : _MobileLayout(
-                          metadata: metadata,
-                          size: size,
-                          adjustedIconSize: baseIconSize,
-                          adjustedMiniIconSize: miniIconSize,
-                          isLargeScreen: isLargeScreen,
-                          lyricsController: _lyricsController,
-                        ),
-                ),
+                if (kIsWeb)
+                  Expanded(child: _WebNowPlaying(metadata: metadata))
+                else
+                  Expanded(
+                    child: isLargeScreen
+                        ? _DesktopLayout(
+                            metadata: metadata,
+                            size: size,
+                            adjustedIconSize: baseIconSize,
+                            adjustedMiniIconSize: miniIconSize,
+                            lyricsController: _lyricsController,
+                          )
+                        : _MobileLayout(
+                            metadata: metadata,
+                            size: size,
+                            adjustedIconSize: baseIconSize,
+                            adjustedMiniIconSize: miniIconSize,
+                            isLargeScreen: isLargeScreen,
+                            lyricsController: _lyricsController,
+                          ),
+                  ),
               ],
             );
           },
-        ),
-      ),
-    );
-  }
-
-  Widget _buildOfficialWebPlayer(MediaItem metadata) {
-    if (!kIsWeb) return const SizedBox.shrink();
-    final videoId = metadata.extras?['ytid']?.toString() ?? metadata.id;
-    if (videoId.isEmpty) return const SizedBox.shrink();
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 640, maxHeight: 360),
-        child: AspectRatio(
-          aspectRatio: 16 / 9,
-          child: OfficialYoutubePlayer(videoId: videoId),
         ),
       ),
     );
@@ -129,6 +115,66 @@ class _NowPlayingPageState extends State<NowPlayingPage> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _WebNowPlaying extends StatelessWidget {
+  const _WebNowPlaying({required this.metadata});
+  final MediaItem metadata;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final videoId = metadata.extras?['ytid']?.toString() ?? metadata.id;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final playerWidth = constraints.maxWidth.clamp(280.0, 920.0);
+        return SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: playerWidth),
+              child: Column(
+                children: [
+                  AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: OfficialYoutubePlayer(videoId: videoId),
+                  ),
+                  const SizedBox(height: 18),
+                  Text(
+                    metadata.title,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  if ((metadata.artist ?? '').isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    Text(
+                      metadata.artist!,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: colorScheme.onSurfaceVariant,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 12),
+                  Text(
+                    'Official YouTube playback',
+                    style: TextStyle(
+                      color: colorScheme.onSurfaceVariant,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
