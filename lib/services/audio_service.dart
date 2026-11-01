@@ -24,7 +24,6 @@ import 'dart:io';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:audio_session/audio_session.dart';
-import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:musify/constants/clients.dart';
@@ -1921,17 +1920,6 @@ class MusifyAudioHandler extends BaseAudioHandler implements AndroidAutoHost {
           wasPlaying: audioPlayer.playing,
         );
         await audioPlayer.pause();
-      }
-
-      // The official YouTube API provides IDs and metadata, not audio-only
-      // stream URLs. Web playback is handled by the official iframe player.
-      if (kIsWeb) {
-        _emitOptimisticLoadingState(
-          song: songData,
-          includeMediaItem: true,
-          mediaId: mediaId,
-        );
-        return true;
       }
 
       final playback = await _resolvePlaybackSource(songData);
