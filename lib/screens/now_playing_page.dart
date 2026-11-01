@@ -21,6 +21,7 @@
 
 import 'package:audio_service/audio_service.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
+import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:musify/main.dart';
 import 'package:musify/widgets/flip_card.dart';
@@ -28,6 +29,7 @@ import 'package:musify/widgets/now_playing/bottom_actions_row.dart';
 import 'package:musify/widgets/now_playing/now_playing_artwork.dart';
 import 'package:musify/widgets/now_playing/now_playing_controls.dart';
 import 'package:musify/widgets/queue_list_view.dart';
+import 'package:musify/widgets/youtube_web_player.dart';
 
 class NowPlayingPage extends StatefulWidget {
   const NowPlayingPage({super.key});
@@ -66,6 +68,7 @@ class _NowPlayingPageState extends State<NowPlayingPage> {
             return Column(
               children: [
                 _buildAppBar(context, colorScheme),
+                _buildOfficialWebPlayer(metadata),
                 Expanded(
                   child: isLargeScreen
                       ? _DesktopLayout(
@@ -87,6 +90,22 @@ class _NowPlayingPageState extends State<NowPlayingPage> {
               ],
             );
           },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOfficialWebPlayer(MediaItem metadata) {
+    if (!kIsWeb) return const SizedBox.shrink();
+    final videoId = metadata.extras?['ytid']?.toString() ?? metadata.id;
+    if (videoId.isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 640, maxHeight: 360),
+        child: AspectRatio(
+          aspectRatio: 16 / 9,
+          child: OfficialYoutubePlayer(videoId: videoId),
         ),
       ),
     );
