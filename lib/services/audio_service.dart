@@ -34,6 +34,7 @@ import 'package:musify/services/common_services.dart';
 import 'package:musify/services/data_manager.dart';
 import 'package:musify/services/listening_stats_service.dart';
 import 'package:musify/services/settings_manager.dart';
+import 'package:musify/services/web_api.dart';
 import 'package:musify/utilities/map_utils.dart';
 import 'package:musify/utilities/media_duration.dart';
 import 'package:musify/utilities/mediaitem.dart';
@@ -2366,7 +2367,7 @@ class MusifyAudioHandler extends BaseAudioHandler implements AndroidAutoHost {
         return fileSource;
       }
 
-      final uri = Uri.parse(songUrl);
+      final uri = routeWebMediaUrl(Uri.parse(songUrl));
       final needsClientHeaders =
           song['isLive'] != true && uri.host.endsWith('googlevideo.com');
       final audioSource = AudioSource.uri(
