@@ -21,7 +21,6 @@
 
 import 'package:audio_service/audio_service.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
-import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:musify/main.dart';
 import 'package:musify/widgets/flip_card.dart';
@@ -29,7 +28,6 @@ import 'package:musify/widgets/now_playing/bottom_actions_row.dart';
 import 'package:musify/widgets/now_playing/now_playing_artwork.dart';
 import 'package:musify/widgets/now_playing/now_playing_controls.dart';
 import 'package:musify/widgets/queue_list_view.dart';
-import 'package:musify/widgets/youtube_web_player.dart';
 
 class NowPlayingPage extends StatefulWidget {
   const NowPlayingPage({super.key});
@@ -68,27 +66,24 @@ class _NowPlayingPageState extends State<NowPlayingPage> {
             return Column(
               children: [
                 _buildAppBar(context, colorScheme),
-                if (kIsWeb)
-                  Expanded(child: _WebNowPlaying(metadata: metadata))
-                else
-                  Expanded(
-                    child: isLargeScreen
-                        ? _DesktopLayout(
-                            metadata: metadata,
-                            size: size,
-                            adjustedIconSize: baseIconSize,
-                            adjustedMiniIconSize: miniIconSize,
-                            lyricsController: _lyricsController,
-                          )
-                        : _MobileLayout(
-                            metadata: metadata,
-                            size: size,
-                            adjustedIconSize: baseIconSize,
-                            adjustedMiniIconSize: miniIconSize,
-                            isLargeScreen: isLargeScreen,
-                            lyricsController: _lyricsController,
-                          ),
-                  ),
+                Expanded(
+                  child: isLargeScreen
+                      ? _DesktopLayout(
+                          metadata: metadata,
+                          size: size,
+                          adjustedIconSize: baseIconSize,
+                          adjustedMiniIconSize: miniIconSize,
+                          lyricsController: _lyricsController,
+                        )
+                      : _MobileLayout(
+                          metadata: metadata,
+                          size: size,
+                          adjustedIconSize: baseIconSize,
+                          adjustedMiniIconSize: miniIconSize,
+                          isLargeScreen: isLargeScreen,
+                          lyricsController: _lyricsController,
+                        ),
+                ),
               ],
             );
           },
@@ -115,66 +110,6 @@ class _NowPlayingPageState extends State<NowPlayingPage> {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _WebNowPlaying extends StatelessWidget {
-  const _WebNowPlaying({required this.metadata});
-  final MediaItem metadata;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final videoId = metadata.extras?['ytid']?.toString() ?? metadata.id;
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final playerWidth = constraints.maxWidth.clamp(280.0, 920.0);
-        return SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
-          child: Center(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: playerWidth),
-              child: Column(
-                children: [
-                  AspectRatio(
-                    aspectRatio: 16 / 9,
-                    child: OfficialYoutubePlayer(videoId: videoId),
-                  ),
-                  const SizedBox(height: 18),
-                  Text(
-                    metadata.title,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  if ((metadata.artist ?? '').isNotEmpty) ...[
-                    const SizedBox(height: 6),
-                    Text(
-                      metadata.artist!,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: colorScheme.onSurfaceVariant,
-                        fontSize: 15,
-                      ),
-                    ),
-                  ],
-                  const SizedBox(height: 12),
-                  Text(
-                    'Official YouTube playback',
-                    style: TextStyle(
-                      color: colorScheme.onSurfaceVariant,
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
     );
   }
 }
