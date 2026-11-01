@@ -22,6 +22,7 @@
 import 'dart:async';
 
 import 'package:flutter/widgets.dart';
+import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:musify/database/albums.db.dart';
 import 'package:musify/database/playlists.db.dart';
@@ -30,6 +31,7 @@ import 'package:musify/main.dart' show logger;
 import 'package:musify/services/artist_service.dart';
 import 'package:musify/services/data_manager.dart';
 import 'package:musify/services/playlist_download_service.dart';
+import 'package:musify/services/official_youtube_api.dart';
 import 'package:musify/services/proxy_manager.dart';
 import 'package:musify/services/settings_manager.dart';
 import 'package:musify/utilities/app_utils.dart';
@@ -872,6 +874,24 @@ Future<List> getPlaylists({
   }
 
   if (query != null && playlistsNum == null) {
+    if (kIsWeb && type == 'playlist') {
+      final official = await OfficialYoutubeApi.searchPlaylists(query);
+      final officialPlaylists = official
+          .map(OfficialYoutubeApi.idOf)
+          .whereType<Map<String, dynamic>>()
+          .map(
+            (item) => {
+              'ytid': item['ytid'],
+              'title': item['title'],
+              'image': item['image'],
+              'source': 'youtube-official',
+              'list': [],
+            },
+          )
+          .toList();
+      if (officialPlaylists.isNotEmpty) return officialPlaylists;
+    }
+
     final lowercaseQuery = query.toLowerCase();
     final filteredPlaylists = playlists.where((playlist) {
       final title = playlist['title'].toLowerCase();
