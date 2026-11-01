@@ -395,11 +395,17 @@ class YoutubeHttpClient extends http.BaseClient {
     final routedUrl = _routeWebRequest(request.url);
     if (routedUrl != request.url) {
       final original = request;
-      final replacement = http.StreamedRequest(original.method, routedUrl)
-        ..headers.addAll(original.headers)
-        ..contentLength = original.contentLength;
-      await original.finalize().pipe(replacement.sink);
-      request = replacement;
+      if (original is http.Request) {
+        request = http.Request(original.method, routedUrl)
+          ..headers.addAll(original.headers)
+          ..bodyBytes = original.bodyBytes;
+      } else {
+        final replacement = http.StreamedRequest(original.method, routedUrl)
+          ..headers.addAll(original.headers)
+          ..contentLength = original.contentLength;
+        await original.finalize().pipe(replacement.sink);
+        request = replacement;
+      }
     }
 
     // Apply default headers if they are not already present
