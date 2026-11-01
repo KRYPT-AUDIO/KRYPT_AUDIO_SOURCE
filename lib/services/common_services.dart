@@ -24,6 +24,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
@@ -32,6 +33,7 @@ import 'package:musify/main.dart' show logger;
 import 'package:musify/services/data_manager.dart';
 import 'package:musify/services/io_service.dart';
 import 'package:musify/services/lyrics_manager.dart';
+import 'package:musify/services/official_youtube_api.dart';
 import 'package:musify/services/playlists_manager.dart';
 import 'package:musify/services/proxy_manager.dart';
 import 'package:musify/services/settings_manager.dart';
@@ -174,6 +176,31 @@ Future<bool> _validateCachedUrl(String songId, String cachedUrl) async {
 
 Future<List> fetchSongsList(String searchQuery) async {
   try {
+    if (kIsWeb) {
+      final officialItems = await OfficialYoutubeApi.searchVideos(searchQuery);
+      final officialSongs = <Map<String, dynamic>>[];
+      for (final item in officialItems) {
+        final mapped = OfficialYoutubeApi.idOf(item);
+        if (mapped == null || !(mapped['kind'] as String).endsWith('#video')) {
+          continue;
+        }
+        officialSongs.add({
+          'ytid': mapped['ytid'],
+          'title': mapped['title'],
+          'artist': mapped['channelTitle'],
+          'artistId': null,
+          'videoAuthor': mapped['channelTitle'],
+          'image': mapped['image'],
+          'lowResImage': mapped['image'],
+          'highResImage': mapped['image'],
+          'duration': null,
+          'isLive': false,
+          'source': 'youtube-official',
+        });
+      }
+      if (officialSongs.isNotEmpty) return officialSongs;
+    }
+
     // If not in cache, perform the search
     final List<Video> searchResults = await ytClient.search.search(searchQuery);
     final songsList = searchResults
