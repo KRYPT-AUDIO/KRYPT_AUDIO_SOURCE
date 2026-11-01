@@ -198,6 +198,47 @@ Future<Map<String, dynamic>?> getArtistProfile(
 }) async {
   try {
     final lookup = artistId.trim();
+
+    if (kIsWeb && (preferredName?.trim().isNotEmpty ?? false)) {
+      final officialVideos = await OfficialYoutubeApi.searchVideos(
+        preferredName!.trim(),
+      );
+      final topSongs = <Map<String, dynamic>>[];
+      for (final item in officialVideos) {
+        final mapped = OfficialYoutubeApi.idOf(item);
+        if (mapped == null || !(mapped['kind'] as String).endsWith('#video')) {
+          continue;
+        }
+        topSongs.add({
+          'song': {
+            'ytid': mapped['ytid'],
+            'title': mapped['title'],
+            'artist': preferredName,
+            'artistId': lookup,
+            'videoAuthor': mapped['channelTitle'],
+            'image': mapped['image'],
+            'lowResImage': mapped['image'],
+            'highResImage': mapped['image'],
+            'duration': null,
+            'isLive': false,
+            'source': 'youtube-official',
+          },
+          'playCount': null,
+        });
+      }
+      return {
+        'ytid': lookup,
+        'title': preferredName,
+        'image': preferredImage,
+        'source': 'youtube-artist-official',
+        'isArtist': true,
+        'isVerifiedArtist': true,
+        'topSongs': topSongs,
+        'releases': const [],
+        'relatedArtists': const [],
+      };
+    }
+
     final isChannelLookup = _isChannelId(lookup);
 
     // A channel id is read straight away: one browse answers both who the
