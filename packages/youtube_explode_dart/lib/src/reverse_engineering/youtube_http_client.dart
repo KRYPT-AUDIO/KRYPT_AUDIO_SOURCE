@@ -17,13 +17,11 @@ class YoutubeHttpClient extends http.BaseClient {
   final http.Client _httpClient;
   static final _logger = Logger('YoutubeExplode.HttpClient');
 
-  // dart.library.js_util is a compile-time flag supplied by Dart on Web.
-  // Keeping this inside the package means native clients retain their direct
-  // YouTube behavior while browser requests can use the KRYPT API bridge.
-  static const _isWeb = bool.fromEnvironment('dart.library.js_util');
+  // The Web workflow supplies this define. Native builds leave it empty, so
+  // they retain their direct YouTube behavior without any platform import.
   static const _webProxyBaseUrl = String.fromEnvironment(
     'KRYPT_WEB_API_BASE_URL',
-    defaultValue: 'https://synapselabs.uk/krypt-audio/api',
+    defaultValue: '',
   );
 
   // Flag to interrupt receiving stream.
@@ -48,7 +46,7 @@ class YoutubeHttpClient extends http.BaseClient {
       : _httpClient = httpClient ?? http.Client();
 
   Uri _routeWebRequest(Uri url) {
-    if (!_isWeb || _webProxyBaseUrl.isEmpty) return url;
+    if (_webProxyBaseUrl.isEmpty) return url;
     if (url.host.endsWith('synapselabs.uk') &&
         url.path.contains('/krypt-audio/api/')) {
       return url;
