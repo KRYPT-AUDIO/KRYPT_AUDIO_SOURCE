@@ -28,6 +28,7 @@ import 'package:musify/extensions/l10n.dart';
 import 'package:musify/main.dart';
 import 'package:musify/services/common_services.dart';
 import 'package:musify/services/listening_stats_service.dart';
+import 'package:musify/services/home_customization_service.dart';
 import 'package:musify/services/plugin_service.dart';
 import 'package:musify/services/playlists_manager.dart';
 import 'package:musify/services/settings_manager.dart';
@@ -79,70 +80,34 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final playlistHeight = MediaQuery.sizeOf(context).height * 0.25 / 1.1;
+    final homeCustomization = KryptHomeCustomizationService.instance;
     return Scaffold(
       appBar: AppBar(title: const Text('KRYPT AUDIO')),
-      body: SingleChildScrollView(
-        padding: commonSingleChildScrollViewPadding,
-        child: Column(
-          children: [
-            GlassSurface(
-              margin: const EdgeInsets.fromLTRB(0, 4, 0, 18),
-              padding: const EdgeInsets.fromLTRB(18, 18, 18, 16),
-              borderRadius: BorderRadius.circular(26),
-              child: Row(
-                children: [
-                  Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                        colors: [
-                          Theme.of(context).colorScheme.primary,
-                          Theme.of(context).colorScheme.secondary,
-                        ],
-                      ),
-                    ),
-                    child: const Icon(FluentIcons.pulse_24_filled),
-                  ),
-                  const SizedBox(width: 14),
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'YOUR FREQUENCY, ELEVATED',
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 1.3,
-                          ),
-                        ),
-                        SizedBox(height: 5),
-                        Text(
-                          'A space for every sound.',
-                          style: TextStyle(fontSize: 15),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Icon(FluentIcons.chevron_right_24_regular, size: 20),
-                ],
-              ),
-            ),
-            GestureDetector(
-              onTap: () => context.push('/home/smartDj'),
-              child: GlassSurface(
-                margin: const EdgeInsets.only(bottom: 18),
-                padding: const EdgeInsets.fromLTRB(18, 16, 14, 16),
-                borderRadius: BorderRadius.circular(24),
-                opacity: 0.82,
+      body: AnimatedBuilder(
+        animation: homeCustomization,
+        builder: (context, _) => SingleChildScrollView(
+          padding: commonSingleChildScrollViewPadding,
+          child: Column(
+            children: [
+              GlassSurface(
+                margin: const EdgeInsets.fromLTRB(0, 4, 0, 18),
+                padding: const EdgeInsets.fromLTRB(18, 18, 18, 16),
+                borderRadius: BorderRadius.circular(26),
                 child: Row(
                   children: [
-                    Icon(
-                      FluentIcons.sparkle_24_filled,
-                      color: Theme.of(context).colorScheme.secondary,
-                      size: 26,
+                    Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(
+                          colors: [
+                            Theme.of(context).colorScheme.primary,
+                            Theme.of(context).colorScheme.secondary,
+                          ],
+                        ),
+                      ),
+                      child: const Icon(FluentIcons.pulse_24_filled),
                     ),
                     const SizedBox(width: 14),
                     const Expanded(
@@ -150,51 +115,96 @@ class _HomePageState extends State<HomePage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'KRYPT SMART DJ',
+                            'YOUR FREQUENCY, ELEVATED',
                             style: TextStyle(
                               fontSize: 11,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: 1.2,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 1.3,
                             ),
                           ),
-                          SizedBox(height: 4),
-                          Text('A fresh mix curated from your library.'),
+                          SizedBox(height: 5),
+                          Text(
+                            'A space for every sound.',
+                            style: TextStyle(fontSize: 15),
+                          ),
                         ],
                       ),
                     ),
-                    Icon(
-                      FluentIcons.chevron_right_24_regular,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
+                    Icon(FluentIcons.chevron_right_24_regular, size: 20),
                   ],
                 ),
               ),
-            ),
-            _buildPluginRuntimeStrip(),
-            ValueListenableBuilder<String?>(
-              valueListenable: announcementURL,
-              builder: (_, _url, __) {
-                if (_url == null) return const SizedBox.shrink();
-                final message =
-                    krypticAnnouncementMessages[_url.hashCode.abs() %
-                        krypticAnnouncementMessages.length];
+              if (homeCustomization.showSmartDj)
+                GestureDetector(
+                  onTap: () => context.push('/home/smartDj'),
+                  child: GlassSurface(
+                    margin: const EdgeInsets.only(bottom: 18),
+                    padding: const EdgeInsets.fromLTRB(18, 16, 14, 16),
+                    borderRadius: BorderRadius.circular(24),
+                    opacity: 0.82,
+                    child: Row(
+                      children: [
+                        Icon(
+                          FluentIcons.sparkle_24_filled,
+                          color: Theme.of(context).colorScheme.secondary,
+                          size: 26,
+                        ),
+                        const SizedBox(width: 14),
+                        const Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'KRYPT SMART DJ',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 1.2,
+                                ),
+                              ),
+                              SizedBox(height: 4),
+                              Text('A fresh mix curated from your library.'),
+                            ],
+                          ),
+                        ),
+                        Icon(
+                          FluentIcons.chevron_right_24_regular,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              if (homeCustomization.showPluginBadges)
+                _buildPluginRuntimeStrip(),
+              ValueListenableBuilder<String?>(
+                valueListenable: announcementURL,
+                builder: (_, _url, __) {
+                  if (_url == null) return const SizedBox.shrink();
+                  final message =
+                      krypticAnnouncementMessages[_url.hashCode.abs() %
+                          krypticAnnouncementMessages.length];
 
-                return AnnouncementBox(
-                  message: message,
-                  url: _url,
-                  icon: FluentIcons.megaphone_24_filled,
-                  onDismiss: () async {
-                    announcementURL.value = null;
-                  },
-                );
-              },
-            ),
-            _buildSuggestedPlaylists(playlistHeight),
-            _buildSuggestedPlaylists(playlistHeight, showOnlyLiked: true),
-            _buildCurrentMonthRecapSection(),
-            _buildRecommendedSongsSection(),
-            const MiniPlayerBottomSpace(),
-          ],
+                  return AnnouncementBox(
+                    message: message,
+                    url: _url,
+                    icon: FluentIcons.megaphone_24_filled,
+                    onDismiss: () async {
+                      announcementURL.value = null;
+                    },
+                  );
+                },
+              ),
+              if (homeCustomization.showSuggested)
+                _buildSuggestedPlaylists(playlistHeight),
+              if (homeCustomization.showLiked)
+                _buildSuggestedPlaylists(playlistHeight, showOnlyLiked: true),
+              if (homeCustomization.showRecap) _buildCurrentMonthRecapSection(),
+              if (homeCustomization.showRecommendations)
+                _buildRecommendedSongsSection(),
+              const MiniPlayerBottomSpace(),
+            ],
+          ),
         ),
       ),
     );

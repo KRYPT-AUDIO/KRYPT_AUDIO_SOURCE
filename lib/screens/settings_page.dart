@@ -30,6 +30,7 @@ import 'package:musify/main.dart';
 import 'package:musify/screens/search_page.dart';
 import 'package:musify/services/common_services.dart';
 import 'package:musify/services/account_service.dart';
+import 'package:musify/services/profile_customization_service.dart';
 import 'package:musify/services/data_manager.dart';
 import 'package:musify/services/listening_stats_service.dart';
 import 'package:musify/services/music_source_service.dart';
@@ -96,10 +97,12 @@ class SettingsPage extends StatelessWidget {
 
   Widget _buildAccountSection(BuildContext context) {
     final accountService = KryptAccountService.instance;
+    final profileService = KryptProfileCustomizationService.instance;
     return AnimatedBuilder(
-      animation: accountService,
+      animation: Listenable.merge([accountService, profileService]),
       builder: (context, _) {
         final account = accountService.account;
+        final profileName = profileService.displayName;
         return Card(
           margin: const EdgeInsets.fromLTRB(8, 8, 8, 18),
           child: ListTile(
@@ -111,7 +114,11 @@ class SettingsPage extends StatelessWidget {
                   ? const Icon(FluentIcons.person_24_regular)
                   : null,
             ),
-            title: Text(account?.displayName ?? 'KRYPT account'),
+            title: Text(
+              profileName.isEmpty
+                  ? (account?.displayName ?? 'KRYPT account')
+                  : profileName,
+            ),
             subtitle: Text(
               account?.email ??
                   'Sign in with Google to sync your KRYPT identity.',
@@ -137,10 +144,20 @@ class SettingsPage extends StatelessWidget {
                     },
                     child: const Text('Sign in'),
                   )
-                : IconButton(
-                    tooltip: 'Sign out',
-                    onPressed: accountService.signOut,
-                    icon: const Icon(FluentIcons.sign_out_24_regular),
+                : Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        tooltip: 'Customize profile',
+                        onPressed: () => context.push('/settings/profile'),
+                        icon: const Icon(FluentIcons.person_edit_24_regular),
+                      ),
+                      IconButton(
+                        tooltip: 'Sign out',
+                        onPressed: accountService.signOut,
+                        icon: const Icon(FluentIcons.sign_out_24_regular),
+                      ),
+                    ],
                   ),
           ),
         );
@@ -176,6 +193,12 @@ class SettingsPage extends StatelessWidget {
         SectionHeader(
           title: context.l10n!.preferences,
           icon: FluentIcons.options_24_filled,
+        ),
+        CustomBar(
+          'Customize Home',
+          FluentIcons.home_24_regular,
+          description: 'Choose the sections shown on your KRYPT Home screen.',
+          onTap: () => context.push('/settings/home-customization'),
         ),
         CustomBar(
           context.l10n!.accentColor,
