@@ -49,3 +49,7 @@ lib/localization/app_*.dart
 
 # Generated untranslated messages file
 lib/localization/untranslated.json
+
+# Local Android signing material
+android/keystore/
+android/key.properties
