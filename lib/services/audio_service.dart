@@ -2080,6 +2080,9 @@ class MusifyAudioHandler extends BaseAudioHandler implements AndroidAutoHost {
       return _getOfflineSongUrl(song);
     }
 
+    final previewUrl = song['previewUrl']?.toString();
+    if (previewUrl != null && previewUrl.isNotEmpty) return previewUrl;
+
     return fetchSongStreamUrl(song['ytid'], song['isLive'] ?? false);
   }
 

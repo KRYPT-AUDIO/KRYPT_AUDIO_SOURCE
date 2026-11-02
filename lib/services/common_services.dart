@@ -38,6 +38,8 @@ import 'package:musify/services/playlists_manager.dart';
 import 'package:musify/services/proxy_manager.dart';
 import 'package:musify/services/settings_manager.dart';
 import 'package:musify/services/spotify_web.dart';
+import 'package:musify/services/web_catalog.dart';
+import 'package:musify/services/web_provider_service.dart';
 import 'package:musify/utilities/app_utils.dart';
 import 'package:musify/utilities/formatter.dart';
 import 'package:musify/utilities/map_utils.dart';
@@ -203,6 +205,15 @@ Future<List> fetchSongsList(String searchQuery) async {
         });
       }
       if (officialSongs.isNotEmpty) return officialSongs;
+
+      final providerSongs = await WebProviderService.search(searchQuery);
+      if (providerSongs.isNotEmpty) return providerSongs;
+
+      // Keep search usable when the server-side Google key is missing,
+      // quota-limited, or temporarily unavailable. The bundled catalog is
+      // deliberately small but always playable through the normal Web flow.
+      final catalogSongs = searchKryptCatalog(searchQuery);
+      if (catalogSongs.isNotEmpty) return catalogSongs;
     }
 
     // If not in cache, perform the search
@@ -211,7 +222,8 @@ Future<List> fetchSongsList(String searchQuery) async {
         .map((video) => returnSongLayout(0, video))
         .toList();
 
-    return songsList;
+    if (songsList.isNotEmpty) return songsList;
+    return kIsWeb ? searchKryptCatalog(searchQuery) : songsList;
   } catch (e, stackTrace) {
     logger.log('Error in fetchSongsList', error: e, stackTrace: stackTrace);
     return [];
@@ -361,6 +373,7 @@ Future<List> _getRecommendationsFromMixedSources() async {
       // The Web build uses official Data API results as its home seed. This
       // avoids depending on playlist-page scraping before a user searches.
       globalSongs = await fetchSongsList('new music official music videos');
+      if (globalSongs.isEmpty) globalSongs = kryptCatalogSongs();
     } else {
       const playlistId = 'PLgzTt0k8mXzEk586ze4BjvDXR7c-TUSnx';
       globalSongs = await getSongsFromPlaylist(playlistId);

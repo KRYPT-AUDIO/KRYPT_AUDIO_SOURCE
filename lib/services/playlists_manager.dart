@@ -34,6 +34,7 @@ import 'package:musify/services/playlist_download_service.dart';
 import 'package:musify/services/official_youtube_api.dart';
 import 'package:musify/services/proxy_manager.dart';
 import 'package:musify/services/settings_manager.dart';
+import 'package:musify/services/web_catalog.dart';
 import 'package:musify/utilities/app_utils.dart';
 import 'package:musify/utilities/flutter_toast.dart';
 import 'package:musify/utilities/formatter.dart';
@@ -965,6 +966,13 @@ Future<List> getPlaylists({
         .whereType<Map<String, dynamic>>()
         .toList();
     onlinePlaylists.value = [...onlinePlaylists.value, ...newPlaylists];
+    if (filteredPlaylists.isEmpty && kIsWeb) {
+      final catalog = kryptCatalogPlaylists()
+          .where((playlist) =>
+              playlist['title'].toString().toLowerCase().contains(lowercaseQuery))
+          .toList();
+      if (catalog.isNotEmpty) return catalog;
+    }
     return filteredPlaylists.isNotEmpty
         ? filteredPlaylists
         : onlinePlaylists.value
@@ -973,6 +981,9 @@ Future<List> getPlaylists({
   }
 
   if (playlistsNum != null && query == null) {
+    if (kIsWeb) {
+      return kryptCatalogPlaylists().take(playlistsNum).toList();
+    }
     final suggestedPlaylists = List<Map>.from(playlists)..shuffle();
     return suggestedPlaylists.take(playlistsNum).toList();
   }
@@ -1246,6 +1257,13 @@ Future<List> getSongsFromPlaylist(
   dynamic playlistId, {
   String? playlistImage,
 }) async {
+  if (kIsWeb && playlistId.toString().startsWith('web:')) {
+    final catalog = kryptCatalogPlaylists().firstWhere(
+      (playlist) => playlist['ytid'] == playlistId.toString(),
+      orElse: () => kryptCatalogPlaylists().first,
+    );
+    return List<Map>.from(catalog['list'] as List);
+  }
   final songList = await getData('cache', 'playlistSongs$playlistId') ?? [];
 
   if (songList.isEmpty) {
@@ -1270,7 +1288,8 @@ Future<List> getSongsFromPlaylist(
     }
   }
 
-  return songList;
+  if (songList.isNotEmpty) return songList;
+  return kIsWeb ? kryptCatalogSongs() : songList;
 }
 
 Future updatePlaylistList(BuildContext context, String playlistId) async {
