@@ -5,7 +5,7 @@ repository: https://github.com/gokadzev/Musify
 issue_tracker: https://github.com/gokadzev/Musify/issues
 
 publish_to: 'none'
-version: 1.0.2+4 # marketplace endpoint hotfix
+version: 1.0.3+5 # no-AI Android feature release
 
 environment:
   sdk: '>=3.13.0 <4.0.0'
