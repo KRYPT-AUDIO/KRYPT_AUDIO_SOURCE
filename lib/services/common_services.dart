@@ -33,7 +33,6 @@ import 'package:musify/main.dart' show logger;
 import 'package:musify/services/data_manager.dart';
 import 'package:musify/services/io_service.dart';
 import 'package:musify/services/lyrics_manager.dart';
-import 'package:musify/services/official_youtube_api.dart';
 import 'package:musify/services/playlists_manager.dart';
 import 'package:musify/services/proxy_manager.dart';
 import 'package:musify/services/settings_manager.dart';
@@ -183,29 +182,6 @@ Future<List> fetchSongsList(String searchQuery) async {
       final spotifySongs = await spotifyWebService.searchTracks(searchQuery);
       if (spotifySongs.isNotEmpty) return spotifySongs;
 
-      final officialItems = await OfficialYoutubeApi.searchVideos(searchQuery);
-      final officialSongs = <Map<String, dynamic>>[];
-      for (final item in officialItems) {
-        final mapped = OfficialYoutubeApi.idOf(item);
-        if (mapped == null || !(mapped['kind'] as String).endsWith('#video')) {
-          continue;
-        }
-        officialSongs.add({
-          'ytid': mapped['ytid'],
-          'title': mapped['title'],
-          'artist': mapped['channelTitle'],
-          'artistId': null,
-          'videoAuthor': mapped['channelTitle'],
-          'image': mapped['image'],
-          'lowResImage': mapped['image'],
-          'highResImage': mapped['image'],
-          'duration': null,
-          'isLive': false,
-          'source': 'youtube-official',
-        });
-      }
-      if (officialSongs.isNotEmpty) return officialSongs;
-
       final providerSongs = await WebProviderService.search(searchQuery);
       if (providerSongs.isNotEmpty) return providerSongs;
 
@@ -214,6 +190,10 @@ Future<List> fetchSongsList(String searchQuery) async {
       // deliberately small but always playable through the normal Web flow.
       final catalogSongs = searchKryptCatalog(searchQuery);
       if (catalogSongs.isNotEmpty) return catalogSongs;
+
+      // Do not fall through to youtube_explode on Web. Web is intentionally
+      // independent from the retired PHP/YouTube bridge.
+      return kryptCatalogSongs();
     }
 
     // If not in cache, perform the search
@@ -232,6 +212,7 @@ Future<List> fetchSongsList(String searchQuery) async {
 
 Future<List> getRecommendedSongs() async {
   try {
+    if (kIsWeb) return kryptCatalogSongs();
     if (externalRecommendations.value && userRecentlyPlayed.value.isNotEmpty) {
       return await _getRecommendationsFromRecentlyPlayed();
     } else {

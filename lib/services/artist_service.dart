@@ -25,7 +25,6 @@ import 'package:flutter/foundation.dart';
 import 'package:musify/constants/artist_constants.dart';
 import 'package:musify/main.dart' show logger;
 import 'package:musify/services/data_manager.dart';
-import 'package:musify/services/official_youtube_api.dart';
 import 'package:musify/services/proxy_manager.dart';
 import 'package:musify/utilities/app_utils.dart';
 import 'package:musify/utilities/formatter.dart';
@@ -49,29 +48,9 @@ Future<List<Map<String, dynamic>>> searchVerifiedArtists(
   if (cachedArtists is List) {
     return asMapList(cachedArtists).take(limit).toList();
   }
+  if (kIsWeb) return [];
 
   try {
-    if (kIsWeb) {
-      final official = await OfficialYoutubeApi.searchChannels(normalizedQuery);
-      final officialArtists = _dedupeResolvedArtists(
-        official
-            .map(OfficialYoutubeApi.idOf)
-            .whereType<Map<String, dynamic>>()
-            .map(
-              (artist) => {
-                'ytid': artist['ytid'],
-                'title': artist['title'],
-                'image': artist['image'],
-                'source': 'youtube-artist-official',
-                'isArtist': true,
-                'isVerifiedArtist': true,
-                'list': [],
-              },
-            ),
-      ).take(limit).toList();
-      if (officialArtists.isNotEmpty) return officialArtists;
-    }
-
     final artists = _dedupeResolvedArtists(
       (await ytMusicClient.music
               .searchArtists(normalizedQuery)
@@ -199,45 +178,18 @@ Future<Map<String, dynamic>?> getArtistProfile(
   try {
     final lookup = artistId.trim();
 
-    if (kIsWeb && (preferredName?.trim().isNotEmpty ?? false)) {
-      final officialVideos = await OfficialYoutubeApi.searchVideos(
-        preferredName!.trim(),
-      );
-      final topSongs = <Map<String, dynamic>>[];
-      for (final item in officialVideos) {
-        final mapped = OfficialYoutubeApi.idOf(item);
-        if (mapped == null || !(mapped['kind'] as String).endsWith('#video')) {
-          continue;
-        }
-        topSongs.add({
-          'song': {
-            'ytid': mapped['ytid'],
-            'title': mapped['title'],
-            'artist': preferredName,
-            'artistId': lookup,
-            'videoAuthor': mapped['channelTitle'],
-            'image': mapped['image'],
-            'lowResImage': mapped['image'],
-            'highResImage': mapped['image'],
-            'duration': null,
-            'isLive': false,
-            'source': 'youtube-official',
-          },
-          'playCount': null,
-        });
-      }
+    if (kIsWeb) {
       return {
-        'ytid': lookup,
-        'title': preferredName,
+        'id': lookup,
+        'name': preferredName ?? lookup,
         'image': preferredImage,
-        'source': 'youtube-artist-official',
-        'isArtist': true,
-        'isVerifiedArtist': true,
-        'topSongs': topSongs,
+        'isVerifiedArtist': preferredVerified,
+        'topSongs': const [],
         'releases': const [],
-        'relatedArtists': const [],
+        'similarArtists': const [],
       };
     }
+
 
     final isChannelLookup = _isChannelId(lookup);
 

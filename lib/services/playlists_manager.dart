@@ -31,7 +31,6 @@ import 'package:musify/main.dart' show logger;
 import 'package:musify/services/artist_service.dart';
 import 'package:musify/services/data_manager.dart';
 import 'package:musify/services/playlist_download_service.dart';
-import 'package:musify/services/official_youtube_api.dart';
 import 'package:musify/services/proxy_manager.dart';
 import 'package:musify/services/settings_manager.dart';
 import 'package:musify/services/web_catalog.dart';
@@ -876,21 +875,13 @@ Future<List> getPlaylists({
 
   if (query != null && playlistsNum == null) {
     if (kIsWeb && type == 'playlist') {
-      final official = await OfficialYoutubeApi.searchPlaylists(query);
-      final officialPlaylists = official
-          .map(OfficialYoutubeApi.idOf)
-          .whereType<Map<String, dynamic>>()
-          .map(
-            (item) => {
-              'ytid': item['ytid'],
-              'title': item['title'],
-              'image': item['image'],
-              'source': 'youtube-official',
-              'list': [],
-            },
-          )
+      final catalogMatches = kryptCatalogPlaylists()
+          .where((playlist) => playlist['title']
+              .toString()
+              .toLowerCase()
+              .contains(query.toLowerCase()))
           .toList();
-      if (officialPlaylists.isNotEmpty) return officialPlaylists;
+      return catalogMatches.isNotEmpty ? catalogMatches : kryptCatalogPlaylists();
     }
 
     final lowercaseQuery = query.toLowerCase();
@@ -1257,7 +1248,7 @@ Future<List> getSongsFromPlaylist(
   dynamic playlistId, {
   String? playlistImage,
 }) async {
-  if (kIsWeb && playlistId.toString().startsWith('web:')) {
+  if (kIsWeb) {
     final catalog = kryptCatalogPlaylists().firstWhere(
       (playlist) => playlist['ytid'] == playlistId.toString(),
       orElse: () => kryptCatalogPlaylists().first,

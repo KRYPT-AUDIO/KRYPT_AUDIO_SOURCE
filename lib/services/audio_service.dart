@@ -36,7 +36,6 @@ import 'package:musify/services/data_manager.dart';
 import 'package:musify/services/listening_stats_service.dart';
 import 'package:musify/services/settings_manager.dart';
 import 'package:musify/services/spotify_web.dart';
-import 'package:musify/services/web_api.dart';
 import 'package:musify/utilities/map_utils.dart';
 import 'package:musify/utilities/media_duration.dart';
 import 'package:musify/utilities/mediaitem.dart';
@@ -1524,8 +1523,11 @@ class MusifyAudioHandler extends BaseAudioHandler implements AndroidAutoHost {
         logger.log('Offline mode enabled; skipping preload for $ytid');
         preloadUrl = null;
       } else {
-        // fetchSongStreamUrl handles caching, freshness checks, and validation
-        preloadUrl = await fetchSongStreamUrl(ytid, nextSong['isLive'] ?? false)
+        // Web playback is provider-owned: Spotify or a provider preview URL.
+        // Never preload through the retired YouTube/PHP path on Web.
+        preloadUrl = kIsWeb
+            ? null
+            : await fetchSongStreamUrl(ytid, nextSong['isLive'] ?? false)
             .timeout(
               const Duration(seconds: 8),
               onTimeout: () {
@@ -2083,6 +2085,8 @@ class MusifyAudioHandler extends BaseAudioHandler implements AndroidAutoHost {
     final previewUrl = song['previewUrl']?.toString();
     if (previewUrl != null && previewUrl.isNotEmpty) return previewUrl;
 
+    if (kIsWeb) return null;
+
     return fetchSongStreamUrl(song['ytid'], song['isLive'] ?? false);
   }
 
@@ -2411,7 +2415,7 @@ class MusifyAudioHandler extends BaseAudioHandler implements AndroidAutoHost {
         return fileSource;
       }
 
-      final uri = routeWebMediaUrl(Uri.parse(songUrl));
+      final uri = Uri.parse(songUrl);
       final needsClientHeaders =
           song['isLive'] != true && uri.host.endsWith('googlevideo.com');
       final audioSource = AudioSource.uri(
