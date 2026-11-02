@@ -24,6 +24,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:musify/services/settings_manager.dart';
 import 'package:musify/services/plugin_service.dart';
 import 'package:musify/theme/app_colors.dart';
+import 'package:musify/theme/krypt_design.dart';
 
 ThemeMode themeMode = getThemeMode(themeModeSetting);
 Brightness brightness = getBrightnessFromThemeMode(themeMode);
@@ -115,7 +116,7 @@ ThemeData getAppTheme(ColorScheme colorScheme) {
       elevation: 0,
       color: cardBgColor,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(KryptDesign.radiusMedium),
         side: BorderSide(
           color: effectiveColorScheme.onSurface.withValues(alpha: 0.08),
         ),
@@ -126,13 +127,13 @@ ThemeData getAppTheme(ColorScheme colorScheme) {
       foregroundColor: effectiveColorScheme.onSurface,
       elevation: 0,
       scrolledUnderElevation: 0,
-      centerTitle: true,
+      centerTitle: false,
       titleTextStyle: TextStyle(
-        fontSize: 27,
+        fontSize: 24,
         fontFamily: 'paytoneOne',
         fontWeight: FontWeight.w500,
         color: effectiveColorScheme.onSurface,
-        letterSpacing: 1.5,
+        letterSpacing: 0.2,
       ),
       toolbarHeight: 64,
       iconTheme: IconThemeData(
@@ -176,10 +177,12 @@ ThemeData getAppTheme(ColorScheme colorScheme) {
       backgroundColor: isLight
           ? colorScheme.surfaceContainerLow
           : (isPureBlack ? pureBlackContainer : null),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(KryptDesign.radiusLarge),
+      ),
     ),
     navigationBarTheme: base.navigationBarTheme.copyWith(
-      backgroundColor: bgColor.withValues(alpha: 0.72),
+      backgroundColor: Colors.transparent,
       elevation: 0,
       height: 70,
       indicatorColor: effectiveColorScheme.primary.withValues(alpha: 0.20),
@@ -211,7 +214,7 @@ ThemeData getAppTheme(ColorScheme colorScheme) {
       }),
     ),
     navigationRailTheme: base.navigationRailTheme.copyWith(
-      backgroundColor: bgColor.withValues(alpha: 0.72),
+      backgroundColor: Colors.transparent,
       elevation: 0,
       indicatorColor: effectiveColorScheme.primary.withValues(alpha: 0.20),
       selectedIconTheme: IconThemeData(

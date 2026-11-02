@@ -5,7 +5,7 @@ repository: https://github.com/gokadzev/Musify
 issue_tracker: https://github.com/gokadzev/Musify/issues
 
 publish_to: 'none'
-version: 1.0.4+6 # Spotify library integration
+version: 1.0.5+7 # Liquid Glass UI overhaul
 
 environment:
   sdk: '>=3.13.0 <4.0.0'

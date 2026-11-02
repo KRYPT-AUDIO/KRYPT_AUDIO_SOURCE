@@ -28,6 +28,7 @@ import 'package:musify/constants/app_constants.dart';
 import 'package:musify/extensions/l10n.dart';
 import 'package:musify/main.dart';
 import 'package:musify/services/settings_manager.dart';
+import 'package:musify/theme/krypt_design.dart';
 import 'package:musify/utilities/flutter_bottom_sheet.dart'
     show closeCurrentBottomSheet;
 import 'package:musify/widgets/mini_player.dart';
@@ -82,98 +83,116 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
               final items = _getNavigationItems(isOfflineMode);
 
               return Scaffold(
-                body: DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        Theme.of(context).colorScheme.surface,
-                        Theme.of(context).colorScheme.surface.withValues(
-                              alpha: 0.92,
-                            ),
-                        Theme.of(context).colorScheme.primary.withValues(
-                              alpha: 0.07,
-                            ),
-                      ],
-                    ),
-                  ),
-                  child: SafeArea(
-                    child: Row(
-                    children: [
-                      if (isLargeScreen)
-                        NavigationRail(
-                          labelType: NavigationRailLabelType.selected,
-                          destinations: items
-                              .map(
-                                (item) => NavigationRailDestination(
-                                  icon: Icon(item.icon),
-                                  selectedIcon: Icon(item.selectedIcon),
-                                  label: Text(item.label),
-                                ),
-                              )
-                              .toList(),
-                          selectedIndex: _getCurrentIndex(items, isOfflineMode),
-                          onDestinationSelected: (index) =>
-                              _onTabTapped(index, items),
-                        ),
-                      Expanded(
-                        child: StreamBuilder<bool>(
-                          initialData: audioHandler.mediaItem.value != null,
-                          stream: _miniPlayerVisibilityStream,
-                          builder: (context, snapshot) {
-                            final mediaQuery = MediaQuery.of(context);
-                            final isMiniPlayerVisible = snapshot.data ?? false;
-                            final bottomPadding = !isMiniPlayerVisible
-                                ? mediaQuery.padding.bottom
-                                : mediaQuery.padding.bottom +
-                                      miniPlayerTotalHeight;
-
-                            return Stack(
-                              alignment: Alignment.bottomCenter,
-                              children: [
-                                MediaQuery(
-                                  data: mediaQuery.copyWith(
-                                    padding: mediaQuery.padding.copyWith(
-                                      bottom: bottomPadding,
-                                    ),
-                                  ),
-                                  child: widget.child,
-                                ),
-                                const Padding(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 8,
-                                  ),
-                                  child: MiniPlayer(),
-                                ),
-                              ],
-                            );
-                          },
-                        ),
+                body: AmbientBackdrop(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Theme.of(context).colorScheme.surface
+                              .withValues(alpha: 0.94),
+                          Theme.of(context).colorScheme.surface
+                              .withValues(alpha: 0.88),
+                          Theme.of(context).colorScheme.primary
+                              .withValues(alpha: 0.06),
+                        ],
                       ),
-                    ],
+                    ),
+                    child: SafeArea(
+                      child: Row(
+                        children: [
+                          if (isLargeScreen)
+                            NavigationRail(
+                              labelType: NavigationRailLabelType.selected,
+                              destinations: items
+                                  .map(
+                                    (item) => NavigationRailDestination(
+                                      icon: Icon(item.icon),
+                                      selectedIcon: Icon(item.selectedIcon),
+                                      label: Text(item.label),
+                                    ),
+                                  )
+                                  .toList(),
+                              selectedIndex: _getCurrentIndex(
+                                items,
+                                isOfflineMode,
+                              ),
+                              onDestinationSelected: (index) =>
+                                  _onTabTapped(index, items),
+                            ),
+                          Expanded(
+                            child: StreamBuilder<bool>(
+                              initialData: audioHandler.mediaItem.value != null,
+                              stream: _miniPlayerVisibilityStream,
+                              builder: (context, snapshot) {
+                                final mediaQuery = MediaQuery.of(context);
+                                final isMiniPlayerVisible =
+                                    snapshot.data ?? false;
+                                final bottomPadding = !isMiniPlayerVisible
+                                    ? mediaQuery.padding.bottom
+                                    : mediaQuery.padding.bottom +
+                                          miniPlayerTotalHeight;
+
+                                return Stack(
+                                  alignment: Alignment.bottomCenter,
+                                  children: [
+                                    MediaQuery(
+                                      data: mediaQuery.copyWith(
+                                        padding: mediaQuery.padding.copyWith(
+                                          bottom: bottomPadding,
+                                        ),
+                                      ),
+                                      child: widget.child,
+                                    ),
+                                    const Padding(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 8,
+                                      ),
+                                      child: MiniPlayer(),
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
                 bottomNavigationBar: !isLargeScreen
-                    ? NavigationBar(
-                        selectedIndex: _getCurrentIndex(items, isOfflineMode),
-                        labelBehavior: languageSetting == const Locale('en', '')
-                            ? NavigationDestinationLabelBehavior
-                                  .onlyShowSelected
-                            : NavigationDestinationLabelBehavior.alwaysHide,
-                        onDestinationSelected: (index) =>
-                            _onTabTapped(index, items),
-                        destinations: items
-                            .map(
-                              (item) => NavigationDestination(
-                                icon: Icon(item.icon),
-                                selectedIcon: Icon(item.selectedIcon),
-                                label: item.label,
-                              ),
-                            )
-                            .toList(),
+                    ? SafeArea(
+                        minimum: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+                        child: GlassContainer(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          radius: KryptDesign.radiusLarge,
+                          opacity: 0.88,
+                          child: NavigationBar(
+                            backgroundColor: Colors.transparent,
+                            selectedIndex: _getCurrentIndex(
+                              items,
+                              isOfflineMode,
+                            ),
+                            labelBehavior:
+                                languageSetting == const Locale('en', '')
+                                ? NavigationDestinationLabelBehavior
+                                      .onlyShowSelected
+                                : NavigationDestinationLabelBehavior.alwaysHide,
+                            onDestinationSelected: (index) =>
+                                _onTabTapped(index, items),
+                            destinations: items
+                                .map(
+                                  (item) => NavigationDestination(
+                                    icon: Icon(item.icon),
+                                    selectedIcon: Icon(item.selectedIcon),
+                                    label: item.label,
+                                  ),
+                                )
+                                .toList(),
+                          ),
+                        ),
                       )
                     : null,
               );
