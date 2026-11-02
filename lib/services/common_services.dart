@@ -32,6 +32,7 @@ import 'package:musify/main.dart' show logger;
 import 'package:musify/services/data_manager.dart';
 import 'package:musify/services/io_service.dart';
 import 'package:musify/services/lyrics_manager.dart';
+import 'package:musify/services/music_source_service.dart';
 import 'package:musify/services/playlists_manager.dart';
 import 'package:musify/services/proxy_manager.dart';
 import 'package:musify/services/settings_manager.dart';
@@ -174,13 +175,15 @@ Future<bool> _validateCachedUrl(String songId, String cachedUrl) async {
 
 Future<List> fetchSongsList(String searchQuery) async {
   try {
-    // If not in cache, perform the search
-    final List<Video> searchResults = await ytClient.search.search(searchQuery);
-    final songsList = searchResults
-        .map((video) => returnSongLayout(0, video))
-        .toList();
-
-    return songsList;
+    final songs = <Map<String, dynamic>>[];
+    if (MusicSourceService.instance.isEnabled('youtube')) {
+      final List<Video> searchResults = await ytClient.search.search(
+        searchQuery,
+      );
+      songs.addAll(searchResults.map((video) => returnSongLayout(0, video)));
+    }
+    songs.addAll(await MusicSourceService.instance.search(searchQuery));
+    return songs;
   } catch (e, stackTrace) {
     logger.log('Error in fetchSongsList', error: e, stackTrace: stackTrace);
     return [];

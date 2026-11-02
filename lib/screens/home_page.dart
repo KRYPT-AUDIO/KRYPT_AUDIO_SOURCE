@@ -28,6 +28,7 @@ import 'package:musify/extensions/l10n.dart';
 import 'package:musify/main.dart';
 import 'package:musify/services/common_services.dart';
 import 'package:musify/services/listening_stats_service.dart';
+import 'package:musify/services/plugin_service.dart';
 import 'package:musify/services/playlists_manager.dart';
 import 'package:musify/services/settings_manager.dart';
 import 'package:musify/utilities/app_utils.dart';
@@ -125,19 +126,18 @@ class _HomePageState extends State<HomePage> {
                       ],
                     ),
                   ),
-                  Icon(
-                    FluentIcons.chevron_right_24_regular,
-                    size: 20,
-                  ),
+                  Icon(FluentIcons.chevron_right_24_regular, size: 20),
                 ],
               ),
             ),
+            _buildPluginRuntimeStrip(),
             ValueListenableBuilder<String?>(
               valueListenable: announcementURL,
               builder: (_, _url, __) {
                 if (_url == null) return const SizedBox.shrink();
-                final message = krypticAnnouncementMessages[
-                    _url.hashCode.abs() % krypticAnnouncementMessages.length];
+                final message =
+                    krypticAnnouncementMessages[_url.hashCode.abs() %
+                        krypticAnnouncementMessages.length];
 
                 return AnnouncementBox(
                   message: message,
@@ -157,6 +157,43 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildPluginRuntimeStrip() {
+    return AnimatedBuilder(
+      animation: KryptPluginService.instance,
+      builder: (context, _) {
+        final service = KryptPluginService.instance;
+        final labels = <String>{
+          ...service.homeBadges,
+          if (service.runtimeFeatures.contains('visualizer'))
+            'Visualizer active',
+          if (service.runtimeFeatures.contains('lyrics')) 'Lyrics enhanced',
+        };
+        if (labels.isEmpty) return const SizedBox.shrink();
+        return Align(
+          alignment: Alignment.centerLeft,
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 6,
+              children: labels
+                  .map(
+                    (label) => Chip(
+                      avatar: const Icon(
+                        FluentIcons.puzzle_cube_24_regular,
+                        size: 16,
+                      ),
+                      label: Text(label),
+                    ),
+                  )
+                  .toList(),
+            ),
+          ),
+        );
+      },
     );
   }
 

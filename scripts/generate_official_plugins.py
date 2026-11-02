@@ -62,7 +62,16 @@ PLUGINS = [
 
 
 def js_for(plugin_id: str, capability: str) -> str:
-    return f'''// KRYPT AUDIO official plugin: {plugin_id}\n// GPL-3.0. This file is a declarative hook manifest for the safe plugin runtime.\n// Downloaded JavaScript is stored and validated by the app but is not executed\n// with unrestricted native access. CSS tokens are applied by KryptPluginService.\nexport default {{\n  id: '{plugin_id}',\n  capability: '{capability}',\n  onEnable(api) {{ api.log('Enabled {plugin_id}'); }},\n  onDisable(api) {{ api.log('Disabled {plugin_id}'); }}\n}};\n'''
+    hooks = {
+        'player': "  onPlayerReady(api) { api.setPlayerMode('enhanced'); },\n",
+        'visualizer': "  onPlayerReady(api) { api.enableFeature('visualizer'); },\n",
+        'lyrics': "  onLyrics(api) { api.enableFeature('lyrics-plus'); },\n",
+        'stats': "  onHome(api) { api.addHomeBadge('Listening insights'); },\n",
+        'playlists': "  onHome(api) { api.addHomeBadge('Playlist Studio'); },\n",
+        'motion': "  onNavigation(api) { api.setMotionPreset('smooth'); },\n",
+        'quality-of-life': "  onHome(api) { api.addHomeBadge('KRYPT Essentials'); },\n",
+    }.get(capability, '')
+    return f'''// KRYPT AUDIO official plugin: {plugin_id}\n// GPL-3.0. Safe declarative hooks are interpreted by KryptPluginService.\n// No unrestricted JavaScript execution or native access is permitted.\nexport default {{\n  id: '{plugin_id}',\n  capability: '{capability}',\n{hooks}  onEnable(api) {{ api.log('Enabled {plugin_id}'); }},\n  onDisable(api) {{ api.log('Disabled {plugin_id}'); }}\n}};\n'''
 
 
 def css_for(tokens: dict[str, str]) -> str:

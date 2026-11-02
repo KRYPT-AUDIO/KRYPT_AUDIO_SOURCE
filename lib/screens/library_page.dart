@@ -41,6 +41,7 @@ import 'package:musify/widgets/confirmation_dialog.dart';
 import 'package:musify/widgets/mini_player_bottom_space.dart';
 import 'package:musify/widgets/playlist_bar.dart';
 import 'package:musify/widgets/section_header.dart';
+import 'package:musify/widgets/glass_surface.dart';
 
 class LibraryPage extends StatefulWidget {
   const LibraryPage({super.key});
@@ -132,6 +133,7 @@ class _LibraryPageState extends State<LibraryPage> {
             padding: commonSingleChildScrollViewPadding,
             child: CustomScrollView(
               slivers: [
+                SliverToBoxAdapter(child: _buildLibraryOverview()),
                 ..._buildPinnedSlivers(),
                 ..._buildUserPlaylistsSlivers(),
                 if (!offlineMode.value) ..._buildLikedPlaylistsSlivers(),
@@ -141,6 +143,41 @@ class _LibraryPageState extends State<LibraryPage> {
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildLibraryOverview() {
+    final colors = Theme.of(context).colorScheme;
+    return GlassSurface(
+      margin: const EdgeInsets.fromLTRB(0, 4, 0, 14),
+      padding: const EdgeInsets.all(18),
+      borderRadius: BorderRadius.circular(24),
+      child: Row(
+        children: [
+          Icon(FluentIcons.library_24_filled, color: colors.primary, size: 30),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Your collection',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '${userLikedSongsList.value.length} liked · ${userOfflineSongs.value.length} offline · ${userPlaylists.value.length} playlists',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ],
+            ),
+          ),
+          Icon(
+            FluentIcons.chevron_right_24_regular,
+            color: colors.onSurfaceVariant,
+          ),
+        ],
       ),
     );
   }

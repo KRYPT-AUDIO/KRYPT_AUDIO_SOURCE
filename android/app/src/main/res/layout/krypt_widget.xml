@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#E614102A"
+    android:gravity="center_vertical"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/krypt_widget_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="KRYPT AUDIO"
+        android:textColor="#FFFFFFFF"
+        android:textSize="15sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:text="Tap to open your frequency"
+        android:textColor="#BFE4D7FF"
+        android:textSize="12sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/krypt_widget_previous"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="Previous"
+            android:src="@drawable/audio_service_skip_previous" />
+
+        <ImageButton
+            android:id="@+id/krypt_widget_play"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="Play or pause"
+            android:src="@drawable/audio_service_play_arrow" />
+
+        <ImageButton
+            android:id="@+id/krypt_widget_next"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="Next"
+            android:src="@drawable/audio_service_skip_next" />
+    </LinearLayout>
+</LinearLayout>

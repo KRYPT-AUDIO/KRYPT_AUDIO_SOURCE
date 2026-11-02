@@ -68,6 +68,18 @@ final audioQualitySetting = ValueNotifier<String>(
   Hive.box('settings').get('audioQuality', defaultValue: 'high'),
 );
 
+final crossfadeEnabled = ValueNotifier<bool>(
+  Hive.box('settings').get('crossfadeEnabled', defaultValue: false),
+);
+
+final crossfadeDurationSeconds = ValueNotifier<int>(
+  Hive.box('settings').get('crossfadeDurationSeconds', defaultValue: 3),
+);
+
+final volumeHeadroomEnabled = ValueNotifier<bool>(
+  Hive.box('settings').get('volumeHeadroomEnabled', defaultValue: false),
+);
+
 final showAudioQualityBadge = ValueNotifier<bool>(
   Hive.box('settings').get('showAudioQualityBadge', defaultValue: false),
 );
@@ -157,6 +169,18 @@ void reloadSettingsFromStorage() {
   audioQualitySetting.value = settings.get(
     'audioQuality',
     defaultValue: 'high',
+  );
+  crossfadeEnabled.value = settings.get(
+    'crossfadeEnabled',
+    defaultValue: false,
+  );
+  crossfadeDurationSeconds.value = settings.get(
+    'crossfadeDurationSeconds',
+    defaultValue: 3,
+  );
+  volumeHeadroomEnabled.value = settings.get(
+    'volumeHeadroomEnabled',
+    defaultValue: false,
   );
   showAudioQualityBadge.value = settings.get(
     'showAudioQualityBadge',

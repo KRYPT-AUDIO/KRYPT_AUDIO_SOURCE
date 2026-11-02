@@ -33,6 +33,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:musify/extensions/l10n.dart';
 import 'package:musify/localization/app_localizations.dart';
 import 'package:musify/services/audio_service.dart';
+import 'package:musify/services/account_service.dart';
 import 'package:musify/services/data_manager.dart';
 import 'package:musify/services/desktop_media_artwork.dart';
 import 'package:musify/services/io_service.dart';
@@ -304,6 +305,7 @@ Future<void> initialisation() async {
       Hive.openBox('cache'),
     ]);
     await KryptPluginService.instance.initialize();
+    await KryptAccountService.instance.restore();
 
     if (isMobilePlatform) {
       audioHandler = await AudioService.init(

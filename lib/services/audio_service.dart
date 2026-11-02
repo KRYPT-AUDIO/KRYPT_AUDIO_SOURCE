@@ -1780,6 +1780,19 @@ class MusifyAudioHandler extends BaseAudioHandler implements AndroidAutoHost {
     }
   }
 
+  Future<void> _fadeVolumeTo(double target) async {
+    const steps = 8;
+    final duration = Duration(
+      milliseconds: (crossfadeDurationSeconds.value * 1000 / steps).round(),
+    );
+    final start = audioPlayer.volume;
+    for (var index = 1; index <= steps; index++) {
+      final value = start + (target - start) * (index / steps);
+      await audioPlayer.setVolume(value.clamp(0.0, 1.0));
+      await Future<void>.delayed(duration);
+    }
+  }
+
   @override
   Future<void> stop() async {
     _debounceTimer?.cancel();
@@ -1918,6 +1931,7 @@ class MusifyAudioHandler extends BaseAudioHandler implements AndroidAutoHost {
         listeningStatsService.recordListeningSessionProgress(
           wasPlaying: audioPlayer.playing,
         );
+        if (crossfadeEnabled.value) await _fadeVolumeTo(0.0);
         await audioPlayer.pause();
       }
 
@@ -2038,6 +2052,11 @@ class MusifyAudioHandler extends BaseAudioHandler implements AndroidAutoHost {
       return _getOfflineSongUrl(song);
     }
 
+    final directUrl = song['streamUrl']?.toString();
+    if (directUrl != null && directUrl.isNotEmpty) {
+      return directUrl;
+    }
+
     return fetchSongStreamUrl(song['ytid'], song['isLive'] ?? false);
   }
 
@@ -2098,6 +2117,7 @@ class MusifyAudioHandler extends BaseAudioHandler implements AndroidAutoHost {
       final loadedDuration = await audioPlayer
           .setAudioSource(audioSource)
           .timeout(_songTransitionTimeout);
+      await audioPlayer.setVolume(volumeHeadroomEnabled.value ? 0.9 : 1.0);
 
       // Check once more after the async setAudioSource: a fast offline song
       // could have loaded and started playing while we were buffering/setting up.
@@ -2140,6 +2160,9 @@ class MusifyAudioHandler extends BaseAudioHandler implements AndroidAutoHost {
             _lastError = e.toString();
           }),
         );
+      if (startPlayback && crossfadeEnabled.value) {
+        unawaited(_fadeVolumeTo(1.0));
+      }
       unawaited(updateRecentlyPlayed(song['ytid'], songFallback: song));
 
       if (!isOffline) {

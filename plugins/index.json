@@ -15,7 +15,7 @@
     "downloadUrl": "https://raw.githubusercontent.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/main/plugins/official/neon-glass/neon-glass.kryptplugin",
     "repositoryUrl": "https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/tree/main/plugins/official/neon-glass",
     "capability": "theme",
-    "packageSizeBytes": 1143
+    "packageSizeBytes": 1088
   },
   {
     "id": "amoled-black",
@@ -33,7 +33,7 @@
     "downloadUrl": "https://raw.githubusercontent.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/main/plugins/official/amoled-black/amoled-black.kryptplugin",
     "repositoryUrl": "https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/tree/main/plugins/official/amoled-black",
     "capability": "theme",
-    "packageSizeBytes": 1113
+    "packageSizeBytes": 1059
   },
   {
     "id": "cyberpunk-2077",
@@ -51,7 +51,7 @@
     "downloadUrl": "https://raw.githubusercontent.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/main/plugins/official/cyberpunk-2077/cyberpunk-2077.kryptplugin",
     "repositoryUrl": "https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/tree/main/plugins/official/cyberpunk-2077",
     "capability": "theme",
-    "packageSizeBytes": 1133
+    "packageSizeBytes": 1078
   },
   {
     "id": "visualizer-pro",
@@ -69,7 +69,7 @@
     "downloadUrl": "https://raw.githubusercontent.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/main/plugins/official/visualizer-pro/visualizer-pro.kryptplugin",
     "repositoryUrl": "https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/tree/main/plugins/official/visualizer-pro",
     "capability": "visualizer",
-    "packageSizeBytes": 1147
+    "packageSizeBytes": 1112
   },
   {
     "id": "lyrics-plus",
@@ -87,7 +87,7 @@
     "downloadUrl": "https://raw.githubusercontent.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/main/plugins/official/lyrics-plus/lyrics-plus.kryptplugin",
     "repositoryUrl": "https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/tree/main/plugins/official/lyrics-plus",
     "capability": "lyrics",
-    "packageSizeBytes": 1140
+    "packageSizeBytes": 1098
   },
   {
     "id": "basshead",
@@ -105,7 +105,7 @@
     "downloadUrl": "https://raw.githubusercontent.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/main/plugins/official/basshead/basshead.kryptplugin",
     "repositoryUrl": "https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/tree/main/plugins/official/basshead",
     "capability": "theme",
-    "packageSizeBytes": 1116
+    "packageSizeBytes": 1062
   },
   {
     "id": "midnight-blue",
@@ -123,7 +123,7 @@
     "downloadUrl": "https://raw.githubusercontent.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/main/plugins/official/midnight-blue/midnight-blue.kryptplugin",
     "repositoryUrl": "https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/tree/main/plugins/official/midnight-blue",
     "capability": "theme",
-    "packageSizeBytes": 1112
+    "packageSizeBytes": 1058
   },
   {
     "id": "minimal-player",
@@ -141,7 +141,7 @@
     "downloadUrl": "https://raw.githubusercontent.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/main/plugins/official/minimal-player/minimal-player.kryptplugin",
     "repositoryUrl": "https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/tree/main/plugins/official/minimal-player",
     "capability": "player",
-    "packageSizeBytes": 1133
+    "packageSizeBytes": 1102
   },
   {
     "id": "album-art-glow",
@@ -159,7 +159,7 @@
     "downloadUrl": "https://raw.githubusercontent.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/main/plugins/official/album-art-glow/album-art-glow.kryptplugin",
     "repositoryUrl": "https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/tree/main/plugins/official/album-art-glow",
     "capability": "player",
-    "packageSizeBytes": 1151
+    "packageSizeBytes": 1121
   },
   {
     "id": "retro-wave",
@@ -177,7 +177,7 @@
     "downloadUrl": "https://raw.githubusercontent.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/main/plugins/official/retro-wave/retro-wave.kryptplugin",
     "repositoryUrl": "https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/tree/main/plugins/official/retro-wave",
     "capability": "theme",
-    "packageSizeBytes": 1123
+    "packageSizeBytes": 1068
   },
   {
     "id": "listening-stats-plus",
@@ -195,7 +195,7 @@
     "downloadUrl": "https://raw.githubusercontent.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/main/plugins/official/listening-stats-plus/listening-stats-plus.kryptplugin",
     "repositoryUrl": "https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/tree/main/plugins/official/listening-stats-plus",
     "capability": "stats",
-    "packageSizeBytes": 1160
+    "packageSizeBytes": 1132
   },
   {
     "id": "playlist-studio",
@@ -213,7 +213,7 @@
     "downloadUrl": "https://raw.githubusercontent.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/main/plugins/official/playlist-studio/playlist-studio.kryptplugin",
     "repositoryUrl": "https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/tree/main/plugins/official/playlist-studio",
     "capability": "playlists",
-    "packageSizeBytes": 1139
+    "packageSizeBytes": 1106
   },
   {
     "id": "smooth-transitions",
@@ -231,7 +231,7 @@
     "downloadUrl": "https://raw.githubusercontent.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/main/plugins/official/smooth-transitions/smooth-transitions.kryptplugin",
     "repositoryUrl": "https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/tree/main/plugins/official/smooth-transitions",
     "capability": "motion",
-    "packageSizeBytes": 1161
+    "packageSizeBytes": 1128
   },
   {
     "id": "glass-everywhere",
@@ -249,7 +249,7 @@
     "downloadUrl": "https://raw.githubusercontent.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/main/plugins/official/glass-everywhere/glass-everywhere.kryptplugin",
     "repositoryUrl": "https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/tree/main/plugins/official/glass-everywhere",
     "capability": "theme",
-    "packageSizeBytes": 1134
+    "packageSizeBytes": 1080
   },
   {
     "id": "krypt-essentials",
@@ -267,6 +267,6 @@
     "downloadUrl": "https://raw.githubusercontent.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/main/plugins/official/krypt-essentials/krypt-essentials.kryptplugin",
     "repositoryUrl": "https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/tree/main/plugins/official/krypt-essentials",
     "capability": "quality-of-life",
-    "packageSizeBytes": 1161
+    "packageSizeBytes": 1126
   }
 ]

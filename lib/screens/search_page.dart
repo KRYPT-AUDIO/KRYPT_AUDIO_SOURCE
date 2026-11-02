@@ -32,6 +32,7 @@ import 'package:musify/main.dart';
 import 'package:musify/models/radio_model.dart';
 import 'package:musify/services/common_services.dart';
 import 'package:musify/services/data_manager.dart';
+import 'package:musify/services/music_source_service.dart';
 import 'package:musify/services/playlists_manager.dart';
 import 'package:musify/services/router_service.dart';
 import 'package:musify/utilities/app_utils.dart';
@@ -74,6 +75,7 @@ class _SearchPageState extends State<SearchPage> {
   List<dynamic> _playlistsSearchResult = [];
   List<RadioStation> _radioStationsSearchResult = [];
   List<String> _suggestionsList = [];
+  String _selectedSource = 'all';
   Timer? _debounce;
   int _latestSuggestionRequest = 0;
   int _latestSearchRequest = 0;
@@ -332,6 +334,7 @@ class _SearchPageState extends State<SearchPage> {
               },
             ),
 
+            _buildSourceFilters(),
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 200),
               child:
@@ -407,6 +410,45 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
+  Widget _buildSourceFilters() {
+    final sources = <({String id, String label})>[
+      (id: 'all', label: 'All sources'),
+      ...MusicSourceService.instance.enabledIds.map(
+        (id) => (
+          id: id,
+          label: availableMusicSources
+              .firstWhere(
+                (source) => source.id == id,
+                orElse: () => MusicSource(id: id, name: id, description: ''),
+              )
+              .name,
+        ),
+      ),
+    ];
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.only(top: 10, bottom: 4),
+        child: Row(
+          children: sources
+              .map(
+                (source) => Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: ChoiceChip(
+                    label: Text(source.label),
+                    selected: _selectedSource == source.id,
+                    onSelected: (_) =>
+                        setState(() => _selectedSource = source.id),
+                  ),
+                ),
+              )
+              .toList(),
+        ),
+      ),
+    );
+  }
+
   Widget _buildSearchResults(BuildContext context, Color primaryColor) {
     final widgets = <Widget>[];
 
@@ -445,7 +487,12 @@ class _SearchPageState extends State<SearchPage> {
     }
 
     // Songs section
-    if (_songsSearchResult.isNotEmpty) {
+    final visibleSongs = _selectedSource == 'all'
+        ? _songsSearchResult
+        : _songsSearchResult
+              .where((song) => song is Map && song['source'] == _selectedSource)
+              .toList();
+    if (visibleSongs.isNotEmpty) {
       widgets.add(
         SectionTitle(
           context.l10n!.songs,
@@ -454,12 +501,12 @@ class _SearchPageState extends State<SearchPage> {
         ),
       );
 
-      final songsCount = _songsSearchResult.length > maxSongsInList
+      final songsCount = visibleSongs.length > maxSongsInList
           ? maxSongsInList
-          : _songsSearchResult.length;
+          : visibleSongs.length;
 
       for (var index = 0; index < songsCount; index++) {
-        final song = _songsSearchResult[index];
+        final song = visibleSongs[index];
         final borderRadius = getItemBorderRadius(index, songsCount);
         widgets.add(
           SongBar(

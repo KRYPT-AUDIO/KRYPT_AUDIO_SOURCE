@@ -122,6 +122,17 @@
             </intent-filter>
         </receiver>
 
+        <receiver
+            android:name="com.synapselabs.kryptaudio.KryptWidgetProvider"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/krypt_widget_info" />
+        </receiver>
+
         <meta-data android:name="com.google.android.gms.car.application"
         android:resource="@xml/automotive_app_desc"/>
 

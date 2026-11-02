@@ -29,8 +29,10 @@ import 'package:musify/extensions/l10n.dart';
 import 'package:musify/main.dart';
 import 'package:musify/screens/search_page.dart';
 import 'package:musify/services/common_services.dart';
+import 'package:musify/services/account_service.dart';
 import 'package:musify/services/data_manager.dart';
 import 'package:musify/services/listening_stats_service.dart';
+import 'package:musify/services/music_source_service.dart';
 import 'package:musify/services/playlist_download_service.dart';
 import 'package:musify/services/playlists_manager.dart';
 import 'package:musify/services/router_service.dart';
@@ -60,6 +62,7 @@ class SettingsPage extends StatelessWidget {
 
     final content = Column(
       children: <Widget>[
+        _buildAccountSection(context),
         _buildPreferencesSection(
           context,
           primaryColor,
@@ -86,6 +89,58 @@ class SettingsPage extends StatelessWidget {
               )
             : content,
       ),
+    );
+  }
+
+  Widget _buildAccountSection(BuildContext context) {
+    final accountService = KryptAccountService.instance;
+    return AnimatedBuilder(
+      animation: accountService,
+      builder: (context, _) {
+        final account = accountService.account;
+        return Card(
+          margin: const EdgeInsets.fromLTRB(8, 8, 8, 18),
+          child: ListTile(
+            leading: CircleAvatar(
+              backgroundImage: account?.photoUrl == null
+                  ? null
+                  : NetworkImage(account!.photoUrl!),
+              child: account == null
+                  ? const Icon(FluentIcons.person_24_regular)
+                  : null,
+            ),
+            title: Text(account?.displayName ?? 'KRYPT account'),
+            subtitle: Text(
+              account?.email ??
+                  'Sign in with Google to sync your KRYPT identity.',
+            ),
+            trailing: accountService.isBusy
+                ? const SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : account == null
+                ? FilledButton(
+                    onPressed: () async {
+                      final signedIn = await accountService.signIn();
+                      if (context.mounted && !signedIn) {
+                        showToast(
+                          context,
+                          'Google sign-in was cancelled or unavailable',
+                        );
+                      }
+                    },
+                    child: const Text('Sign in'),
+                  )
+                : IconButton(
+                    tooltip: 'Sign out',
+                    onPressed: accountService.signOut,
+                    icon: const Icon(FluentIcons.sign_out_24_regular),
+                  ),
+          ),
+        );
+      },
     );
   }
 
@@ -136,6 +191,51 @@ class SettingsPage extends StatelessWidget {
           context.l10n!.audioQuality,
           FluentIcons.music_note_1_24_regular,
           onTap: () => _showAudioQualityPicker(context),
+        ),
+        ValueListenableBuilder<bool>(
+          valueListenable: crossfadeEnabled,
+          builder: (_, value, __) => CustomBar(
+            'Smooth transitions',
+            FluentIcons.arrow_swap_24_regular,
+            description: value
+                ? '${crossfadeDurationSeconds.value}s fade between tracks'
+                : 'Fade between tracks when changing songs',
+            trailing: Switch(
+              value: value,
+              onChanged: (enabled) async {
+                crossfadeEnabled.value = enabled;
+                await addOrUpdateData<bool>(
+                  'settings',
+                  'crossfadeEnabled',
+                  enabled,
+                );
+                if (context.mounted)
+                  showToast(context, 'Transition setting updated');
+              },
+            ),
+          ),
+        ),
+        ValueListenableBuilder<bool>(
+          valueListenable: volumeHeadroomEnabled,
+          builder: (_, value, __) => CustomBar(
+            'Volume headroom',
+            FluentIcons.speaker_2_24_regular,
+            description:
+                'Leave safe headroom for tracks with aggressive mastering.',
+            trailing: Switch(
+              value: value,
+              onChanged: (enabled) async {
+                volumeHeadroomEnabled.value = enabled;
+                await addOrUpdateData<bool>(
+                  'settings',
+                  'volumeHeadroomEnabled',
+                  enabled,
+                );
+                if (context.mounted)
+                  showToast(context, 'Loudness setting updated');
+              },
+            ),
+          ),
         ),
         if (isAndroidPlatform)
           CustomBar(
@@ -315,10 +415,85 @@ class SettingsPage extends StatelessWidget {
           },
         ),
 
+        _buildMusicSourcesSection(context),
+
         _buildToolsSection(context),
         _buildSponsorSection(context),
       ],
     );
+  }
+
+  Widget _buildMusicSourcesSection(BuildContext context) {
+    final service = MusicSourceService.instance;
+    return Column(
+      children: [
+        SectionHeader(
+          title: 'Music sources',
+          icon: FluentIcons.globe_24_filled,
+        ),
+        ValueListenableBuilder<List<String>>(
+          valueListenable: service.enabledNotifier,
+          builder: (context, enabled, _) => Column(
+            children: availableMusicSources.map((source) {
+              final active = enabled.contains(source.id);
+              return CustomBar(
+                source.name,
+                FluentIcons.music_note_2_24_regular,
+                description: source.description,
+                trailing: Switch(
+                  value: active,
+                  onChanged: (value) async {
+                    await service.setEnabled(source.id, value);
+                    if (context.mounted)
+                      showToast(context, 'Music sources updated');
+                  },
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+        if (service.isEnabled('jamendo'))
+          CustomBar(
+            'Jamendo client ID',
+            FluentIcons.key_24_regular,
+            description: 'Optional client ID for Jamendo search.',
+            onTap: () => _showJamendoClientIdDialog(context),
+          ),
+      ],
+    );
+  }
+
+  Future<void> _showJamendoClientIdDialog(BuildContext context) async {
+    final controller = TextEditingController(
+      text: MusicSourceService.instance.jamendoClientId,
+    );
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Jamendo client ID'),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          decoration: const InputDecoration(hintText: 'Paste client ID'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () async {
+              await MusicSourceService.instance.setJamendoClientId(
+                controller.text,
+              );
+              if (dialogContext.mounted) Navigator.pop(dialogContext);
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
   }
 
   Widget _buildToolsSection(BuildContext context) {
