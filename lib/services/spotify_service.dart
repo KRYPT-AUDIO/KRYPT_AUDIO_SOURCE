@@ -33,6 +33,14 @@ class SpotifyService extends ChangeNotifier {
   String? get displayName => _profile?['display_name'] as String?;
   String? get email => _profile?['email'] as String?;
 
+  bool canReadPlaylistItems(Map<String, dynamic> playlist) {
+    if (playlist['collaborative'] == true) return true;
+    final owner = playlist['owner'];
+    final ownerId = owner is Map ? owner['id']?.toString() : null;
+    final profileId = _profile?['id']?.toString();
+    return ownerId != null && profileId != null && ownerId == profileId;
+  }
+
   Future<void> restore() async {
     final box = Hive.box('user');
     _refreshToken = box.get('spotifyRefreshToken') as String?;

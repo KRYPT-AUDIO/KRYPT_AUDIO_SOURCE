@@ -127,7 +127,9 @@ class SettingsPage extends StatelessWidget {
                       if (context.mounted && !signedIn) {
                         showToast(
                           context,
-                          'Google sign-in was cancelled or unavailable',
+                          accountService.error == null
+                              ? 'Google sign-in was cancelled or unavailable'
+                              : 'Google sign-in failed: ${accountService.error}',
                         );
                       }
                     },

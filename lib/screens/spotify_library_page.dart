@@ -48,11 +48,27 @@ class _SpotifyLibraryPageState extends State<SpotifyLibraryPage> {
     try {
       final playlists = await service.loadPlaylists();
       var importedPlaylists = 0;
+      var skippedPlaylists = 0;
       for (final playlist in playlists) {
         final name = (playlist['name'] as String?)?.trim();
         final id = playlist['id'] as String?;
         if (name == null || name.isEmpty || id == null) continue;
-        final tracks = await service.loadPlaylistTracks(id);
+        // Spotify Development Mode only exposes items for playlists owned by
+        // the user or playlists where they are a collaborator.
+        if (!service.canReadPlaylistItems(playlist)) {
+          skippedPlaylists++;
+          continue;
+        }
+        late final List<Map<String, dynamic>> tracks;
+        try {
+          tracks = await service.loadPlaylistTracks(id);
+        } catch (error) {
+          if (error.toString().contains('403')) {
+            skippedPlaylists++;
+            continue;
+          }
+          rethrow;
+        }
         final (_, playlistId) = createCustomPlaylist(
           'Spotify · $name',
           _imageUrl(playlist),
@@ -78,7 +94,8 @@ class _SpotifyLibraryPageState extends State<SpotifyLibraryPage> {
       if (mounted) {
         setState(
           () => _status =
-              'Imported $importedPlaylists playlists and ${liked.length} Liked Songs.',
+              'Imported $importedPlaylists playlists and ${liked.length} Liked Songs.'
+              '${skippedPlaylists == 0 ? '' : ' Skipped $skippedPlaylists followed/public playlists because Spotify does not expose their contents to Development Mode apps.'}',
         );
         showToast(context, 'Spotify library synced');
       }

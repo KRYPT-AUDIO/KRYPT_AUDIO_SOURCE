@@ -9,10 +9,12 @@ class KryptAccountService extends ChangeNotifier {
   final GoogleSignIn _google = GoogleSignIn(scopes: const ['email', 'profile']);
   GoogleSignInAccount? _account;
   bool _busy = false;
+  String? _error;
 
   GoogleSignInAccount? get account => _account;
   bool get isBusy => _busy;
   bool get isSignedIn => _account != null;
+  String? get error => _error;
 
   Future<void> restore() async {
     try {
@@ -26,6 +28,7 @@ class KryptAccountService extends ChangeNotifier {
   Future<bool> signIn() async {
     if (_busy) return false;
     _busy = true;
+    _error = null;
     notifyListeners();
     try {
       _account = await _google.signIn();
@@ -35,7 +38,8 @@ class KryptAccountService extends ChangeNotifier {
         await Hive.box('user').put('googleAccountPhoto', _account!.photoUrl);
       }
       return _account != null;
-    } catch (_) {
+    } catch (error) {
+      _error = error.toString();
       return false;
     } finally {
       _busy = false;
