@@ -1776,7 +1776,6 @@ class MusifyAudioHandler extends BaseAudioHandler implements AndroidAutoHost {
       playbackState.add(
         playbackState.value.copyWith(
           playing: false,
-          updateTime: DateTime.now(),
         ),
       );
       return;
@@ -1957,7 +1956,6 @@ class MusifyAudioHandler extends BaseAudioHandler implements AndroidAutoHost {
               playbackState.value.copyWith(
                 playing: true,
                 processingState: AudioProcessingState.ready,
-                updateTime: DateTime.now(),
               ),
             );
           }
