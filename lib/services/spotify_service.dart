@@ -213,12 +213,12 @@ class SpotifyService extends ChangeNotifier {
     var offset = 0;
     while (true) {
       final data = await _getJson(
-        '/v1/playlists/$playlistId/tracks',
+        '/v1/playlists/$playlistId/items',
         query: {
           'limit': '50',
           'offset': '$offset',
           'fields':
-              'items(track(id,name,artists(name),album(name,images))),total',
+              'items(item(id,name,artists(name),album(name,images))),total',
         },
       );
       for (final item in (data['items'] as List? ?? const [])) {
@@ -245,7 +245,21 @@ class SpotifyService extends ChangeNotifier {
       return _getJson(path, query: query);
     }
     if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw Exception('Spotify API error (${response.statusCode})');
+      var detail = response.body.trim();
+      try {
+        final body = jsonDecode(response.body);
+        if (body is Map && body['error'] is Map) {
+          final error = Map<String, dynamic>.from(body['error'] as Map);
+          detail = error['message']?.toString() ?? detail;
+          final reason = error['reason']?.toString();
+          if (reason != null && reason.isNotEmpty) detail = '$detail ($reason)';
+        }
+      } catch (_) {
+        // Keep the raw response when Spotify returns a non-JSON error body.
+      }
+      throw Exception(
+        'Spotify API error ${response.statusCode}: ${detail.isEmpty ? 'Unknown error' : detail}',
+      );
     }
     return Map<String, dynamic>.from(jsonDecode(response.body) as Map);
   }

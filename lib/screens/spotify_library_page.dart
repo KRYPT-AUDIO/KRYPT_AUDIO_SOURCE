@@ -93,8 +93,9 @@ class _SpotifyLibraryPageState extends State<SpotifyLibraryPage> {
   }
 
   Map<String, dynamic>? _trackToSong(Map<String, dynamic> item) {
-    final track = item['track'] is Map
-        ? Map<String, dynamic>.from(item['track'] as Map)
+    final nestedTrack = item['item'] ?? item['track'];
+    final track = nestedTrack is Map
+        ? Map<String, dynamic>.from(nestedTrack)
         : item;
     final id = track['id'] as String?;
     final title = track['name'] as String?;
