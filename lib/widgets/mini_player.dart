@@ -28,6 +28,7 @@ import 'package:musify/main.dart';
 import 'package:musify/models/full_player_state.dart';
 import 'package:musify/models/position_data.dart';
 import 'package:musify/screens/now_playing_page.dart';
+import 'package:musify/services/audio_service.dart';
 import 'package:musify/widgets/marquee.dart';
 import 'package:musify/widgets/song_artwork.dart';
 import 'package:musify/widgets/glass_surface.dart';
@@ -60,35 +61,86 @@ class MiniPlayer extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return AnimatedSize(
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeOutCubic,
-      child: StreamBuilder<MediaItem?>(
-        stream: audioHandler.mediaItem,
-        builder: (context, mediaSnapshot) {
-          final metadata = mediaSnapshot.data;
-          if (metadata == null) return const SizedBox.shrink();
+    return ValueListenableBuilder<String?>(
+      valueListenable: playbackErrorNotifier,
+      builder: (context, error, _) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          AnimatedSize(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOutCubic,
+            child: StreamBuilder<MediaItem?>(
+              stream: audioHandler.mediaItem,
+              builder: (context, mediaSnapshot) {
+                final metadata = mediaSnapshot.data;
+                if (metadata == null) return const SizedBox.shrink();
 
-          return StreamBuilder<FullPlayerState>(
-            stream: _fullPlayerStateStream,
-            builder: (context, stateSnapshot) {
-              final state = stateSnapshot.data;
-              if (state == null) return const SizedBox.shrink();
+                return StreamBuilder<FullPlayerState>(
+                  stream: _fullPlayerStateStream,
+                  builder: (context, stateSnapshot) {
+                    final state = stateSnapshot.data;
+                    if (state == null) return const SizedBox.shrink();
 
-              final hasNext =
-                  state.queue.length > 1 &&
-                  (state.playbackState.queueIndex ?? 0) <
-                      state.queue.length - 1;
+                    final hasNext =
+                        state.queue.length > 1 &&
+                        (state.playbackState.queueIndex ?? 0) <
+                            state.queue.length - 1;
 
-              return _MiniPlayerBody(
-                colorScheme: colorScheme,
-                metadata: metadata,
-                state: state,
-                hasNext: hasNext,
-              );
+                    return _MiniPlayerBody(
+                      colorScheme: colorScheme,
+                      metadata: metadata,
+                      state: state,
+                      hasNext: hasNext,
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+          if (error != null) _PlaybackErrorBanner(message: error),
+        ],
+      ),
+    );
+  }
+}
+
+class _PlaybackErrorBanner extends StatelessWidget {
+  const _PlaybackErrorBanner({required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return GlassSurface(
+      margin: const EdgeInsets.only(top: 6),
+      padding: const EdgeInsets.fromLTRB(14, 8, 8, 8),
+      borderRadius: BorderRadius.circular(16),
+      opacity: .92,
+      borderColor: colors.error.withValues(alpha: .45),
+      child: Row(
+        children: [
+          Icon(FluentIcons.warning_24_filled, color: colors.error, size: 18),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'Playback interrupted',
+              style: TextStyle(color: colors.onSurface, fontSize: 12),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              playbackErrorNotifier.value = null;
+              audioHandler.play();
             },
-          );
-        },
+            child: const Text('Retry'),
+          ),
+          IconButton(
+            tooltip: 'Dismiss',
+            onPressed: () => playbackErrorNotifier.value = null,
+            icon: const Icon(FluentIcons.dismiss_20_regular, size: 18),
+          ),
+        ],
       ),
     );
   }

@@ -5,7 +5,7 @@ repository: https://github.com/gokadzev/Musify
 issue_tracker: https://github.com/gokadzev/Musify/issues
 
 publish_to: 'none'
-version: 1.0.10+12 # Liquid Glass customization UI correction
+version: 2.0.0+20 # Android V2 release hardening
 
 environment:
   sdk: '>=3.13.0 <4.0.0'

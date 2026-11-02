@@ -24,6 +24,7 @@ import 'dart:io';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:audio_session/audio_session.dart';
+import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:musify/constants/clients.dart';
@@ -40,6 +41,8 @@ import 'package:musify/utilities/mediaitem.dart';
 import 'package:musify/utilities/platform_utils.dart';
 import 'package:musify/utilities/queue_entry_utils.dart';
 import 'package:rxdart/rxdart.dart';
+
+final playbackErrorNotifier = ValueNotifier<String?>(null);
 
 class MusifyAudioHandler extends BaseAudioHandler implements AndroidAutoHost {
   MusifyAudioHandler() {
@@ -851,6 +854,7 @@ class MusifyAudioHandler extends BaseAudioHandler implements AndroidAutoHost {
 
   void _handlePlaybackError() {
     _consecutiveErrors++;
+    playbackErrorNotifier.value = _lastError ?? 'Unable to play this track';
     logger.log(
       'Playback error occurred. Consecutive errors: $_consecutiveErrors',
       error: _lastError,
@@ -872,6 +876,7 @@ class MusifyAudioHandler extends BaseAudioHandler implements AndroidAutoHost {
       });
     } else {
       _lastError = null;
+      playbackErrorNotifier.value = null;
     }
   }
 
@@ -1800,6 +1805,7 @@ class MusifyAudioHandler extends BaseAudioHandler implements AndroidAutoHost {
     _currentLoadingIndex = -1;
     _currentLoadingTransitionId = -1;
     _lastError = null;
+    playbackErrorNotifier.value = null;
     _consecutiveErrors = 0;
     try {
       listeningStatsService.finishListeningSession(

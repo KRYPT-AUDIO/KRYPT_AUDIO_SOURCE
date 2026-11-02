@@ -8,10 +8,13 @@ import 'package:musify/services/common_services.dart';
 import 'package:musify/services/settings_manager.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
-// Live test: hits YouTube, which blocks GitHub Actions.
-final _skip = Platform.environment.containsKey('GITHUB_ACTIONS')
-    ? 'YouTube blocks GitHub Actions'
-    : null;
+// Live tests hit YouTube and depend on the runner's IP reputation. Keep them
+// opt-in so ordinary release validation remains deterministic. Run with
+// `KRYPT_LIVE_TESTS=true flutter test test/fetch_audio_stream_live_test.dart`
+// when a real network smoke test is intentionally required.
+final _skip = Platform.environment['KRYPT_LIVE_TESTS'] == 'true'
+    ? null
+    : 'Opt-in network test; set KRYPT_LIVE_TESTS=true to run';
 
 const _songId = 'dQw4w9WgXcQ';
 
