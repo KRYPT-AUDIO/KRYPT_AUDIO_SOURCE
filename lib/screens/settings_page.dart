@@ -37,6 +37,7 @@ import 'package:musify/services/playlist_download_service.dart';
 import 'package:musify/services/playlists_manager.dart';
 import 'package:musify/services/router_service.dart';
 import 'package:musify/services/settings_manager.dart';
+import 'package:musify/services/smart_dj_service.dart';
 import 'package:musify/theme/app_colors.dart';
 import 'package:musify/theme/app_themes.dart';
 import 'package:musify/utilities/flutter_bottom_sheet.dart';
@@ -69,6 +70,7 @@ class SettingsPage extends StatelessWidget {
           activatedColor,
           inactivatedColor,
         ),
+        _buildSmartDjSection(context),
         if (!offlineMode.value) _buildOnlineFeaturesSection(context),
         _buildOthersSection(context),
         const SizedBox(height: 20),
@@ -143,6 +145,21 @@ class SettingsPage extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildSmartDjSection(BuildContext context) {
+    final service = SmartDjService.instance;
+    return AnimatedBuilder(
+      animation: service,
+      builder: (context, _) => CustomBar(
+        'KRYPT Smart DJ',
+        FluentIcons.sparkle_24_filled,
+        description: 'Build a local mix from your library with optional spoken introductions.',
+        borderRadius: commonCustomBarRadiusLast,
+        onTap: () => context.push('/home/smartDj'),
+        trailing: Switch(value: service.spoken, onChanged: service.setSpoken),
+      ),
     );
   }
 

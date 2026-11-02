@@ -39,6 +39,7 @@ import 'package:musify/screens/plugin_marketplace_page.dart';
 import 'package:musify/screens/radio_stations_page.dart';
 import 'package:musify/screens/search_page.dart';
 import 'package:musify/screens/settings_page.dart';
+import 'package:musify/screens/smart_dj_page.dart';
 import 'package:musify/screens/spotify_library_page.dart';
 import 'package:musify/screens/time_machine_page.dart';
 import 'package:musify/screens/user_songs_page.dart';
@@ -175,6 +176,11 @@ class NavigationManager {
                 path: 'timeMachine',
                 pageBuilder: (context, state) =>
                     _pushPage(child: const TimeMachinePage(), state: state),
+              ),
+              GoRoute(
+                path: 'smartDj',
+                pageBuilder: (context, state) =>
+                    _pushPage(child: const SmartDjPage(), state: state),
               ),
               GoRoute(
                 path: 'library',

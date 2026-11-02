@@ -130,6 +130,46 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
             ),
+            GestureDetector(
+              onTap: () => context.push('/home/smartDj'),
+              child: GlassSurface(
+                margin: const EdgeInsets.only(bottom: 18),
+                padding: const EdgeInsets.fromLTRB(18, 16, 14, 16),
+                borderRadius: BorderRadius.circular(24),
+                opacity: 0.82,
+                child: Row(
+                  children: [
+                    Icon(
+                      FluentIcons.sparkle_24_filled,
+                      color: Theme.of(context).colorScheme.secondary,
+                      size: 26,
+                    ),
+                    const SizedBox(width: 14),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'KRYPT SMART DJ',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 1.2,
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Text('A fresh mix curated from your library.'),
+                        ],
+                      ),
+                    ),
+                    Icon(
+                      FluentIcons.chevron_right_24_regular,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ],
+                ),
+              ),
+            ),
             _buildPluginRuntimeStrip(),
             ValueListenableBuilder<String?>(
               valueListenable: announcementURL,
