@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1090658410436",
+    "project_id": "krypt-audio-main",
+    "storage_bucket": "krypt-audio-main.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1090658410436:android:302f371d35327b41970e91",
+        "android_client_info": {
+          "package_name": "com.synapselabs.kryptaudio"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1090658410436-ev227fivn5107qm1v1l1ia4bb6hvc1tl.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.synapselabs.kryptaudio",
+            "certificate_hash": "fbd49fb81351d67d3bff3b8172a3e71b0d2e31a1"
+          }
+        },
+        {
+          "client_id": "1090658410436-72dekirhmfrmqe113vr67i6fepghsrsk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD1Zh3nI6mxA6R6QwQgRUB2AbyT98I5gfg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1090658410436-72dekirhmfrmqe113vr67i6fepghsrsk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

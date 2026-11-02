@@ -4,6 +4,7 @@ import java.io.FileInputStream
 plugins {
     id("com.android.application")
     id("dev.flutter.flutter-gradle-plugin")
+    id("com.google.gms.google-services")
 }
 
 val localProperties = Properties()
@@ -71,7 +72,7 @@ android {
     signingConfigs {
         create("release") {
             // From decoded key
-            storeFile = file("key.jks")
+            storeFile = rootProject.file(keystoreProperties["storeFile"] as String)
 
             // From key.properties
             keyAlias = keystoreProperties["keyAlias"] as String?
