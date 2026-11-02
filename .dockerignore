@@ -1,0 +1,10 @@
+.git
+.dart_tool
+build
+android/.gradle
+android/app/key.jks
+android/key.properties
+*.apk
+*.aab
+*.ipa
+.DS_Store
