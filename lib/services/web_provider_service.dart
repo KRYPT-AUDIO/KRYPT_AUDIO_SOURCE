@@ -6,9 +6,14 @@ import 'package:http/http.dart' as http;
 class WebProviderService {
   static Future<List<Map<String, dynamic>>> search(String query) async {
     if (!kIsWeb || query.trim().isEmpty) return [];
-    final deezer = await _searchDeezer(query);
-    if (deezer.isNotEmpty) return deezer;
-    return _searchItunes(query);
+    final results = await Future.wait([
+      _searchDeezer(query),
+      _searchItunes(query),
+    ]);
+    for (final result in results) {
+      if (result.isNotEmpty) return result;
+    }
+    return [];
   }
 
   static Future<List<Map<String, dynamic>>> _searchDeezer(String query) async {

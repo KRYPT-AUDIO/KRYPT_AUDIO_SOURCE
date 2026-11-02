@@ -41,7 +41,7 @@ class OfficialYoutubeApi {
     try {
       final response = await http
           .get(_endpoint(query.trim(), type), headers: const {'Accept': 'application/json'})
-          .timeout(const Duration(seconds: 20));
+          .timeout(const Duration(seconds: 8));
       if (response.statusCode < 200 || response.statusCode >= 300) return [];
       final decoded = jsonDecode(response.body);
       final items = decoded is Map ? decoded['items'] : null;
