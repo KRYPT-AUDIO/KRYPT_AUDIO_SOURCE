@@ -367,6 +367,12 @@ class SettingsPage extends StatelessWidget {
   Widget _buildOnlineFeaturesSection(BuildContext context) {
     return Column(
       children: [
+        CustomBar(
+          'Spotify library',
+          FluentIcons.music_note_2_24_regular,
+          description: 'Connect Spotify to import playlists and Liked Songs.',
+          onTap: () => context.push('/settings/spotify-library'),
+        ),
         ValueListenableBuilder<bool>(
           valueListenable: sponsorBlockSupport,
           builder: (_, value, __) {

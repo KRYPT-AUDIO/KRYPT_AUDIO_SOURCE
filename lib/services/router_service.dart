@@ -39,6 +39,7 @@ import 'package:musify/screens/plugin_marketplace_page.dart';
 import 'package:musify/screens/radio_stations_page.dart';
 import 'package:musify/screens/search_page.dart';
 import 'package:musify/screens/settings_page.dart';
+import 'package:musify/screens/spotify_library_page.dart';
 import 'package:musify/screens/time_machine_page.dart';
 import 'package:musify/screens/user_songs_page.dart';
 import 'package:musify/services/playlist_download_service.dart';
@@ -311,6 +312,11 @@ class NavigationManager {
                   child: const ImportSpotifyPlaylistPage(),
                   state: state,
                 ),
+              ),
+              GoRoute(
+                path: 'spotify-library',
+                pageBuilder: (context, state) =>
+                    _pushPage(child: const SpotifyLibraryPage(), state: state),
               ),
             ],
           ),

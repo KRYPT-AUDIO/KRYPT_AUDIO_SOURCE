@@ -45,6 +45,7 @@ import 'package:musify/services/playlists_manager.dart';
 import 'package:musify/services/plugin_service.dart';
 import 'package:musify/services/router_service.dart';
 import 'package:musify/services/settings_manager.dart';
+import 'package:musify/services/spotify_service.dart';
 import 'package:musify/services/update_manager.dart';
 import 'package:musify/services/windows_media_controls.dart';
 import 'package:musify/theme/app_themes.dart';
@@ -306,6 +307,7 @@ Future<void> initialisation() async {
     ]);
     await KryptPluginService.instance.initialize();
     await KryptAccountService.instance.restore();
+    await SpotifyService.instance.restore();
 
     if (isMobilePlatform) {
       audioHandler = await AudioService.init(
@@ -418,6 +420,7 @@ Future<void> initialisation() async {
           logger.log('URI link error:', error: err);
         },
       );
+      await handleIncomingLink(await appLinks.getInitialLink());
     } on PlatformException {
       logger.log('Failed to get initial uri');
     }
@@ -433,7 +436,8 @@ Future<void> initialisation() async {
   await FilePaths.ensureDirectoriesExist();
 }
 
-void handleIncomingLink(Uri? uri) async {
+Future<void> handleIncomingLink(Uri? uri) async {
+  if (uri != null && await SpotifyService.instance.handleCallback(uri)) return;
   if (uri == null || uri.scheme != 'musify' || uri.host != 'playlist') return;
 
   if (uri.pathSegments.length < 2 || uri.pathSegments[0] != 'custom') return;

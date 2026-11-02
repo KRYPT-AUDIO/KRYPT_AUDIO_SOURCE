@@ -74,6 +74,13 @@
                     android:host="playlist"
                     android:pathPattern="/custom/.*" />
             </intent-filter>
+            <!-- Spotify OAuth PKCE callback -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="kryptaudio" android:host="spotify-auth" />
+            </intent-filter>
             <!-- Intent filter for handling text sharing -->
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />

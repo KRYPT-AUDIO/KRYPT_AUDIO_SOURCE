@@ -5,7 +5,7 @@ repository: https://github.com/gokadzev/Musify
 issue_tracker: https://github.com/gokadzev/Musify/issues
 
 publish_to: 'none'
-version: 1.0.3+5 # no-AI Android feature release
+version: 1.0.4+6 # Spotify library integration
 
 environment:
   sdk: '>=3.13.0 <4.0.0'
