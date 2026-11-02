@@ -20,6 +20,7 @@
  */
 
 import 'package:audio_service/audio_service.dart';
+import 'package:flutter/foundation.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
@@ -35,6 +36,7 @@ import 'package:musify/services/playlist_download_service.dart';
 import 'package:musify/services/playlists_manager.dart';
 import 'package:musify/services/router_service.dart';
 import 'package:musify/services/settings_manager.dart';
+import 'package:musify/services/spotify_web.dart';
 import 'package:musify/theme/app_colors.dart';
 import 'package:musify/theme/app_themes.dart';
 import 'package:musify/utilities/flutter_bottom_sheet.dart';
@@ -267,6 +269,25 @@ class SettingsPage extends StatelessWidget {
   Widget _buildOnlineFeaturesSection(BuildContext context) {
     return Column(
       children: [
+        if (kIsWeb && spotifyWebService.configured)
+          CustomBar(
+            spotifyWebService.isAuthenticated
+                ? 'Spotify Connected'
+                : 'Connect Spotify',
+            FluentIcons.play_circle_24_regular,
+            description: spotifyWebService.isAuthenticated
+                ? 'Play Spotify tracks in the KRYPT AUDIO Web player'
+                : 'Sign in to play full tracks through Spotify Web Playback',
+            onTap: () async {
+              final connected = await spotifyWebService.login();
+              showToast(
+                context,
+                connected
+                    ? 'Spotify connected'
+                    : 'Spotify connection cancelled or unavailable',
+              );
+            },
+          ),
         ValueListenableBuilder<bool>(
           valueListenable: sponsorBlockSupport,
           builder: (_, value, __) {

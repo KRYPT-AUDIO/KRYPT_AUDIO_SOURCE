@@ -1,0 +1,68 @@
+name: Release KRYPT AUDIO Web Build
+
+on:
+  push:
+    branches: [web]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: web-release
+  cancel-in-progress: false
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Enable web
+        run: flutter config --enable-web
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Flutter Web
+        run: flutter build web --release --base-href /KRYPT_AUDIO_SOURCE/ --dart-define=KRYPT_WEB_API_BASE_URL=https://synapselabs.uk/krypt-audio/api --dart-define=KRYPT_SPOTIFY_CLIENT_ID=abb77bc3863f4f8fab60434b4a86e2f5
+
+      - name: Add GitHub Pages fallback files
+        run: |
+          cp build/web/index.html build/web/404.html
+          touch build/web/.nojekyll
+
+      - name: Package Web build
+        id: package
+        env:
+          RUN_NUMBER: ${{ github.run_number }}
+        run: |
+          archive="KRYPT-AUDIO-Web-${RUN_NUMBER}.zip"
+          cd build
+          zip -qr "../${archive}" web
+          echo "archive=${archive}" >> "$GITHUB_OUTPUT"
+          cd ..
+          sha256sum "${archive}" | tee "${archive}.sha256"
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ARCHIVE: ${{ steps.package.outputs.archive }}
+          RUN_NUMBER: ${{ github.run_number }}
+          COMMIT_SHA: ${{ github.sha }}
+        run: |
+          tag="web-build-${RUN_NUMBER}"
+          gh release create "$tag" \
+            "$ARCHIVE" \
+            "${ARCHIVE}.sha256" \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$COMMIT_SHA" \
+            --title "KRYPT AUDIO Web Build ${RUN_NUMBER}" \
+            --notes "Compiled KRYPT AUDIO Web build from the web branch.\n\nDownload the ZIP, extract it, and deploy the contents of the web/ directory to a static host. The build is configured for GitHub Pages at /KRYPT_AUDIO_SOURCE/."

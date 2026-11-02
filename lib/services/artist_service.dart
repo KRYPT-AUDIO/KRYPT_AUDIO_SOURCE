@@ -21,9 +21,11 @@
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:musify/constants/artist_constants.dart';
 import 'package:musify/main.dart' show logger;
 import 'package:musify/services/data_manager.dart';
+import 'package:musify/services/official_youtube_api.dart';
 import 'package:musify/services/proxy_manager.dart';
 import 'package:musify/utilities/app_utils.dart';
 import 'package:musify/utilities/formatter.dart';
@@ -49,6 +51,27 @@ Future<List<Map<String, dynamic>>> searchVerifiedArtists(
   }
 
   try {
+    if (kIsWeb) {
+      final official = await OfficialYoutubeApi.searchChannels(normalizedQuery);
+      final officialArtists = _dedupeResolvedArtists(
+        official
+            .map(OfficialYoutubeApi.idOf)
+            .whereType<Map<String, dynamic>>()
+            .map(
+              (artist) => {
+                'ytid': artist['ytid'],
+                'title': artist['title'],
+                'image': artist['image'],
+                'source': 'youtube-artist-official',
+                'isArtist': true,
+                'isVerifiedArtist': true,
+                'list': [],
+              },
+            ),
+      ).take(limit).toList();
+      if (officialArtists.isNotEmpty) return officialArtists;
+    }
+
     final artists = _dedupeResolvedArtists(
       (await ytMusicClient.music
               .searchArtists(normalizedQuery)
@@ -175,6 +198,47 @@ Future<Map<String, dynamic>?> getArtistProfile(
 }) async {
   try {
     final lookup = artistId.trim();
+
+    if (kIsWeb && (preferredName?.trim().isNotEmpty ?? false)) {
+      final officialVideos = await OfficialYoutubeApi.searchVideos(
+        preferredName!.trim(),
+      );
+      final topSongs = <Map<String, dynamic>>[];
+      for (final item in officialVideos) {
+        final mapped = OfficialYoutubeApi.idOf(item);
+        if (mapped == null || !(mapped['kind'] as String).endsWith('#video')) {
+          continue;
+        }
+        topSongs.add({
+          'song': {
+            'ytid': mapped['ytid'],
+            'title': mapped['title'],
+            'artist': preferredName,
+            'artistId': lookup,
+            'videoAuthor': mapped['channelTitle'],
+            'image': mapped['image'],
+            'lowResImage': mapped['image'],
+            'highResImage': mapped['image'],
+            'duration': null,
+            'isLive': false,
+            'source': 'youtube-official',
+          },
+          'playCount': null,
+        });
+      }
+      return {
+        'ytid': lookup,
+        'title': preferredName,
+        'image': preferredImage,
+        'source': 'youtube-artist-official',
+        'isArtist': true,
+        'isVerifiedArtist': true,
+        'topSongs': topSongs,
+        'releases': const [],
+        'relatedArtists': const [],
+      };
+    }
+
     final isChannelLookup = _isChannelId(lookup);
 
     // A channel id is read straight away: one browse answers both who the

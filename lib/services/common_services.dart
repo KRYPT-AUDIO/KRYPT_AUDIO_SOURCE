@@ -24,6 +24,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
@@ -32,9 +33,11 @@ import 'package:musify/main.dart' show logger;
 import 'package:musify/services/data_manager.dart';
 import 'package:musify/services/io_service.dart';
 import 'package:musify/services/lyrics_manager.dart';
+import 'package:musify/services/official_youtube_api.dart';
 import 'package:musify/services/playlists_manager.dart';
 import 'package:musify/services/proxy_manager.dart';
 import 'package:musify/services/settings_manager.dart';
+import 'package:musify/services/spotify_web.dart';
 import 'package:musify/utilities/app_utils.dart';
 import 'package:musify/utilities/formatter.dart';
 import 'package:musify/utilities/map_utils.dart';
@@ -174,6 +177,34 @@ Future<bool> _validateCachedUrl(String songId, String cachedUrl) async {
 
 Future<List> fetchSongsList(String searchQuery) async {
   try {
+    if (kIsWeb) {
+      final spotifySongs = await spotifyWebService.searchTracks(searchQuery);
+      if (spotifySongs.isNotEmpty) return spotifySongs;
+
+      final officialItems = await OfficialYoutubeApi.searchVideos(searchQuery);
+      final officialSongs = <Map<String, dynamic>>[];
+      for (final item in officialItems) {
+        final mapped = OfficialYoutubeApi.idOf(item);
+        if (mapped == null || !(mapped['kind'] as String).endsWith('#video')) {
+          continue;
+        }
+        officialSongs.add({
+          'ytid': mapped['ytid'],
+          'title': mapped['title'],
+          'artist': mapped['channelTitle'],
+          'artistId': null,
+          'videoAuthor': mapped['channelTitle'],
+          'image': mapped['image'],
+          'lowResImage': mapped['image'],
+          'highResImage': mapped['image'],
+          'duration': null,
+          'isLive': false,
+          'source': 'youtube-official',
+        });
+      }
+      if (officialSongs.isNotEmpty) return officialSongs;
+    }
+
     // If not in cache, perform the search
     final List<Video> searchResults = await ytClient.search.search(searchQuery);
     final songsList = searchResults
@@ -326,8 +357,14 @@ Future<List> _getRecommendationsFromMixedSources() async {
   ];
 
   if (globalSongs.isEmpty) {
-    const playlistId = 'PLgzTt0k8mXzEk586ze4BjvDXR7c-TUSnx';
-    globalSongs = await getSongsFromPlaylist(playlistId);
+    if (kIsWeb) {
+      // The Web build uses official Data API results as its home seed. This
+      // avoids depending on playlist-page scraping before a user searches.
+      globalSongs = await fetchSongsList('new music official music videos');
+    } else {
+      const playlistId = 'PLgzTt0k8mXzEk586ze4BjvDXR7c-TUSnx';
+      globalSongs = await getSongsFromPlaylist(playlistId);
+    }
   }
   recommendationSources.add(globalSongs.take(10));
 

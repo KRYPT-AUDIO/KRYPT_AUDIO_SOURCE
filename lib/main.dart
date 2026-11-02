@@ -44,6 +44,7 @@ import 'package:musify/services/playlists_manager.dart';
 import 'package:musify/services/plugin_service.dart';
 import 'package:musify/services/router_service.dart';
 import 'package:musify/services/settings_manager.dart';
+import 'package:musify/services/spotify_web.dart';
 import 'package:musify/services/update_manager.dart';
 import 'package:musify/services/windows_media_controls.dart';
 import 'package:musify/theme/app_themes.dart';
@@ -289,6 +290,7 @@ class _MusifyState extends State<Musify> with WidgetsBindingObserver {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initialisation();
+  if (kIsWeb) unawaited(spotifyWebService.initialize());
 
   runApp(const Musify());
 }
@@ -425,6 +427,14 @@ Future<void> initialisation() async {
     }
   } catch (e, stackTrace) {
     logger.log('Initialization Error', error: e, stackTrace: stackTrace);
+  }
+
+  // Browsers do not expose an application documents directory through the
+  // native path_provider channel. Hive already provides persistent browser
+  // storage, so skip native filesystem setup on Web.
+  if (kIsWeb) {
+    applicationDirPath = '';
+    return;
   }
 
   applicationDirPath = (await getApplicationDocumentsDirectory()).path;

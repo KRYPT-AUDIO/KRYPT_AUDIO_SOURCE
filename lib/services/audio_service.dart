@@ -24,6 +24,7 @@ import 'dart:io';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:audio_session/audio_session.dart';
+import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:musify/constants/clients.dart';
@@ -34,6 +35,8 @@ import 'package:musify/services/common_services.dart';
 import 'package:musify/services/data_manager.dart';
 import 'package:musify/services/listening_stats_service.dart';
 import 'package:musify/services/settings_manager.dart';
+import 'package:musify/services/spotify_web.dart';
+import 'package:musify/services/web_api.dart';
 import 'package:musify/utilities/map_utils.dart';
 import 'package:musify/utilities/media_duration.dart';
 import 'package:musify/utilities/mediaitem.dart';
@@ -43,7 +46,7 @@ import 'package:rxdart/rxdart.dart';
 
 class MusifyAudioHandler extends BaseAudioHandler implements AndroidAutoHost {
   MusifyAudioHandler() {
-    final androidEqualizer = Platform.isAndroid ? AndroidEqualizer() : null;
+    final androidEqualizer = isAndroidPlatform ? AndroidEqualizer() : null;
     _androidEqualizer = androidEqualizer;
     audioPlayer = AudioPlayer(
       handleInterruptions: isMobilePlatform,
@@ -1727,6 +1730,15 @@ class MusifyAudioHandler extends BaseAudioHandler implements AndroidAutoHost {
 
   @override
   Future<void> play() async {
+    if (kIsWeb) {
+      final spotifyId = currentSong == null
+          ? null
+          : spotifyTrackIdFromSong(currentSong!);
+      if (spotifyId != null) {
+        await spotifyWebService.playTrack(spotifyId);
+        return;
+      }
+    }
     if (isDesktopPlatform && _currentLoadingIndex >= 0)
       _queuePlayWhenReady = true;
     try {
@@ -1759,6 +1771,16 @@ class MusifyAudioHandler extends BaseAudioHandler implements AndroidAutoHost {
 
   @override
   Future<void> pause() async {
+    if (kIsWeb && spotifyTrackIdFromSong(currentSong ?? {}) != null) {
+      await spotifyWebService.pause();
+      playbackState.add(
+        playbackState.value.copyWith(
+          playing: false,
+          updateTime: DateTime.now(),
+        ),
+      );
+      return;
+    }
     if (isDesktopPlatform && _currentLoadingIndex >= 0)
       _queuePlayWhenReady = false;
     try {
@@ -1919,6 +1941,28 @@ class MusifyAudioHandler extends BaseAudioHandler implements AndroidAutoHost {
           wasPlaying: audioPlayer.playing,
         );
         await audioPlayer.pause();
+      }
+
+      if (kIsWeb) {
+        final spotifyId = spotifyTrackIdFromSong(songData);
+        if (spotifyId != null) {
+          _emitOptimisticLoadingState(
+            song: songData,
+            includeMediaItem: true,
+            mediaId: mediaId,
+          );
+          final started = await spotifyWebService.playTrack(spotifyId);
+          if (started) {
+            playbackState.add(
+              playbackState.value.copyWith(
+                playing: true,
+                processingState: AudioProcessingState.ready,
+                updateTime: DateTime.now(),
+              ),
+            );
+          }
+          return started;
+        }
       }
 
       final playback = await _resolvePlaybackSource(songData);
@@ -2366,7 +2410,7 @@ class MusifyAudioHandler extends BaseAudioHandler implements AndroidAutoHost {
         return fileSource;
       }
 
-      final uri = Uri.parse(songUrl);
+      final uri = routeWebMediaUrl(Uri.parse(songUrl));
       final needsClientHeaders =
           song['isLive'] != true && uri.host.endsWith('googlevideo.com');
       final audioSource = AudioSource.uri(
