@@ -23,6 +23,8 @@ import 'package:audio_service/audio_service.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:musify/main.dart';
+import 'package:musify/services/smart_dj_service.dart';
+import 'package:musify/theme/krypt_design.dart';
 import 'package:musify/widgets/flip_card.dart';
 import 'package:musify/widgets/now_playing/bottom_actions_row.dart';
 import 'package:musify/widgets/now_playing/now_playing_artwork.dart';
@@ -66,6 +68,7 @@ class _NowPlayingPageState extends State<NowPlayingPage> {
             return Column(
               children: [
                 _buildAppBar(context, colorScheme),
+                const _SmartDjPlayerBar(),
                 Expanded(
                   child: isLargeScreen
                       ? _DesktopLayout(
@@ -110,6 +113,90 @@ class _NowPlayingPageState extends State<NowPlayingPage> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _SmartDjPlayerBar extends StatelessWidget {
+  const _SmartDjPlayerBar();
+
+  Future<void> _toggle(BuildContext context, SmartDjService service) async {
+    if (service.isActive) {
+      await service.stop();
+      return;
+    }
+
+    final started = await service.start();
+    if (!started && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Smart DJ needs some liked, offline, or recommended songs first.',
+          ),
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final service = SmartDjService.instance;
+    return AnimatedBuilder(
+      animation: service,
+      builder: (context, _) {
+        final colors = Theme.of(context).colorScheme;
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+          child: GlassContainer(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            radius: 18,
+            opacity: 0.76,
+            child: Row(
+              children: [
+                Icon(
+                  FluentIcons.sparkle_24_filled,
+                  size: 18,
+                  color: service.isActive ? colors.secondary : colors.primary,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    service.isActive
+                        ? 'Smart DJ · ${service.mood.label}'
+                        : 'Smart DJ',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+                if (service.isActive)
+                  IconButton(
+                    tooltip: 'Spoken introductions',
+                    visualDensity: VisualDensity.compact,
+                    onPressed: () => service.setSpoken(!service.spoken),
+                    icon: Icon(
+                      service.spoken
+                          ? FluentIcons.speaker_2_24_filled
+                          : FluentIcons.speaker_off_24_regular,
+                      size: 19,
+                    ),
+                  ),
+                TextButton.icon(
+                  onPressed: () => _toggle(context, service),
+                  icon: Icon(
+                    service.isActive
+                        ? FluentIcons.stop_24_filled
+                        : FluentIcons.play_24_filled,
+                    size: 17,
+                  ),
+                  label: Text(service.isActive ? 'Stop' : 'Start'),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }
