@@ -5,7 +5,7 @@ repository: https://github.com/gokadzev/Musify
 issue_tracker: https://github.com/gokadzev/Musify/issues
 
 publish_to: 'none'
-version: 1.0.7+9 # Integrated Smart DJ Now Playing controls
+version: 1.0.8+10 # Smart DJ audio-focus playback fix
 
 environment:
   sdk: '>=3.13.0 <4.0.0'

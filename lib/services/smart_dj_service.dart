@@ -29,6 +29,8 @@ class SmartDjService extends ChangeNotifier {
   double _energy = 0.55;
   String _mood = SmartDjMood.flow.name;
   String? _lastAnnouncedId;
+  bool _skipNextTrackAnnouncement = false;
+  bool _isSpeaking = false;
 
   bool get isActive => _isActive;
   bool get spoken => _spoken;
@@ -128,9 +130,14 @@ class SmartDjService extends ChangeNotifier {
       if (!_isActive || item == null || !_spoken) return;
       if (_lastAnnouncedId == item.id) return;
       _lastAnnouncedId = item.id;
+      if (_skipNextTrackAnnouncement) {
+        _skipNextTrackAnnouncement = false;
+        return;
+      }
       unawaited(_announceTrack(item.title, item.artist));
     });
 
+    _skipNextTrackAnnouncement = _spoken;
     await audioHandler.playPlaylistSong(
       playlist: {'title': 'KRYPT Smart DJ', 'list': mix},
       songIndex: 0,
@@ -141,6 +148,9 @@ class SmartDjService extends ChangeNotifier {
         'You are listening to KRYPT Smart DJ. I built a fresh mix for your ${mood.label.toLowerCase()} session.',
       );
     }
+    // TTS can temporarily take Android audio focus. Always hand focus back to
+    // the music player before returning control to the user.
+    await audioHandler.play();
     notifyListeners();
     return true;
   }
@@ -150,6 +160,7 @@ class SmartDjService extends ChangeNotifier {
     await _mediaSubscription?.cancel();
     _mediaSubscription = null;
     await _tts.stop();
+    await audioHandler.play();
     notifyListeners();
   }
 
@@ -161,7 +172,10 @@ class SmartDjService extends ChangeNotifier {
   }
 
   Future<void> _speak(String text) async {
+    if (_isSpeaking) return;
+    _isSpeaking = true;
     try {
+      await _tts.awaitSpeakCompletion(true);
       await _tts.setLanguage('en-GB');
       await _tts.setSpeechRate(0.48);
       await _tts.setPitch(1.0);
@@ -172,6 +186,9 @@ class SmartDjService extends ChangeNotifier {
         error: error,
         stackTrace: stackTrace,
       );
+    } finally {
+      _isSpeaking = false;
+      if (_isActive) unawaited(audioHandler.play());
     }
   }
 
