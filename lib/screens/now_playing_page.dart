@@ -30,6 +30,7 @@ import 'package:musify/widgets/now_playing/bottom_actions_row.dart';
 import 'package:musify/widgets/now_playing/now_playing_artwork.dart';
 import 'package:musify/widgets/now_playing/now_playing_controls.dart';
 import 'package:musify/widgets/queue_list_view.dart';
+import 'package:musify/widgets/krypt_visualizer.dart';
 
 class NowPlayingPage extends StatefulWidget {
   const NowPlayingPage({super.key});
@@ -69,6 +70,10 @@ class _NowPlayingPageState extends State<NowPlayingPage> {
               children: [
                 _buildAppBar(context, colorScheme),
                 const _SmartDjPlayerBar(),
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
+                  child: KryptVisualizer(),
+                ),
                 Expanded(
                   child: isLargeScreen
                       ? _DesktopLayout(

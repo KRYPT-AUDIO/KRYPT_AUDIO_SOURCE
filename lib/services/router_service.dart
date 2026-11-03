@@ -26,6 +26,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:musify/constants/version.dart';
 import 'package:musify/screens/about_page.dart';
 import 'package:musify/screens/donation_page.dart';
+import 'package:musify/screens/discover_page.dart';
 import 'package:musify/screens/artist_page.dart';
 import 'package:musify/screens/bottom_navigation_page.dart';
 import 'package:musify/screens/equalizer_page.dart';
@@ -118,6 +119,8 @@ class NavigationManager {
   static final GlobalKey<NavigatorState> homeTabNavigatorKey =
       GlobalKey<NavigatorState>();
   static final GlobalKey<NavigatorState> searchTabNavigatorKey =
+      GlobalKey<NavigatorState>();
+  static final GlobalKey<NavigatorState> discoverTabNavigatorKey =
       GlobalKey<NavigatorState>();
   static final GlobalKey<NavigatorState> libraryTabNavigatorKey =
       GlobalKey<NavigatorState>();
@@ -214,7 +217,18 @@ class NavigationManager {
           ),
         ],
       ),
-      // Branch 1: Search
+      // Branch 1: Discover
+      StatefulShellBranch(
+        navigatorKey: discoverTabNavigatorKey,
+        routes: [
+          GoRoute(
+            path: '/discover',
+            pageBuilder: (context, GoRouterState state) =>
+                getPage(child: const DiscoverPage(), state: state),
+          ),
+        ],
+      ),
+      // Branch 2: Search
       StatefulShellBranch(
         navigatorKey: searchTabNavigatorKey,
         routes: [
@@ -237,7 +251,7 @@ class NavigationManager {
           ),
         ],
       ),
-      // Branch 2: Library
+      // Branch 3: Library
       StatefulShellBranch(
         navigatorKey: libraryTabNavigatorKey,
         routes: [
@@ -267,7 +281,7 @@ class NavigationManager {
           ),
         ],
       ),
-      // Branch 3: Settings
+      // Branch 4: Settings
       StatefulShellBranch(
         navigatorKey: settingsTabNavigatorKey,
         routes: [

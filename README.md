@@ -10,7 +10,7 @@
   [![License](https://img.shields.io/github/license/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE?style=flat-square&color=38BDF8)](LICENSE)
   [![Stars](https://img.shields.io/github/stars/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE?style=flat-square&color=E879F9)](https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/stargazers)
 
-  **Current release: V2.0.0 · Android build 20**
+  **Current release: V2.0.1 · Android build 21**
 </div>
 
 ---
@@ -23,10 +23,14 @@ KRYPT AUDIO is maintained as an independent project by Synapse Labs UK Ltd in th
 
 KRYPT AUDIO does not host or distribute copyrighted audio. Music is resolved from configured external sources, and users are responsible for complying with the laws and terms that apply to their use of those sources.
 
-## V2.0.0 release status
+## V2.0.1 release status
 
-V2.0.0 is the current Android release-hardening milestone. It includes the V1 feature set plus stability, recovery, branding and release-validation improvements:
+V2.0.1 is the current Android premium-experience release. It includes the V2.0.0 hardening work plus a more complete discovery and playback experience:
 
+- A dedicated Discover destination with Apple Music-inspired browse structure, mood filters and refreshable content.
+- Discover playlists and playable recommendations are connected to the existing source and playback services.
+- A live KRYPT playback visualiser in Now Playing, driven by the current playback state.
+- Five-part Android navigation: Home, Discover, Search, Library and Settings.
 - Consistent KRYPT Liquid Glass styling across the new profile and Home customisation surfaces.
 - Actionable playback recovery with an in-player **Retry** and **Dismiss** control when a stream is interrupted.
 - Permanent KRYPT AUDIO Android release signing configuration.
@@ -91,7 +95,7 @@ Plugins can declare supported hooks and theme tokens. The current safe runtime a
 
 Download the latest signed Android APK from the [GitHub Releases page](https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/releases/latest).
 
-Direct V2.0.0 release assets may be added to the release page separately. The V2.0.0 APK built from this repository is signed with the KRYPT AUDIO release certificate and uses the Android package ID:
+The V2.0.1 APK built from this repository is signed with the KRYPT AUDIO release certificate and uses the Android package ID:
 
 ```text
 com.synapselabs.kryptaudio

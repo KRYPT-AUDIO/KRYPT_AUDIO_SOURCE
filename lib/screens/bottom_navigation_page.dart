@@ -220,23 +220,29 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
           icon: FluentIcons.search_24_regular,
           selectedIcon: FluentIcons.search_24_filled,
           label: context.l10n?.search ?? 'Search',
-          shellIndex: 1,
+          shellIndex: 2,
         ),
       );
     }
 
     items.addAll([
       _NavigationItem(
+        icon: FluentIcons.sparkle_24_regular,
+        selectedIcon: FluentIcons.sparkle_24_filled,
+        label: 'Discover',
+        shellIndex: 1,
+      ),
+      _NavigationItem(
         icon: FluentIcons.book_24_regular,
         selectedIcon: FluentIcons.book_24_filled,
         label: context.l10n?.library ?? 'Library',
-        shellIndex: 2,
+        shellIndex: 3,
       ),
       _NavigationItem(
         icon: FluentIcons.settings_24_regular,
         selectedIcon: FluentIcons.settings_24_filled,
         label: context.l10n?.settings ?? 'Settings',
-        shellIndex: 3,
+        shellIndex: 4,
       ),
     ]);
 
