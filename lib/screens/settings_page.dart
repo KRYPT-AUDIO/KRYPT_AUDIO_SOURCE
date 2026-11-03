@@ -39,6 +39,7 @@ import 'package:musify/services/playlists_manager.dart';
 import 'package:musify/services/router_service.dart';
 import 'package:musify/services/settings_manager.dart';
 import 'package:musify/services/smart_dj_service.dart';
+import 'package:musify/services/update_manager.dart';
 import 'package:musify/theme/app_colors.dart';
 import 'package:musify/theme/app_themes.dart';
 import 'package:musify/utilities/flutter_bottom_sheet.dart';
@@ -696,7 +697,8 @@ class SettingsPage extends StatelessWidget {
             context.l10n!.downloadAppUpdate,
             FluentIcons.arrow_download_24_regular,
             borderRadius: commonCustomBarRadiusLast,
-            onTap: () => launchURL(Uri.parse(websiteUrl)),
+            description: 'Check GitHub for the latest Android APK',
+            onTap: () => checkForUpdatesManually(context),
           ),
       ],
     );

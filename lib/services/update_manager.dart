@@ -24,6 +24,7 @@ import 'package:musify/main.dart';
 import 'package:musify/services/data_manager.dart';
 import 'package:musify/services/router_service.dart';
 import 'package:musify/services/settings_manager.dart';
+import 'package:musify/utilities/flutter_toast.dart';
 import 'package:musify/utilities/platform_utils.dart';
 import 'package:musify/widgets/auto_format_text.dart';
 
@@ -73,6 +74,44 @@ Future<void> checkAppUpdates() async {
       error: error,
       stackTrace: stackTrace,
     );
+  }
+}
+
+/// Runs the update check from Settings and always gives the user a result.
+/// Automatic background checks intentionally stay quiet when no update exists;
+/// a manually requested check should never appear to do nothing.
+Future<void> checkForUpdatesManually(BuildContext context) async {
+  if (!isAndroidPlatform) {
+    showToast(context, 'Updates are available from Android releases.');
+    return;
+  }
+  if (offlineMode.value) {
+    showToast(context, 'Connect to the internet to check for updates.');
+    return;
+  }
+
+  showToast(context, 'Checking GitHub for updates…');
+  try {
+    final release = await fetchLatestGithubRelease();
+    if (!context.mounted) return;
+    if (release == null) {
+      showToast(context, 'No downloadable Android release was found.');
+      return;
+    }
+    if (isLatestVersionHigher(appVersion, release.version)) {
+      await showGithubUpdateDialog(context, release);
+    } else {
+      showToast(context, 'KRYPT AUDIO is up to date ($appVersion).');
+    }
+  } catch (error, stackTrace) {
+    logger.log(
+      'Manual KRYPT AUDIO update check failed',
+      error: error,
+      stackTrace: stackTrace,
+    );
+    if (context.mounted) {
+      showToast(context, 'Could not check GitHub releases. Try again later.');
+    }
   }
 }
 
