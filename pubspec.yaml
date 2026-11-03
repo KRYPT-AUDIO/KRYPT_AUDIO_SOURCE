@@ -5,7 +5,7 @@ repository: https://github.com/gokadzev/Musify
 issue_tracker: https://github.com/gokadzev/Musify/issues
 
 publish_to: 'none'
-version: 2.0.2+22 # GitHub updater fix
+version: 2.0.3+23 # Branded Android boot splash
 
 environment:
   sdk: '>=3.13.0 <4.0.0'

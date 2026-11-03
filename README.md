@@ -10,7 +10,7 @@
   [![License](https://img.shields.io/github/license/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE?style=flat-square&color=38BDF8)](LICENSE)
   [![Stars](https://img.shields.io/github/stars/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE?style=flat-square&color=E879F9)](https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/stargazers)
 
-  **Current release: V2.0.2 · Android build 22**
+  **Current release: V2.0.3 · Android build 23**
 </div>
 
 ---
@@ -23,10 +23,13 @@ KRYPT AUDIO is maintained as an independent project by Synapse Labs UK Ltd in th
 
 KRYPT AUDIO does not host or distribute copyrighted audio. Music is resolved from configured external sources, and users are responsible for complying with the laws and terms that apply to their use of those sources.
 
-## V2.0.2 release status
+## V2.0.3 release status
 
-V2.0.2 is the current Android maintenance release. It includes the V2.0.1 premium experience work plus a corrected GitHub APK update flow:
+V2.0.3 is the current Android maintenance release. It includes the V2.0.2 GitHub updater fix plus a branded Android boot experience:
 
+- Full KRYPT AUDIO splash artwork is shown while the Android app process starts on legacy and API 21+ launch paths.
+- Android 12+ system splash colors are dark KRYPT navy instead of the default light system flash.
+- The post-splash Android window remains dark while Flutter initializes, preventing a mismatched light transition.
 - The Settings update button now checks the KRYPT AUDIO GitHub Releases API instead of opening the Synapse Labs website.
 - Manual checks report whether the app is up to date, offline, unavailable, or has a newer APK to install.
 - New APK releases open the existing Android package installer flow with download progress and retry handling.
@@ -98,7 +101,7 @@ Plugins can declare supported hooks and theme tokens. The current safe runtime a
 
 Download the latest signed Android APK from the [GitHub Releases page](https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/releases/latest).
 
-The V2.0.2 APK built from this repository is signed with the KRYPT AUDIO release certificate and uses the Android package ID:
+The V2.0.3 APK built from this repository is signed with the KRYPT AUDIO release certificate and uses the Android package ID:
 
 ```text
 com.synapselabs.kryptaudio
