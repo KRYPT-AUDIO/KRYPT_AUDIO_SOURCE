@@ -19,7 +19,7 @@
 
 KRYPT AUDIO is an independent Android music application developed and branded by **Synapse Labs UK Ltd**. It combines a dark Liquid Glass interface with search, playback, playlists, offline listening, lyrics, radio, integrations and local personalisation tools.
 
-The project is based on the open-source [Musify](https://github.com/gokadzev/Musify) codebase and retains the upstream GPL-3.0 licensing and attribution requirements. KRYPT AUDIO is maintained as a separate branded project in this repository.
+KRYPT AUDIO is maintained as an independent project by Synapse Labs UK Ltd in this repository.
 
 KRYPT AUDIO does not host or distribute copyrighted audio. Music is resolved from configured external sources, and users are responsible for complying with the laws and terms that apply to their use of those sources.
 
@@ -161,15 +161,15 @@ Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) before
 
 When contributing:
 
-- Preserve the GPL-3.0 license and upstream Musify attribution.
+- Preserve the GPL-3.0 license and all required copyright notices.
 - Keep Android playback and offline behaviour intact.
 - Avoid committing credentials or private signing material.
 - Run `flutter analyze` and `flutter test` before submitting changes.
 - Keep user-facing screens aligned with the KRYPT Liquid Glass design system.
 
-## Credits and upstream attribution
+## Credits
 
-KRYPT AUDIO is built from and inspired by the open-source [Musify project](https://github.com/gokadzev/Musify) by Valeri Gokadze and its contributors. Please see the repository history and source headers for the applicable upstream attribution.
+KRYPT AUDIO is developed and maintained by Synapse Labs UK Ltd and its contributors.
 
 ## License
 
