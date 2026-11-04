@@ -49,11 +49,11 @@ class _KryptVisualizerState extends State<KryptVisualizer>
       builder: (context, snapshot) {
         _syncAnimation(snapshot.data);
         return GlassSurface(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           borderRadius: BorderRadius.circular(KryptDesign.radiusMedium),
           opacity: .70,
           child: SizedBox(
-            height: 42,
+            height: 28,
             child: AnimatedBuilder(
               animation: _controller,
               builder: (context, _) => CustomPaint(

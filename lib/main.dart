@@ -92,6 +92,8 @@ class Musify extends StatefulWidget {
 }
 
 class _MusifyState extends State<Musify> with WidgetsBindingObserver {
+  bool _showBootSplash = true;
+
   void changeSettings({
     ThemeMode? newThemeMode,
     Locale? newLocale,
@@ -124,6 +126,13 @@ class _MusifyState extends State<Musify> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+
+    // Keep the branded boot surface visible long enough to be perceptible even
+    // when the native Android launch window is removed immediately after the
+    // first Flutter frame.
+    Future<void>.delayed(const Duration(milliseconds: 1400), () {
+      if (mounted) setState(() => _showBootSplash = false);
+    });
 
     WidgetsBinding.instance.addObserver(this);
 
@@ -254,7 +263,7 @@ class _MusifyState extends State<Musify> with WidgetsBindingObserver {
             darkColorScheme,
           );
 
-          return AnnotatedRegion<SystemUiOverlayStyle>(
+          final app = AnnotatedRegion<SystemUiOverlayStyle>(
             value: SystemUiOverlayStyle(
               statusBarColor: Colors.transparent,
               systemNavigationBarColor: Colors.transparent,
@@ -282,7 +291,100 @@ class _MusifyState extends State<Musify> with WidgetsBindingObserver {
               routerConfig: NavigationManager.router,
             ),
           );
+
+          return Stack(
+            fit: StackFit.expand,
+            children: [
+              app,
+              IgnorePointer(
+                ignoring: !_showBootSplash,
+                child: AnimatedOpacity(
+                  opacity: _showBootSplash ? 1 : 0,
+                  duration: const Duration(milliseconds: 350),
+                  child: const _KryptBootSplash(),
+                ),
+              ),
+            ],
+          );
         },
+      ),
+    );
+  }
+}
+
+class _KryptBootSplash extends StatelessWidget {
+  const _KryptBootSplash();
+
+  @override
+  Widget build(BuildContext context) {
+    return ColoredBox(
+      color: const Color(0xFF050816),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.asset(
+            'assets/splash/krypt_audio_splash.png',
+            fit: BoxFit.cover,
+            alignment: Alignment.center,
+            filterQuality: FilterQuality.medium,
+          ),
+          DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  const Color(0xFF050816).withValues(alpha: .18),
+                  const Color(0xFF050816).withValues(alpha: .08),
+                  const Color(0xFF050816).withValues(alpha: .82),
+                ],
+                stops: const [0, .54, 1],
+              ),
+            ),
+          ),
+          SafeArea(
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(28, 20, 28, 42),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      'KRYPT AUDIO',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontFamily: 'paytoneOne',
+                        fontSize: 26,
+                        letterSpacing: 2.4,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'INITIALISING THE FREQUENCY',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: .74),
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 2.1,
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                    SizedBox(
+                      width: 92,
+                      child: LinearProgressIndicator(
+                        minHeight: 3,
+                        borderRadius: BorderRadius.circular(3),
+                        backgroundColor: Colors.white.withValues(alpha: .18),
+                        color: const Color(0xFF9C7BFF),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

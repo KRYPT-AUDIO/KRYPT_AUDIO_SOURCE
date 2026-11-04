@@ -80,21 +80,15 @@ ThemeData getAppTheme(ColorScheme colorScheme) {
 
   // Pure black theme colors
   const pureBlack = Color(0xFF000000);
-  const pureBlackElevated = Color(0xFF0A0A0A);
-  const pureBlackContainer = Color(0xFF121212);
-  const pureBlackContainerHigh = Color(0xFF1A1A1A);
+  const pureBlackElevated = Color(0xFF0B0B0F);
+  const pureBlackContainer = Color(0xFF15151B);
+  const pureBlackContainerHigh = Color(0xFF1D1D25);
 
-  final bgColor = isLight
-      ? colorScheme.surface
-      : (isPureBlack
-            ? pureBlack
-            : (_pluginColor('--krypt-background') ?? kryptDeepSpace));
+  final bgColor = isLight ? colorScheme.surface : pureBlack;
 
   final cardBgColor = isLight
       ? colorScheme.surfaceContainerLow
-      : (isPureBlack
-            ? pureBlackElevated
-            : (_pluginColor('--krypt-surface') ?? kryptGlass));
+      : pureBlackElevated;
 
   // modified color scheme for pure black theme
   final effectiveColorScheme = isPureBlack
@@ -135,7 +129,7 @@ ThemeData getAppTheme(ColorScheme colorScheme) {
         color: effectiveColorScheme.onSurface,
         letterSpacing: 0.2,
       ),
-      toolbarHeight: 64,
+      toolbarHeight: 72,
       iconTheme: IconThemeData(
         color: effectiveColorScheme.onSurfaceVariant,
         size: 24,
@@ -184,8 +178,8 @@ ThemeData getAppTheme(ColorScheme colorScheme) {
     navigationBarTheme: base.navigationBarTheme.copyWith(
       backgroundColor: Colors.transparent,
       elevation: 0,
-      height: 70,
-      indicatorColor: effectiveColorScheme.primary.withValues(alpha: 0.20),
+      height: 76,
+      indicatorColor: effectiveColorScheme.onSurface.withValues(alpha: 0.12),
       iconTheme: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected)) {
           return IconThemeData(

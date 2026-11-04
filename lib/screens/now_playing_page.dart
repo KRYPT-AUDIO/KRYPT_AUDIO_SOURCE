@@ -57,7 +57,7 @@ class _NowPlayingPageState extends State<NowPlayingPage> {
     final miniIconSize = screenWidth < 360 ? 18.0 : 22.0;
 
     return Scaffold(
-      backgroundColor: colorScheme.surface,
+      backgroundColor: Colors.transparent,
       body: SafeArea(
         child: StreamBuilder<MediaItem?>(
           stream: audioHandler.mediaItem,
@@ -66,33 +66,52 @@ class _NowPlayingPageState extends State<NowPlayingPage> {
               return const Center(child: CircularProgressIndicator());
             }
             final metadata = snapshot.data!;
-            return Column(
-              children: [
-                _buildAppBar(context, colorScheme),
-                const _SmartDjPlayerBar(),
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
-                  child: KryptVisualizer(),
+            final accent = _artworkAccent(metadata);
+            return AnimatedContainer(
+              duration: const Duration(milliseconds: 650),
+              curve: Curves.easeOutCubic,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    accent.withValues(alpha: .38),
+                    colorScheme.surface.withValues(alpha: .94),
+                    colorScheme.surface,
+                  ],
+                  stops: const [0, .48, 1],
                 ),
-                Expanded(
-                  child: isLargeScreen
-                      ? _DesktopLayout(
-                          metadata: metadata,
-                          size: size,
-                          adjustedIconSize: baseIconSize,
-                          adjustedMiniIconSize: miniIconSize,
-                          lyricsController: _lyricsController,
-                        )
-                      : _MobileLayout(
-                          metadata: metadata,
-                          size: size,
-                          adjustedIconSize: baseIconSize,
-                          adjustedMiniIconSize: miniIconSize,
-                          isLargeScreen: isLargeScreen,
-                          lyricsController: _lyricsController,
-                        ),
-                ),
-              ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildAppBar(context, colorScheme, metadata),
+                  _buildTrackContext(context, colorScheme, metadata, accent),
+                  const _SmartDjPlayerBar(),
+                  const Padding(
+                    padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
+                    child: KryptVisualizer(),
+                  ),
+                  Expanded(
+                    child: isLargeScreen
+                        ? _DesktopLayout(
+                            metadata: metadata,
+                            size: size,
+                            adjustedIconSize: baseIconSize,
+                            adjustedMiniIconSize: miniIconSize,
+                            lyricsController: _lyricsController,
+                          )
+                        : _MobileLayout(
+                            metadata: metadata,
+                            size: size,
+                            adjustedIconSize: baseIconSize,
+                            adjustedMiniIconSize: miniIconSize,
+                            isLargeScreen: isLargeScreen,
+                            lyricsController: _lyricsController,
+                          ),
+                  ),
+                ],
+              ),
             );
           },
         ),
@@ -100,7 +119,11 @@ class _NowPlayingPageState extends State<NowPlayingPage> {
     );
   }
 
-  Widget _buildAppBar(BuildContext context, ColorScheme colorScheme) {
+  Widget _buildAppBar(
+    BuildContext context,
+    ColorScheme colorScheme,
+    MediaItem metadata,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: Row(
@@ -116,9 +139,106 @@ class _NowPlayingPageState extends State<NowPlayingPage> {
             ),
             onPressed: () => Navigator.pop(context),
           ),
+          const SizedBox(width: 12),
+          const Expanded(
+            child: Text(
+              'NOW PLAYING',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 2.1,
+              ),
+            ),
+          ),
+          IconButton(
+            tooltip: 'Queue',
+            icon: const Icon(FluentIcons.apps_list_24_regular),
+            style: IconButton.styleFrom(
+              backgroundColor: colorScheme.surfaceContainerHighest,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            onPressed: () => showModalBottomSheet<void>(
+              context: context,
+              isScrollControlled: true,
+              backgroundColor: colorScheme.surface,
+              builder: (_) => SizedBox(
+                height: MediaQuery.sizeOf(context).height * .72,
+                child: const SafeArea(child: QueueWidget(isBottomSheet: true)),
+              ),
+            ),
+          ),
         ],
       ),
     );
+  }
+
+  Widget _buildTrackContext(
+    BuildContext context,
+    ColorScheme colors,
+    MediaItem metadata,
+    Color accent,
+  ) {
+    final source = metadata.extras?['source']?.toString().trim();
+    final album = metadata.album?.trim();
+    final contextLabel = album?.isNotEmpty == true
+        ? album!
+        : source?.isNotEmpty == true
+        ? source!
+        : 'KRYPT AUDIO STREAM';
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+      child: Row(
+        children: [
+          Container(
+            width: 7,
+            height: 7,
+            decoration: BoxDecoration(color: accent, shape: BoxShape.circle),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              contextLabel.toUpperCase(),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: colors.onSurfaceVariant,
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 1.3,
+              ),
+            ),
+          ),
+          if (metadata.extras?['isLive'] == true)
+            Text(
+              'LIVE',
+              style: TextStyle(
+                color: colors.error,
+                fontSize: 10,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 1.2,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Color _artworkAccent(MediaItem metadata) {
+    const palette = [
+      Color(0xFF6D4AFF),
+      Color(0xFF0C8CE9),
+      Color(0xFFAF48E8),
+      Color(0xFF00A88A),
+      Color(0xFFE45A76),
+    ];
+    final seed = metadata.id.codeUnits.fold<int>(
+      0,
+      (sum, value) => sum + value,
+    );
+    return palette[seed.abs() % palette.length];
   }
 }
 

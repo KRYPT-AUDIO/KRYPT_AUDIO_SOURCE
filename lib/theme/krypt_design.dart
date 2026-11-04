@@ -5,20 +5,20 @@ import 'package:flutter/material.dart';
 import 'package:musify/widgets/glass_surface.dart';
 
 abstract final class KryptDesign {
-  static const radiusSmall = 14.0;
-  static const radiusMedium = 22.0;
-  static const radiusLarge = 30.0;
-  static const pagePadding = EdgeInsets.fromLTRB(18, 12, 18, 28);
-  static const sectionGap = 24.0;
+  static const radiusSmall = 12.0;
+  static const radiusMedium = 20.0;
+  static const radiusLarge = 28.0;
+  static const pagePadding = EdgeInsets.fromLTRB(28, 12, 28, 34);
+  static const sectionGap = 26.0;
   static const fastMotion = Duration(milliseconds: 180);
   static const standardMotion = Duration(milliseconds: 320);
   static const slowMotion = Duration(milliseconds: 520);
 
-  static const darkBackdrop = Color(0xFF070810);
+  static const darkBackdrop = Color(0xFF000000);
   static const lightBackdrop = Color(0xFFF5F6FB);
-  static const violet = Color(0xFF8B5CF6);
-  static const cyan = Color(0xFF38BDF8);
-  static const pink = Color(0xFFE879F9);
+  static const violet = Color(0xFFB7B7FF);
+  static const cyan = Color(0xFFB7C8FF);
+  static const pink = Color(0xFFE5B8FF);
 }
 
 class GlassContainer extends StatelessWidget {

@@ -25,6 +25,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/widgets.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:musify/constants/clients.dart';
@@ -98,6 +99,10 @@ void reloadSongLibraryStateFromStorage() {
 // Timeouts and durations used across manifest fetching and cache validation.
 const Duration _manifestTimeout = Duration(seconds: 30);
 const Duration _cacheValidationDuration = Duration(hours: 1);
+const _webAudioApiBase = String.fromEnvironment(
+  'KRYPT_AUDIO_API_BASE',
+  defaultValue: 'https://synapselabs.uk/api/krypt-audio/',
+);
 
 /// Fetches a stream manifest for a song, honoring proxy settings.
 Future<StreamManifest?> _fetchStreamManifest(String songId) async {
@@ -750,6 +755,20 @@ Future<String?> fetchSongStreamUrl(String songId, bool isLive) async {
     if (songId.isEmpty) {
       logger.log('fetchSongStreamUrl: songId is empty');
       return null;
+    }
+    // Browsers cannot safely resolve the provider manifest themselves. Route
+    // YouTube-backed tracks through the uploadable PHP range proxy; native
+    // Android playback keeps the existing direct resolver below. Other
+    // configured sources already provide browser-safe URLs.
+    if (kIsWeb && !songId.contains(':')) {
+      final uri = Uri.parse(_webAudioApiBase).replace(
+        queryParameters: {
+          'action': 'stream',
+          'id': songId,
+          if (isLive) 'live': '1',
+        },
+      );
+      return uri.toString();
     }
     if (isLive) {
       final streamInfo = await ytClient.videos.streamsClient

@@ -8,6 +8,13 @@
     { "path": "/settings/about", "title": "About — KRYPT AUDIO" },
     { "path": "/settings/donate", "title": "Support KRYPT AUDIO" },
     { "path": "/settings/equalizer", "title": "Equalizer — KRYPT AUDIO" },
+    { "path": "/settings/profile", "title": "Profile — KRYPT AUDIO" },
+    { "path": "/settings/home-customization", "title": "Home customization — KRYPT AUDIO" },
+    { "path": "/settings/plugins", "title": "Plugins — KRYPT AUDIO" },
+    { "path": "/settings/spotify-library", "title": "Spotify library — KRYPT AUDIO" },
+    { "path": "/home/discover", "title": "Discover — KRYPT AUDIO" },
+    { "path": "/home/smartDj", "title": "Smart DJ — KRYPT AUDIO" },
+    { "path": "/home/timeMachine", "title": "Time Machine — KRYPT AUDIO" },
     { "path": "/home/playlist/:playlistId", "title": "Playlist — KRYPT AUDIO" },
     { "path": "/home/artist/:artistId", "title": "Artist — KRYPT AUDIO" },
     { "path": "/home/album/:albumId", "title": "Album — KRYPT AUDIO" }

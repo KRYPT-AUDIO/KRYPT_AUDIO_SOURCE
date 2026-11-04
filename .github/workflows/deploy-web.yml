@@ -34,7 +34,7 @@ jobs:
         run: flutter pub get
 
       - name: Build Flutter Web
-        run: flutter build web --release --base-href /KRYPT_AUDIO/
+        run: flutter build web --release --base-href /KRYPT_AUDIO_SOURCE/ --dart-define=KRYPT_AUDIO_API_BASE=https://synapselabs.uk/api/krypt-audio/
 
       - name: Configure GitHub Pages SPA fallback
         run: |

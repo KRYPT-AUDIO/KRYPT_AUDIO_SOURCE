@@ -7,7 +7,7 @@ The `web` branch packages the existing KRYPT AUDIO Flutter application for brows
 ```bash
 flutter config --enable-web
 flutter pub get
-flutter build web --release --base-href /KRYPT_AUDIO/
+flutter build web --release --base-href /KRYPT_AUDIO_SOURCE/ --dart-define=KRYPT_AUDIO_API_BASE=https://synapselabs.uk/api/krypt-audio/
 ```
 
 The output is written to `build/web`.
@@ -17,7 +17,7 @@ The output is written to `build/web`.
 `.github/workflows/deploy-web.yml` builds and deploys this branch automatically through GitHub Actions whenever `web` is pushed. In the repository settings, enable **Pages → Source: GitHub Actions** if it is not already enabled. The expected project URL is:
 
 ```text
-https://drizzy-palace.github.io/KRYPT_AUDIO/
+https://krypt-audio.github.io/KRYPT_AUDIO_SOURCE/
 ```
 
 The workflow adds a `404.html` SPA fallback and `.nojekyll` so Flutter routes work when users refresh a deep link.

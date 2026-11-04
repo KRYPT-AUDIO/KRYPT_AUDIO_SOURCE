@@ -79,20 +79,25 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final playlistHeight = MediaQuery.sizeOf(context).height * 0.25 / 1.1;
+    final playlistHeight = MediaQuery.sizeOf(context).width < 420
+        ? 246.0
+        : 270.0;
     final homeCustomization = KryptHomeCustomizationService.instance;
     return Scaffold(
-      appBar: AppBar(title: const Text('KRYPT AUDIO')),
+      backgroundColor: Colors.black,
       body: AnimatedBuilder(
         animation: homeCustomization,
         builder: (context, _) => SingleChildScrollView(
-          padding: commonSingleChildScrollViewPadding,
+          padding: const EdgeInsets.fromLTRB(28, 10, 28, 34),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              _buildHomeHeader(context),
               GlassSurface(
-                margin: const EdgeInsets.fromLTRB(0, 4, 0, 18),
-                padding: const EdgeInsets.fromLTRB(18, 18, 18, 16),
-                borderRadius: BorderRadius.circular(26),
+                margin: const EdgeInsets.fromLTRB(0, 8, 0, 14),
+                padding: const EdgeInsets.fromLTRB(18, 15, 14, 15),
+                borderRadius: BorderRadius.circular(28),
+                opacity: .9,
                 child: Row(
                   children: [
                     Container(
@@ -138,10 +143,10 @@ class _HomePageState extends State<HomePage> {
                 GestureDetector(
                   onTap: () => context.push('/home/smartDj'),
                   child: GlassSurface(
-                    margin: const EdgeInsets.only(bottom: 18),
-                    padding: const EdgeInsets.fromLTRB(18, 16, 14, 16),
-                    borderRadius: BorderRadius.circular(24),
-                    opacity: 0.82,
+                    margin: const EdgeInsets.only(bottom: 20),
+                    padding: const EdgeInsets.fromLTRB(18, 15, 14, 15),
+                    borderRadius: BorderRadius.circular(28),
+                    opacity: 0.9,
                     child: Row(
                       children: [
                         Icon(
@@ -204,6 +209,66 @@ class _HomePageState extends State<HomePage> {
                 _buildRecommendedSongsSection(),
               const MiniPlayerBottomSpace(),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHomeHeader(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Row(
+        children: [
+          const Expanded(
+            child: Text(
+              'KRYPT AUDIO',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 23,
+                fontWeight: FontWeight.w800,
+                letterSpacing: -1.1,
+              ),
+            ),
+          ),
+          _homeHeaderButton(
+            context,
+            FluentIcons.alert_24_regular,
+            tooltip: 'Announcements',
+            onTap: () => announcementURL.value = null,
+          ),
+          const SizedBox(width: 10),
+          _homeHeaderButton(
+            context,
+            FluentIcons.person_24_filled,
+            tooltip: 'Profile',
+            onTap: () => context.push('/settings/profile'),
+            color: colors.onSurface,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _homeHeaderButton(
+    BuildContext context,
+    IconData icon, {
+    required String tooltip,
+    required VoidCallback onTap,
+    Color? color,
+  }) {
+    return Tooltip(
+      message: tooltip,
+      child: Material(
+        color: const Color(0xFF15151A),
+        shape: const CircleBorder(),
+        child: InkWell(
+          onTap: onTap,
+          customBorder: const CircleBorder(),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Icon(icon, color: color ?? Colors.white, size: 22),
           ),
         ),
       ),
