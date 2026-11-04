@@ -23,7 +23,7 @@ Requirements:
 - PHP cURL extension enabled.
 - HTTPS enabled on the domain.
 - `proxy.php` must be allowed to make outbound HTTPS requests.
-- `stream.php` requires `yt-dlp` installed on the server, or `KRYPT_YTDLP_BIN` pointing to its absolute path, and PHP cURL for range-capable audio streaming.
+- `stream.php` requires PHP cURL and forwards to the separately deployed Cloud Run resolver; the PHP host does not need Composer, Node, yt-dlp, or shell access.
 - No PHP login or rewrite rule is required for the initial version.
 
 ## Official Google search configuration
@@ -37,7 +37,7 @@ ALLOWED_ORIGIN=https://krypt-audio.github.io
 
 The key is read only by `search.php` and is never sent to the browser. The Web app uses this endpoint for official video, playlist and channel search when the key is configured. If the key is not configured, it falls back to the existing KRYPT API bridge.
 
-The browser audio player uses `stream.php`, which resolves the same audio-only YouTube stream family as the Android client and proxies it with HTTP Range support. The Data API remains for search only.
+The browser audio player uses `stream.php`, which forwards to Cloud Run and proxies the same audio-only YouTube stream family as the Android client with HTTP Range support. The Data API remains for search only.
 
 After uploading, open `health.php`. It should return JSON with `ok: true` and `curl: true`.
 

@@ -16,6 +16,6 @@ The repository workflow builds this automatically for the `web` branch. GitHub P
 
 ## PHP API upload
 
-Upload the contents of `api/` to `https://synapselabs.uk/krypt-audio/api/`. Install PHP 8.0+, cURL, and `yt-dlp` on the host. The `stream.php` endpoint resolves and range-proxies the same YouTube audio stream family used by Android. The existing `health.php`, `search.php`, and allow-listed `proxy.php` endpoints remain available for the rest of the web client.
+Upload the contents of `api/` to `https://synapselabs.uk/krypt-audio/api/`. The host only needs PHP 8.0+ and cURL; it does not need Composer, Node, yt-dlp, or shell access. The `stream.php` endpoint forwards to the Cloud Run resolver and range-proxies the same YouTube audio stream family used by Android. The existing `health.php`, `search.php`, and allow-listed `proxy.php` endpoints remain available for the rest of the web client.
 
 Configure `KRYPT_YTDLP_BIN` if `yt-dlp` is not on the PHP process PATH. Configure the allowed browser origin in `.env` using `ALLOWED_ORIGIN`. Never upload Firebase private files, Android keystores, Spotify client secrets, or a real `.env` file to GitHub.
