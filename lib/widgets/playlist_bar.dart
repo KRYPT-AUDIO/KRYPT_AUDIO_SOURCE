@@ -98,7 +98,7 @@ class PlaylistBar extends StatelessWidget {
         : playlistTitle;
     Map<dynamic, dynamic>? updatedPlaylist;
     return Material(
-      color: colorScheme.surfaceContainerLow,
+      color: colorScheme.surfaceContainerHigh,
       borderRadius: borderRadius,
       clipBehavior: Clip.antiAlias,
       child: InkWell(

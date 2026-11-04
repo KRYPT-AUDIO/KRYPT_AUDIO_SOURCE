@@ -33,12 +33,12 @@ class SectionTitle extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16),
+      padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
         children: [
           if (icon != null) ...[
-            Icon(icon, size: 20, color: colorScheme.primary),
-            const SizedBox(width: 10),
+            Icon(icon, size: 23, color: colorScheme.primary),
+            const SizedBox(width: 12),
           ],
           Expanded(
             child: MarqueeWidget(
@@ -46,8 +46,7 @@ class SectionTitle extends StatelessWidget {
                 title,
                 style: TextStyle(
                   color: colorScheme.onSurface,
-                  fontSize:
-                      Theme.of(context).textTheme.titleMedium?.fontSize ?? 16,
+                  fontSize: 19,
                   fontWeight: FontWeight.w600,
                 ),
               ),

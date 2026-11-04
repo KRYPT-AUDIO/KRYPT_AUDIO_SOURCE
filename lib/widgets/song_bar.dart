@@ -434,7 +434,7 @@ class _SongBarState extends State<SongBar> {
         : widget.playCount;
 
     return Material(
-      color: widget.backgroundColor ?? colorScheme.surfaceContainerLow,
+      color: widget.backgroundColor ?? colorScheme.surfaceContainerHigh,
       borderRadius: widget.borderRadius,
       clipBehavior: Clip.antiAlias,
       child: InkWell(

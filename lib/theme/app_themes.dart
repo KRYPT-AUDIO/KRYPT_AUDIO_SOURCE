@@ -75,14 +75,11 @@ ThemeData getAppTheme(ColorScheme colorScheme) {
       : ThemeData.dark();
 
   final isLight = colorScheme.brightness == Brightness.light;
-  final isPureBlack =
-      colorScheme.brightness == Brightness.dark && usePureBlackColor.value;
-
   // Pure black theme colors
   const pureBlack = Color(0xFF000000);
-  const pureBlackElevated = Color(0xFF0A0A0A);
-  const pureBlackContainer = Color(0xFF121212);
-  const pureBlackContainerHigh = Color(0xFF1A1A1A);
+  const pureBlackElevated = Color(0xFF151519);
+  const pureBlackContainer = Color(0xFF121217);
+  const pureBlackContainerHigh = Color(0xFF1B1B22);
 
   final bgColor = isLight ? colorScheme.surface : pureBlack;
 
@@ -123,11 +120,10 @@ ThemeData getAppTheme(ColorScheme colorScheme) {
       scrolledUnderElevation: 0,
       centerTitle: false,
       titleTextStyle: TextStyle(
-        fontSize: 24,
-        fontFamily: 'paytoneOne',
-        fontWeight: FontWeight.w500,
+        fontSize: 21,
+        fontWeight: FontWeight.w700,
         color: effectiveColorScheme.onSurface,
-        letterSpacing: 0.2,
+        letterSpacing: 0.1,
       ),
       toolbarHeight: 64,
       iconTheme: IconThemeData(
@@ -140,7 +136,7 @@ ThemeData getAppTheme(ColorScheme colorScheme) {
       ),
     ),
     listTileTheme: base.listTileTheme.copyWith(
-      textColor: effectiveColorScheme.primary,
+      textColor: effectiveColorScheme.onSurface,
       iconColor: effectiveColorScheme.primary,
     ),
     sliderTheme: base.sliderTheme.copyWith(
@@ -151,16 +147,17 @@ ThemeData getAppTheme(ColorScheme colorScheme) {
     bottomSheetTheme: base.bottomSheetTheme.copyWith(
       backgroundColor: isLight
           ? colorScheme.surfaceContainerLow
-          : (isPureBlack ? pureBlackElevated : null),
+          : pureBlackElevated,
+      modalBackgroundColor: isLight
+          ? colorScheme.surfaceContainerLow
+          : pureBlackElevated,
     ),
     inputDecorationTheme: base.inputDecorationTheme.copyWith(
       filled: true,
       isDense: true,
       fillColor: isLight
           ? colorScheme.surfaceContainerHighest
-          : (isPureBlack
-                ? pureBlackContainerHigh
-                : colorScheme.surfaceContainerHigh),
+          : pureBlackContainerHigh,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide.none,
@@ -170,7 +167,7 @@ ThemeData getAppTheme(ColorScheme colorScheme) {
     dialogTheme: base.dialogTheme.copyWith(
       backgroundColor: isLight
           ? colorScheme.surfaceContainerLow
-          : (isPureBlack ? pureBlackContainer : null),
+          : pureBlackContainer,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(KryptDesign.radiusLarge),
       ),
@@ -231,9 +228,7 @@ ThemeData getAppTheme(ColorScheme colorScheme) {
       ),
     ),
     popupMenuTheme: base.popupMenuTheme.copyWith(
-      color: isLight
-          ? colorScheme.surfaceContainerLow
-          : (isPureBlack ? pureBlackContainer : null),
+      color: isLight ? colorScheme.surfaceContainerLow : pureBlackContainer,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     ),
     dividerTheme: base.dividerTheme.copyWith(

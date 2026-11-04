@@ -6,15 +6,12 @@ import 'package:musify/services/common_services.dart';
 import 'package:musify/services/home_customization_service.dart';
 import 'package:musify/services/listening_stats_service.dart';
 import 'package:musify/services/playlists_manager.dart';
-import 'package:musify/services/settings_manager.dart';
 import 'package:musify/utilities/app_utils.dart';
 import 'package:musify/utilities/async_loader.dart';
 import 'package:musify/utilities/listening_stats_utils.dart';
 import 'package:musify/widgets/glass_surface.dart';
-import 'package:musify/widgets/listening_recap_card.dart';
 import 'package:musify/widgets/mini_player_bottom_space.dart';
 import 'package:musify/widgets/playlist_artwork.dart';
-import 'package:musify/widgets/recommended_songs_section.dart';
 import 'package:musify/widgets/song_bar.dart';
 
 class HomePage extends StatefulWidget {
@@ -33,17 +30,6 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     _playlistsFuture = getPlaylists(playlistsNum: 6);
     _recommendationsFuture = getRecommendedSongs();
-    externalRecommendations.addListener(_refreshRecommendations);
-  }
-
-  @override
-  void dispose() {
-    externalRecommendations.removeListener(_refreshRecommendations);
-    super.dispose();
-  }
-
-  void _refreshRecommendations() {
-    if (mounted) setState(() => _recommendationsFuture = getRecommendedSongs());
   }
 
   @override
@@ -131,7 +117,7 @@ class _HomePageState extends State<HomePage> {
           context,
           FluentIcons.alert_24_regular,
           'Announcements',
-          () => announcementURL.value = null,
+          () => _showKryptMessage(context),
         ),
         const SizedBox(width: 12),
         _roundHeaderButton(
@@ -141,6 +127,22 @@ class _HomePageState extends State<HomePage> {
           () => context.push('/settings/profile'),
         ),
       ],
+    );
+  }
+
+  void _showKryptMessage(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('KRYPT SIGNAL'),
+        content: const Text('The frequency is clear. Keep listening.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Dismiss'),
+          ),
+        ],
+      ),
     );
   }
 
