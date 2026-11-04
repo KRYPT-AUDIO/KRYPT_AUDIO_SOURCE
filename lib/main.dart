@@ -33,7 +33,6 @@ import 'package:material_ui/material_ui.dart';
 import 'package:musify/extensions/l10n.dart';
 import 'package:musify/localization/app_localizations.dart';
 import 'package:musify/services/audio_service.dart';
-import 'package:musify/services/account_service.dart';
 import 'package:musify/services/data_manager.dart';
 import 'package:musify/services/desktop_media_artwork.dart';
 import 'package:musify/services/io_service.dart';
@@ -45,7 +44,7 @@ import 'package:musify/services/playlists_manager.dart';
 import 'package:musify/services/plugin_service.dart';
 import 'package:musify/services/router_service.dart';
 import 'package:musify/services/settings_manager.dart';
-import 'package:musify/services/spotify_service.dart';
+import 'package:musify/services/spotify_web.dart';
 import 'package:musify/services/update_manager.dart';
 import 'package:musify/services/windows_media_controls.dart';
 import 'package:musify/theme/app_themes.dart';
@@ -92,8 +91,6 @@ class Musify extends StatefulWidget {
 }
 
 class _MusifyState extends State<Musify> with WidgetsBindingObserver {
-  bool _showBootSplash = true;
-
   void changeSettings({
     ThemeMode? newThemeMode,
     Locale? newLocale,
@@ -126,13 +123,6 @@ class _MusifyState extends State<Musify> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-
-    // Keep the branded boot surface visible long enough to be perceptible even
-    // when the native Android launch window is removed immediately after the
-    // first Flutter frame.
-    Future<void>.delayed(const Duration(milliseconds: 1400), () {
-      if (mounted) setState(() => _showBootSplash = false);
-    });
 
     WidgetsBinding.instance.addObserver(this);
 
@@ -263,7 +253,7 @@ class _MusifyState extends State<Musify> with WidgetsBindingObserver {
             darkColorScheme,
           );
 
-          final app = AnnotatedRegion<SystemUiOverlayStyle>(
+          return AnnotatedRegion<SystemUiOverlayStyle>(
             value: SystemUiOverlayStyle(
               statusBarColor: Colors.transparent,
               systemNavigationBarColor: Colors.transparent,
@@ -291,100 +281,7 @@ class _MusifyState extends State<Musify> with WidgetsBindingObserver {
               routerConfig: NavigationManager.router,
             ),
           );
-
-          return Stack(
-            fit: StackFit.expand,
-            children: [
-              app,
-              IgnorePointer(
-                ignoring: !_showBootSplash,
-                child: AnimatedOpacity(
-                  opacity: _showBootSplash ? 1 : 0,
-                  duration: const Duration(milliseconds: 350),
-                  child: const _KryptBootSplash(),
-                ),
-              ),
-            ],
-          );
         },
-      ),
-    );
-  }
-}
-
-class _KryptBootSplash extends StatelessWidget {
-  const _KryptBootSplash();
-
-  @override
-  Widget build(BuildContext context) {
-    return ColoredBox(
-      color: const Color(0xFF050816),
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          Image.asset(
-            'assets/splash/krypt_audio_splash.png',
-            fit: BoxFit.cover,
-            alignment: Alignment.center,
-            filterQuality: FilterQuality.medium,
-          ),
-          DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  const Color(0xFF050816).withValues(alpha: .18),
-                  const Color(0xFF050816).withValues(alpha: .08),
-                  const Color(0xFF050816).withValues(alpha: .82),
-                ],
-                stops: const [0, .54, 1],
-              ),
-            ),
-          ),
-          SafeArea(
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(28, 20, 28, 42),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text(
-                      'KRYPT AUDIO',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontFamily: 'paytoneOne',
-                        fontSize: 26,
-                        letterSpacing: 2.4,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'INITIALISING THE FREQUENCY',
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: .74),
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 2.1,
-                      ),
-                    ),
-                    const SizedBox(height: 18),
-                    SizedBox(
-                      width: 92,
-                      child: LinearProgressIndicator(
-                        minHeight: 3,
-                        borderRadius: BorderRadius.circular(3),
-                        backgroundColor: Colors.white.withValues(alpha: .18),
-                        color: const Color(0xFF9C7BFF),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -393,6 +290,7 @@ class _KryptBootSplash extends StatelessWidget {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initialisation();
+  if (kIsWeb) unawaited(spotifyWebService.initialize());
 
   runApp(const Musify());
 }
@@ -408,8 +306,6 @@ Future<void> initialisation() async {
       Hive.openBox('cache'),
     ]);
     await KryptPluginService.instance.initialize();
-    await KryptAccountService.instance.restore();
-    await SpotifyService.instance.restore();
 
     if (isMobilePlatform) {
       audioHandler = await AudioService.init(
@@ -522,7 +418,6 @@ Future<void> initialisation() async {
           logger.log('URI link error:', error: err);
         },
       );
-      await handleIncomingLink(await appLinks.getInitialLink());
     } on PlatformException {
       logger.log('Failed to get initial uri');
     }
@@ -534,12 +429,19 @@ Future<void> initialisation() async {
     logger.log('Initialization Error', error: e, stackTrace: stackTrace);
   }
 
+  // Browsers do not expose an application documents directory through the
+  // native path_provider channel. Hive already provides persistent browser
+  // storage, so skip native filesystem setup on Web.
+  if (kIsWeb) {
+    applicationDirPath = '';
+    return;
+  }
+
   applicationDirPath = (await getApplicationDocumentsDirectory()).path;
   await FilePaths.ensureDirectoriesExist();
 }
 
-Future<void> handleIncomingLink(Uri? uri) async {
-  if (uri != null && await SpotifyService.instance.handleCallback(uri)) return;
+void handleIncomingLink(Uri? uri) async {
   if (uri == null || uri.scheme != 'musify' || uri.host != 'playlist') return;
 
   if (uri.pathSegments.length < 2 || uri.pathSegments[0] != 'custom') return;

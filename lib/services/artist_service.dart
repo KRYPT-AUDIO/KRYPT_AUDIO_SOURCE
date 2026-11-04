@@ -21,6 +21,7 @@
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:musify/constants/artist_constants.dart';
 import 'package:musify/main.dart' show logger;
 import 'package:musify/services/data_manager.dart';
@@ -47,6 +48,7 @@ Future<List<Map<String, dynamic>>> searchVerifiedArtists(
   if (cachedArtists is List) {
     return asMapList(cachedArtists).take(limit).toList();
   }
+  if (kIsWeb) return [];
 
   try {
     final artists = _dedupeResolvedArtists(
@@ -175,6 +177,20 @@ Future<Map<String, dynamic>?> getArtistProfile(
 }) async {
   try {
     final lookup = artistId.trim();
+
+    if (kIsWeb) {
+      return {
+        'id': lookup,
+        'name': preferredName ?? lookup,
+        'image': preferredImage,
+        'isVerifiedArtist': preferredVerified,
+        'topSongs': const [],
+        'releases': const [],
+        'similarArtists': const [],
+      };
+    }
+
+
     final isChannelLookup = _isChannelId(lookup);
 
     // A channel id is read straight away: one browse answers both who the

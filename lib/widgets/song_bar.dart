@@ -526,7 +526,16 @@ class _SongBarState extends State<SongBar> {
     if (widget.clearPlaylist) {
       audioHandler.addPlaylistToQueue([widget.song], replace: true);
     } else {
-      audioHandler.playSong(widget.song);
+      // Route row taps through the queue transition path. Calling playSong
+      // directly leaves the previous queue index active on Web, so the next
+      // playback-state update can restore the old media item/audio source.
+      // Replacing the queue gives every click a unique transition and makes
+      // the mini-player, notification state, and audio source agree.
+      audioHandler.addPlaylistToQueue(
+        [widget.song],
+        replace: true,
+        shuffle: false,
+      );
     }
   }
 

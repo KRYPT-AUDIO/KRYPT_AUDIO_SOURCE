@@ -24,8 +24,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:musify/constants/clients.dart';
@@ -33,10 +33,12 @@ import 'package:musify/main.dart' show logger;
 import 'package:musify/services/data_manager.dart';
 import 'package:musify/services/io_service.dart';
 import 'package:musify/services/lyrics_manager.dart';
-import 'package:musify/services/music_source_service.dart';
 import 'package:musify/services/playlists_manager.dart';
 import 'package:musify/services/proxy_manager.dart';
 import 'package:musify/services/settings_manager.dart';
+import 'package:musify/services/spotify_web.dart';
+import 'package:musify/services/web_catalog.dart';
+import 'package:musify/services/web_provider_service.dart';
 import 'package:musify/utilities/app_utils.dart';
 import 'package:musify/utilities/formatter.dart';
 import 'package:musify/utilities/map_utils.dart';
@@ -99,10 +101,6 @@ void reloadSongLibraryStateFromStorage() {
 // Timeouts and durations used across manifest fetching and cache validation.
 const Duration _manifestTimeout = Duration(seconds: 30);
 const Duration _cacheValidationDuration = Duration(hours: 1);
-const _webAudioApiBase = String.fromEnvironment(
-  'KRYPT_AUDIO_API_BASE',
-  defaultValue: 'https://synapselabs.uk/api/krypt-audio/',
-);
 
 /// Fetches a stream manifest for a song, honoring proxy settings.
 Future<StreamManifest?> _fetchStreamManifest(String songId) async {
@@ -180,15 +178,32 @@ Future<bool> _validateCachedUrl(String songId, String cachedUrl) async {
 
 Future<List> fetchSongsList(String searchQuery) async {
   try {
-    final songs = <Map<String, dynamic>>[];
-    if (MusicSourceService.instance.isEnabled('youtube')) {
-      final List<Video> searchResults = await ytClient.search.search(
-        searchQuery,
-      );
-      songs.addAll(searchResults.map((video) => returnSongLayout(0, video)));
+    if (kIsWeb) {
+      final spotifySongs = await spotifyWebService.searchTracks(searchQuery);
+      if (spotifySongs.isNotEmpty) return spotifySongs;
+
+      final providerSongs = await WebProviderService.search(searchQuery);
+      if (providerSongs.isNotEmpty) return providerSongs;
+
+      // Keep search usable when the server-side Google key is missing,
+      // quota-limited, or temporarily unavailable. The bundled catalog is
+      // deliberately small but always playable through the normal Web flow.
+      final catalogSongs = searchKryptCatalog(searchQuery);
+      if (catalogSongs.isNotEmpty) return catalogSongs;
+
+      // Do not fall through to youtube_explode on Web. Web is intentionally
+      // independent from the retired PHP/YouTube bridge.
+      return kryptCatalogSongs();
     }
-    songs.addAll(await MusicSourceService.instance.search(searchQuery));
-    return songs;
+
+    // If not in cache, perform the search
+    final List<Video> searchResults = await ytClient.search.search(searchQuery);
+    final songsList = searchResults
+        .map((video) => returnSongLayout(0, video))
+        .toList();
+
+    if (songsList.isNotEmpty) return songsList;
+    return kIsWeb ? searchKryptCatalog(searchQuery) : songsList;
   } catch (e, stackTrace) {
     logger.log('Error in fetchSongsList', error: e, stackTrace: stackTrace);
     return [];
@@ -197,6 +212,7 @@ Future<List> fetchSongsList(String searchQuery) async {
 
 Future<List> getRecommendedSongs() async {
   try {
+    if (kIsWeb) return kryptCatalogSongs();
     if (externalRecommendations.value && userRecentlyPlayed.value.isNotEmpty) {
       return await _getRecommendationsFromRecentlyPlayed();
     } else {
@@ -334,8 +350,15 @@ Future<List> _getRecommendationsFromMixedSources() async {
   ];
 
   if (globalSongs.isEmpty) {
-    const playlistId = 'PLgzTt0k8mXzEk586ze4BjvDXR7c-TUSnx';
-    globalSongs = await getSongsFromPlaylist(playlistId);
+    if (kIsWeb) {
+      // The Web build uses official Data API results as its home seed. This
+      // avoids depending on playlist-page scraping before a user searches.
+      globalSongs = await fetchSongsList('new music official music videos');
+      if (globalSongs.isEmpty) globalSongs = kryptCatalogSongs();
+    } else {
+      const playlistId = 'PLgzTt0k8mXzEk586ze4BjvDXR7c-TUSnx';
+      globalSongs = await getSongsFromPlaylist(playlistId);
+    }
   }
   recommendationSources.add(globalSongs.take(10));
 
@@ -755,20 +778,6 @@ Future<String?> fetchSongStreamUrl(String songId, bool isLive) async {
     if (songId.isEmpty) {
       logger.log('fetchSongStreamUrl: songId is empty');
       return null;
-    }
-    // Browsers cannot safely resolve the provider manifest themselves. Route
-    // YouTube-backed tracks through the uploadable PHP range proxy; native
-    // Android playback keeps the existing direct resolver below. Other
-    // configured sources already provide browser-safe URLs.
-    if (kIsWeb && !songId.contains(':')) {
-      final uri = Uri.parse(_webAudioApiBase).replace(
-        queryParameters: {
-          'action': 'stream',
-          'id': songId,
-          if (isLive) 'live': '1',
-        },
-      );
-      return uri.toString();
     }
     if (isLive) {
       final streamInfo = await ytClient.videos.streamsClient

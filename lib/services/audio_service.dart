@@ -35,6 +35,7 @@ import 'package:musify/services/common_services.dart';
 import 'package:musify/services/data_manager.dart';
 import 'package:musify/services/listening_stats_service.dart';
 import 'package:musify/services/settings_manager.dart';
+import 'package:musify/services/spotify_web.dart';
 import 'package:musify/utilities/map_utils.dart';
 import 'package:musify/utilities/media_duration.dart';
 import 'package:musify/utilities/mediaitem.dart';
@@ -42,11 +43,9 @@ import 'package:musify/utilities/platform_utils.dart';
 import 'package:musify/utilities/queue_entry_utils.dart';
 import 'package:rxdart/rxdart.dart';
 
-final playbackErrorNotifier = ValueNotifier<String?>(null);
-
 class MusifyAudioHandler extends BaseAudioHandler implements AndroidAutoHost {
   MusifyAudioHandler() {
-    final androidEqualizer = Platform.isAndroid ? AndroidEqualizer() : null;
+    final androidEqualizer = isAndroidPlatform ? AndroidEqualizer() : null;
     _androidEqualizer = androidEqualizer;
     audioPlayer = AudioPlayer(
       handleInterruptions: isMobilePlatform,
@@ -854,7 +853,6 @@ class MusifyAudioHandler extends BaseAudioHandler implements AndroidAutoHost {
 
   void _handlePlaybackError() {
     _consecutiveErrors++;
-    playbackErrorNotifier.value = _lastError ?? 'Unable to play this track';
     logger.log(
       'Playback error occurred. Consecutive errors: $_consecutiveErrors',
       error: _lastError,
@@ -876,7 +874,6 @@ class MusifyAudioHandler extends BaseAudioHandler implements AndroidAutoHost {
       });
     } else {
       _lastError = null;
-      playbackErrorNotifier.value = null;
     }
   }
 
@@ -1526,8 +1523,11 @@ class MusifyAudioHandler extends BaseAudioHandler implements AndroidAutoHost {
         logger.log('Offline mode enabled; skipping preload for $ytid');
         preloadUrl = null;
       } else {
-        // fetchSongStreamUrl handles caching, freshness checks, and validation
-        preloadUrl = await fetchSongStreamUrl(ytid, nextSong['isLive'] ?? false)
+        // Web playback is provider-owned: Spotify or a provider preview URL.
+        // Never preload through the retired YouTube/PHP path on Web.
+        preloadUrl = kIsWeb
+            ? null
+            : await fetchSongStreamUrl(ytid, nextSong['isLive'] ?? false)
             .timeout(
               const Duration(seconds: 8),
               onTimeout: () {
@@ -1732,6 +1732,15 @@ class MusifyAudioHandler extends BaseAudioHandler implements AndroidAutoHost {
 
   @override
   Future<void> play() async {
+    if (kIsWeb) {
+      final spotifyId = currentSong == null
+          ? null
+          : spotifyTrackIdFromSong(currentSong!);
+      if (spotifyId != null) {
+        await spotifyWebService.playTrack(spotifyId);
+        return;
+      }
+    }
     if (isDesktopPlatform && _currentLoadingIndex >= 0)
       _queuePlayWhenReady = true;
     try {
@@ -1764,6 +1773,15 @@ class MusifyAudioHandler extends BaseAudioHandler implements AndroidAutoHost {
 
   @override
   Future<void> pause() async {
+    if (kIsWeb && spotifyTrackIdFromSong(currentSong ?? {}) != null) {
+      await spotifyWebService.pause();
+      playbackState.add(
+        playbackState.value.copyWith(
+          playing: false,
+        ),
+      );
+      return;
+    }
     if (isDesktopPlatform && _currentLoadingIndex >= 0)
       _queuePlayWhenReady = false;
     try {
@@ -1785,19 +1803,6 @@ class MusifyAudioHandler extends BaseAudioHandler implements AndroidAutoHost {
     }
   }
 
-  Future<void> _fadeVolumeTo(double target) async {
-    const steps = 8;
-    final duration = Duration(
-      milliseconds: (crossfadeDurationSeconds.value * 1000 / steps).round(),
-    );
-    final start = audioPlayer.volume;
-    for (var index = 1; index <= steps; index++) {
-      final value = start + (target - start) * (index / steps);
-      await audioPlayer.setVolume(value.clamp(0.0, 1.0));
-      await Future<void>.delayed(duration);
-    }
-  }
-
   @override
   Future<void> stop() async {
     _debounceTimer?.cancel();
@@ -1805,7 +1810,6 @@ class MusifyAudioHandler extends BaseAudioHandler implements AndroidAutoHost {
     _currentLoadingIndex = -1;
     _currentLoadingTransitionId = -1;
     _lastError = null;
-    playbackErrorNotifier.value = null;
     _consecutiveErrors = 0;
     try {
       listeningStatsService.finishListeningSession(
@@ -1937,8 +1941,28 @@ class MusifyAudioHandler extends BaseAudioHandler implements AndroidAutoHost {
         listeningStatsService.recordListeningSessionProgress(
           wasPlaying: audioPlayer.playing,
         );
-        if (crossfadeEnabled.value) await _fadeVolumeTo(0.0);
         await audioPlayer.pause();
+      }
+
+      if (kIsWeb) {
+        final spotifyId = spotifyTrackIdFromSong(songData);
+        if (spotifyId != null) {
+          _emitOptimisticLoadingState(
+            song: songData,
+            includeMediaItem: true,
+            mediaId: mediaId,
+          );
+          final started = await spotifyWebService.playTrack(spotifyId);
+          if (started) {
+            playbackState.add(
+              playbackState.value.copyWith(
+                playing: true,
+                processingState: AudioProcessingState.ready,
+              ),
+            );
+          }
+          return started;
+        }
       }
 
       final playback = await _resolvePlaybackSource(songData);
@@ -2058,10 +2082,10 @@ class MusifyAudioHandler extends BaseAudioHandler implements AndroidAutoHost {
       return _getOfflineSongUrl(song);
     }
 
-    final directUrl = song['streamUrl']?.toString();
-    if (directUrl != null && directUrl.isNotEmpty) {
-      return directUrl;
-    }
+    final previewUrl = song['previewUrl']?.toString();
+    if (previewUrl != null && previewUrl.isNotEmpty) return previewUrl;
+
+    if (kIsWeb) return null;
 
     return fetchSongStreamUrl(song['ytid'], song['isLive'] ?? false);
   }
@@ -2123,7 +2147,6 @@ class MusifyAudioHandler extends BaseAudioHandler implements AndroidAutoHost {
       final loadedDuration = await audioPlayer
           .setAudioSource(audioSource)
           .timeout(_songTransitionTimeout);
-      await audioPlayer.setVolume(volumeHeadroomEnabled.value ? 0.9 : 1.0);
 
       // Check once more after the async setAudioSource: a fast offline song
       // could have loaded and started playing while we were buffering/setting up.
@@ -2166,9 +2189,6 @@ class MusifyAudioHandler extends BaseAudioHandler implements AndroidAutoHost {
             _lastError = e.toString();
           }),
         );
-      if (startPlayback && crossfadeEnabled.value) {
-        unawaited(_fadeVolumeTo(1.0));
-      }
       unawaited(updateRecentlyPlayed(song['ytid'], songFallback: song));
 
       if (!isOffline) {

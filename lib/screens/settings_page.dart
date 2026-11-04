@@ -20,6 +20,7 @@
  */
 
 import 'package:audio_service/audio_service.dart';
+import 'package:flutter/foundation.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
@@ -29,17 +30,13 @@ import 'package:musify/extensions/l10n.dart';
 import 'package:musify/main.dart';
 import 'package:musify/screens/search_page.dart';
 import 'package:musify/services/common_services.dart';
-import 'package:musify/services/account_service.dart';
-import 'package:musify/services/profile_customization_service.dart';
 import 'package:musify/services/data_manager.dart';
 import 'package:musify/services/listening_stats_service.dart';
-import 'package:musify/services/music_source_service.dart';
 import 'package:musify/services/playlist_download_service.dart';
 import 'package:musify/services/playlists_manager.dart';
 import 'package:musify/services/router_service.dart';
 import 'package:musify/services/settings_manager.dart';
-import 'package:musify/services/smart_dj_service.dart';
-import 'package:musify/services/update_manager.dart';
+import 'package:musify/services/spotify_web.dart';
 import 'package:musify/theme/app_colors.dart';
 import 'package:musify/theme/app_themes.dart';
 import 'package:musify/utilities/flutter_bottom_sheet.dart';
@@ -65,14 +62,12 @@ class SettingsPage extends StatelessWidget {
 
     final content = Column(
       children: <Widget>[
-        _buildAccountSection(context),
         _buildPreferencesSection(
           context,
           primaryColor,
           activatedColor,
           inactivatedColor,
         ),
-        _buildSmartDjSection(context),
         if (!offlineMode.value) _buildOnlineFeaturesSection(context),
         _buildOthersSection(context),
         const SizedBox(height: 20),
@@ -96,91 +91,6 @@ class SettingsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildAccountSection(BuildContext context) {
-    final accountService = KryptAccountService.instance;
-    final profileService = KryptProfileCustomizationService.instance;
-    return AnimatedBuilder(
-      animation: Listenable.merge([accountService, profileService]),
-      builder: (context, _) {
-        final account = accountService.account;
-        final profileName = profileService.displayName;
-        return Card(
-          margin: const EdgeInsets.fromLTRB(8, 8, 8, 18),
-          child: ListTile(
-            leading: CircleAvatar(
-              backgroundImage: account?.photoUrl == null
-                  ? null
-                  : NetworkImage(account!.photoUrl!),
-              child: account == null
-                  ? const Icon(FluentIcons.person_24_regular)
-                  : null,
-            ),
-            title: Text(
-              profileName.isEmpty
-                  ? (account?.displayName ?? 'KRYPT account')
-                  : profileName,
-            ),
-            subtitle: Text(
-              account?.email ??
-                  'Sign in with Google to sync your KRYPT identity.',
-            ),
-            trailing: accountService.isBusy
-                ? const SizedBox(
-                    width: 22,
-                    height: 22,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : account == null
-                ? FilledButton(
-                    onPressed: () async {
-                      final signedIn = await accountService.signIn();
-                      if (context.mounted && !signedIn) {
-                        showToast(
-                          context,
-                          accountService.error == null
-                              ? 'Google sign-in was cancelled or unavailable'
-                              : 'Google sign-in failed: ${accountService.error}',
-                        );
-                      }
-                    },
-                    child: const Text('Sign in'),
-                  )
-                : Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        tooltip: 'Customize profile',
-                        onPressed: () => context.push('/settings/profile'),
-                        icon: const Icon(FluentIcons.person_edit_24_regular),
-                      ),
-                      IconButton(
-                        tooltip: 'Sign out',
-                        onPressed: accountService.signOut,
-                        icon: const Icon(FluentIcons.sign_out_24_regular),
-                      ),
-                    ],
-                  ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildSmartDjSection(BuildContext context) {
-    final service = SmartDjService.instance;
-    return AnimatedBuilder(
-      animation: service,
-      builder: (context, _) => CustomBar(
-        'KRYPT Smart DJ',
-        FluentIcons.sparkle_24_filled,
-        description: 'Build a local mix from your library with optional spoken introductions.',
-        borderRadius: commonCustomBarRadiusLast,
-        onTap: () => context.push('/home/smartDj'),
-        trailing: Switch(value: service.spoken, onChanged: service.setSpoken),
-      ),
-    );
-  }
-
   Widget _buildPreferencesSection(
     BuildContext context,
     Color primaryColor,
@@ -194,12 +104,6 @@ class SettingsPage extends StatelessWidget {
         SectionHeader(
           title: context.l10n!.preferences,
           icon: FluentIcons.options_24_filled,
-        ),
-        CustomBar(
-          'Customize Home',
-          FluentIcons.home_24_regular,
-          description: 'Choose the sections shown on your KRYPT Home screen.',
-          onTap: () => context.push('/settings/home-customization'),
         ),
         CustomBar(
           context.l10n!.accentColor,
@@ -234,51 +138,6 @@ class SettingsPage extends StatelessWidget {
           context.l10n!.audioQuality,
           FluentIcons.music_note_1_24_regular,
           onTap: () => _showAudioQualityPicker(context),
-        ),
-        ValueListenableBuilder<bool>(
-          valueListenable: crossfadeEnabled,
-          builder: (_, value, __) => CustomBar(
-            'Smooth transitions',
-            FluentIcons.arrow_swap_24_regular,
-            description: value
-                ? '${crossfadeDurationSeconds.value}s fade between tracks'
-                : 'Fade between tracks when changing songs',
-            trailing: Switch(
-              value: value,
-              onChanged: (enabled) async {
-                crossfadeEnabled.value = enabled;
-                await addOrUpdateData<bool>(
-                  'settings',
-                  'crossfadeEnabled',
-                  enabled,
-                );
-                if (context.mounted)
-                  showToast(context, 'Transition setting updated');
-              },
-            ),
-          ),
-        ),
-        ValueListenableBuilder<bool>(
-          valueListenable: volumeHeadroomEnabled,
-          builder: (_, value, __) => CustomBar(
-            'Volume headroom',
-            FluentIcons.speaker_2_24_regular,
-            description:
-                'Leave safe headroom for tracks with aggressive mastering.',
-            trailing: Switch(
-              value: value,
-              onChanged: (enabled) async {
-                volumeHeadroomEnabled.value = enabled;
-                await addOrUpdateData<bool>(
-                  'settings',
-                  'volumeHeadroomEnabled',
-                  enabled,
-                );
-                if (context.mounted)
-                  showToast(context, 'Loudness setting updated');
-              },
-            ),
-          ),
         ),
         if (isAndroidPlatform)
           CustomBar(
@@ -410,12 +269,25 @@ class SettingsPage extends StatelessWidget {
   Widget _buildOnlineFeaturesSection(BuildContext context) {
     return Column(
       children: [
-        CustomBar(
-          'Spotify library',
-          FluentIcons.music_note_2_24_regular,
-          description: 'Connect Spotify to import playlists and Liked Songs.',
-          onTap: () => context.push('/settings/spotify-library'),
-        ),
+        if (kIsWeb && spotifyWebService.configured)
+          CustomBar(
+            spotifyWebService.isAuthenticated
+                ? 'Spotify Connected'
+                : 'Connect Spotify',
+            FluentIcons.play_circle_24_regular,
+            description: spotifyWebService.isAuthenticated
+                ? 'Play Spotify tracks in the KRYPT AUDIO Web player'
+                : 'Sign in to play full tracks through Spotify Web Playback',
+            onTap: () async {
+              final connected = await spotifyWebService.login();
+              showToast(
+                context,
+                connected
+                    ? 'Spotify connected'
+                    : 'Spotify connection cancelled or unavailable',
+              );
+            },
+          ),
         ValueListenableBuilder<bool>(
           valueListenable: sponsorBlockSupport,
           builder: (_, value, __) {
@@ -464,85 +336,10 @@ class SettingsPage extends StatelessWidget {
           },
         ),
 
-        _buildMusicSourcesSection(context),
-
         _buildToolsSection(context),
         _buildSponsorSection(context),
       ],
     );
-  }
-
-  Widget _buildMusicSourcesSection(BuildContext context) {
-    final service = MusicSourceService.instance;
-    return Column(
-      children: [
-        SectionHeader(
-          title: 'Music sources',
-          icon: FluentIcons.globe_24_filled,
-        ),
-        ValueListenableBuilder<List<String>>(
-          valueListenable: service.enabledNotifier,
-          builder: (context, enabled, _) => Column(
-            children: availableMusicSources.map((source) {
-              final active = enabled.contains(source.id);
-              return CustomBar(
-                source.name,
-                FluentIcons.music_note_2_24_regular,
-                description: source.description,
-                trailing: Switch(
-                  value: active,
-                  onChanged: (value) async {
-                    await service.setEnabled(source.id, value);
-                    if (context.mounted)
-                      showToast(context, 'Music sources updated');
-                  },
-                ),
-              );
-            }).toList(),
-          ),
-        ),
-        if (service.isEnabled('jamendo'))
-          CustomBar(
-            'Jamendo client ID',
-            FluentIcons.key_24_regular,
-            description: 'Optional client ID for Jamendo search.',
-            onTap: () => _showJamendoClientIdDialog(context),
-          ),
-      ],
-    );
-  }
-
-  Future<void> _showJamendoClientIdDialog(BuildContext context) async {
-    final controller = TextEditingController(
-      text: MusicSourceService.instance.jamendoClientId,
-    );
-    await showDialog<void>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Jamendo client ID'),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          decoration: const InputDecoration(hintText: 'Paste client ID'),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () async {
-              await MusicSourceService.instance.setJamendoClientId(
-                controller.text,
-              );
-              if (dialogContext.mounted) Navigator.pop(dialogContext);
-            },
-            child: const Text('Save'),
-          ),
-        ],
-      ),
-    );
-    controller.dispose();
   }
 
   Widget _buildToolsSection(BuildContext context) {
@@ -697,8 +494,7 @@ class SettingsPage extends StatelessWidget {
             context.l10n!.downloadAppUpdate,
             FluentIcons.arrow_download_24_regular,
             borderRadius: commonCustomBarRadiusLast,
-            description: 'Check GitHub for the latest Android APK',
-            onTap: () => checkForUpdatesManually(context),
+            onTap: () => launchURL(Uri.parse(websiteUrl)),
           ),
       ],
     );
