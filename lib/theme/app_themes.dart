@@ -84,20 +84,14 @@ ThemeData getAppTheme(ColorScheme colorScheme) {
   const pureBlackContainer = Color(0xFF121212);
   const pureBlackContainerHigh = Color(0xFF1A1A1A);
 
-  final bgColor = isLight
-      ? colorScheme.surface
-      : (isPureBlack
-            ? pureBlack
-            : (_pluginColor('--krypt-background') ?? kryptDeepSpace));
+  final bgColor = isLight ? colorScheme.surface : pureBlack;
 
   final cardBgColor = isLight
       ? colorScheme.surfaceContainerLow
-      : (isPureBlack
-            ? pureBlackElevated
-            : (_pluginColor('--krypt-surface') ?? kryptGlass));
+      : pureBlackElevated;
 
   // modified color scheme for pure black theme
-  final effectiveColorScheme = isPureBlack
+  final effectiveColorScheme = colorScheme.brightness == Brightness.dark
       ? colorScheme.copyWith(
           surface: pureBlack,
           surfaceContainerLowest: pureBlack,

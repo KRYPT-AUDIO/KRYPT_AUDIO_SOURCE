@@ -1,34 +1,10 @@
-/*
- *     Copyright (C) 2026 Valeri Gokadze
- *
- *     Musify is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU General Public License as published by
- *     the Free Software Foundation, either version 3 of the License, or
- *     (at your option) any later version.
- *
- *     Musify is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU General Public License for more details.
- *
- *     You should have received a copy of the GNU General Public License
- *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
- *
- *
- *     For more information about Musify, including how to contribute,
- *     please visit: https://github.com/gokadzev/Musify
- */
-
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
-import 'package:flutter/scheduler.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
-import 'package:material_ui/material_ui.dart';
 import 'package:musify/constants/app_constants.dart';
-import 'package:musify/extensions/l10n.dart';
 import 'package:musify/main.dart';
 import 'package:musify/services/settings_manager.dart';
-import 'package:musify/theme/krypt_design.dart';
 import 'package:musify/utilities/flutter_bottom_sheet.dart'
     show closeCurrentBottomSheet;
 import 'package:musify/widgets/mini_player.dart';
@@ -43,14 +19,42 @@ class BottomNavigationPage extends StatefulWidget {
 }
 
 class _BottomNavigationPageState extends State<BottomNavigationPage> {
-  late final _miniPlayerVisibilityStream = audioHandler.mediaItem
-      .map((mediaItem) => mediaItem != null)
+  late final _miniPlayerStream = audioHandler.mediaItem
+      .map((item) => item != null)
       .distinct();
 
-  bool? _previousOfflineMode;
-
-  /// Track the previously selected shell branch to detect reselects.
-  int? _previousShellIndex;
+  static const _items = <_NavItem>[
+    _NavItem(
+      'Home',
+      FluentIcons.home_24_regular,
+      FluentIcons.home_24_filled,
+      0,
+    ),
+    _NavItem(
+      'Search',
+      FluentIcons.search_24_regular,
+      FluentIcons.search_24_filled,
+      2,
+    ),
+    _NavItem(
+      'Discover',
+      FluentIcons.sparkle_24_regular,
+      FluentIcons.sparkle_24_filled,
+      1,
+    ),
+    _NavItem(
+      'Library',
+      FluentIcons.library_24_regular,
+      FluentIcons.library_24_filled,
+      3,
+    ),
+    _NavItem(
+      'Settings',
+      FluentIcons.settings_24_regular,
+      FluentIcons.settings_24_filled,
+      4,
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -58,259 +62,127 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
       canPop: widget.child.currentIndex == 0,
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) return;
-
-        final currentIndex = widget.child.currentIndex;
-        if (currentIndex != 0) {
+        if (widget.child.currentIndex != 0) {
           widget.child.goBranch(0);
         } else {
           SystemNavigator.pop();
         }
       },
-      child: ValueListenableBuilder<bool>(
-        valueListenable: offlineMode,
-        builder: (context, isOfflineMode, _) {
-          if (_previousOfflineMode != null &&
-              _previousOfflineMode != isOfflineMode) {
-            SchedulerBinding.instance.addPostFrameCallback((_) {
-              _handleOfflineModeChange(isOfflineMode);
-            });
-          }
-          _previousOfflineMode = isOfflineMode;
-
-          return LayoutBuilder(
-            builder: (context, constraints) {
-              final isLargeScreen = MediaQuery.of(context).size.width >= 600;
-              final items = _getNavigationItems(isOfflineMode);
-
-              return Scaffold(
-                body: AmbientBackdrop(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Theme.of(context).colorScheme.surface
-                              .withValues(alpha: 0.94),
-                          Theme.of(context).colorScheme.surface
-                              .withValues(alpha: 0.88),
-                          Theme.of(context).colorScheme.primary
-                              .withValues(alpha: 0.06),
-                        ],
-                      ),
-                    ),
-                    child: SafeArea(
-                      child: Row(
-                        children: [
-                          if (isLargeScreen)
-                            NavigationRail(
-                              labelType: NavigationRailLabelType.selected,
-                              destinations: items
-                                  .map(
-                                    (item) => NavigationRailDestination(
-                                      icon: Icon(item.icon),
-                                      selectedIcon: Icon(item.selectedIcon),
-                                      label: Text(item.label),
-                                    ),
-                                  )
-                                  .toList(),
-                              selectedIndex: _getCurrentIndex(
-                                items,
-                                isOfflineMode,
-                              ),
-                              onDestinationSelected: (index) =>
-                                  _onTabTapped(index, items),
-                            ),
-                          Expanded(
-                            child: StreamBuilder<bool>(
-                              initialData: audioHandler.mediaItem.value != null,
-                              stream: _miniPlayerVisibilityStream,
-                              builder: (context, snapshot) {
-                                final mediaQuery = MediaQuery.of(context);
-                                final isMiniPlayerVisible =
-                                    snapshot.data ?? false;
-                                final bottomPadding = !isMiniPlayerVisible
-                                    ? mediaQuery.padding.bottom
-                                    : mediaQuery.padding.bottom +
-                                          miniPlayerTotalHeight;
-
-                                return Stack(
-                                  alignment: Alignment.bottomCenter,
-                                  children: [
-                                    MediaQuery(
-                                      data: mediaQuery.copyWith(
-                                        padding: mediaQuery.padding.copyWith(
-                                          bottom: bottomPadding,
-                                        ),
-                                      ),
-                                      child: widget.child,
-                                    ),
-                                    const Padding(
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 8,
-                                      ),
-                                      child: MiniPlayer(),
-                                    ),
-                                  ],
-                                );
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        body: StreamBuilder<bool>(
+          initialData: audioHandler.mediaItem.value != null,
+          stream: _miniPlayerStream,
+          builder: (context, snapshot) {
+            final hasMiniPlayer = snapshot.data ?? false;
+            return Stack(
+              children: [
+                MediaQuery(
+                  data: MediaQuery.of(context).copyWith(
+                    padding: MediaQuery.of(context).padding.copyWith(
+                      bottom:
+                          MediaQuery.of(context).padding.bottom +
+                          (hasMiniPlayer ? miniPlayerTotalHeight : 0),
                     ),
                   ),
+                  child: widget.child,
                 ),
-                bottomNavigationBar: !isLargeScreen
-                    ? SafeArea(
-                        minimum: const EdgeInsets.fromLTRB(16, 0, 16, 10),
-                        child: GlassContainer(
-                          padding: const EdgeInsets.symmetric(vertical: 4),
-                          radius: KryptDesign.radiusLarge,
-                          opacity: 0.88,
-                          child: NavigationBar(
-                            backgroundColor: Colors.transparent,
-                            selectedIndex: _getCurrentIndex(
-                              items,
-                              isOfflineMode,
-                            ),
-                            labelBehavior:
-                                languageSetting == const Locale('en', '')
-                                ? NavigationDestinationLabelBehavior
-                                      .onlyShowSelected
-                                : NavigationDestinationLabelBehavior.alwaysHide,
-                            onDestinationSelected: (index) =>
-                                _onTabTapped(index, items),
-                            destinations: items
-                                .map(
-                                  (item) => NavigationDestination(
-                                    icon: Icon(item.icon),
-                                    selectedIcon: Icon(item.selectedIcon),
-                                    label: item.label,
-                                  ),
-                                )
-                                .toList(),
-                          ),
-                        ),
-                      )
-                    : null,
-              );
-            },
-          );
-        },
-      ),
-    );
-  }
-
-  List<_NavigationItem> _getNavigationItems(bool isOfflineMode) {
-    final items = <_NavigationItem>[
-      _NavigationItem(
-        icon: FluentIcons.home_24_regular,
-        selectedIcon: FluentIcons.home_24_filled,
-        label: context.l10n?.home ?? 'Home',
-        shellIndex: 0,
-      ),
-    ];
-
-    // Only add search tab in online mode
-    if (!isOfflineMode) {
-      items.add(
-        _NavigationItem(
-          icon: FluentIcons.search_24_regular,
-          selectedIcon: FluentIcons.search_24_filled,
-          label: context.l10n?.search ?? 'Search',
-          shellIndex: 2,
+                if (hasMiniPlayer)
+                  const Positioned(
+                    left: 8,
+                    right: 8,
+                    bottom: 82,
+                    child: MiniPlayer(),
+                  ),
+              ],
+            );
+          },
         ),
-      );
-    }
-
-    items.addAll([
-      _NavigationItem(
-        icon: FluentIcons.sparkle_24_regular,
-        selectedIcon: FluentIcons.sparkle_24_filled,
-        label: 'Discover',
-        shellIndex: 1,
+        bottomNavigationBar: _buildBottomPill(context),
       ),
-      _NavigationItem(
-        icon: FluentIcons.book_24_regular,
-        selectedIcon: FluentIcons.book_24_filled,
-        label: context.l10n?.library ?? 'Library',
-        shellIndex: 3,
-      ),
-      _NavigationItem(
-        icon: FluentIcons.settings_24_regular,
-        selectedIcon: FluentIcons.settings_24_filled,
-        label: context.l10n?.settings ?? 'Settings',
-        shellIndex: 4,
-      ),
-    ]);
-
-    return items;
-  }
-
-  void _handleOfflineModeChange(bool isOfflineMode) {
-    if (!mounted) return;
-
-    final currentRoute = GoRouterState.of(context).matchedLocation;
-
-    // If we're switching to offline mode and currently on search tab
-    if (isOfflineMode && currentRoute.startsWith('/search')) {
-      // Navigate to home
-      widget.child.goBranch(0);
-    }
-  }
-
-  void _onTabTapped(int index, List<_NavigationItem> items) {
-    if (index < items.length) {
-      final item = items[index];
-      final isReselect = _previousShellIndex == item.shellIndex;
-
-      // Close any open bottom sheet before switching tabs
-      closeCurrentBottomSheet();
-
-      // If user taps the same tab again, reset it to initial state.
-      // Otherwise, preserve the branch state.
-      if (isReselect) {
-        widget.child.goBranch(item.shellIndex, initialLocation: true);
-      } else {
-        widget.child.goBranch(item.shellIndex);
-      }
-
-      _previousShellIndex = item.shellIndex;
-    }
-  }
-
-  int _getCurrentIndex(List<_NavigationItem> items, bool isOfflineMode) {
-    final currentShellIndex = widget.child.currentIndex;
-
-    if (items.isEmpty) return 0;
-
-    // Try to find the current shell index in the available items
-    final matchedIndex = items.indexWhere(
-      (item) => item.shellIndex == currentShellIndex,
     );
-    if (matchedIndex != -1) return matchedIndex;
+  }
 
-    // If the Search branch (1) is active but Search is hidden in offline mode,
-    // fall back to the Home tab.
-    if (isOfflineMode && currentShellIndex == 1) return 0;
+  Widget _buildBottomPill(BuildContext context) {
+    final selected = _items.indexWhere(
+      (item) => item.shellIndex == widget.child.currentIndex,
+    );
+    return SafeArea(
+      minimum: const EdgeInsets.fromLTRB(24, 0, 24, 12),
+      child: Container(
+        height: 84,
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(44),
+          color: const Color(0xFF151519).withValues(alpha: .96),
+          border: Border.all(color: Colors.white.withValues(alpha: .18)),
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black54,
+              blurRadius: 24,
+              offset: Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            for (var index = 0; index < _items.length; index++)
+              Expanded(
+                child: _buildNavItem(context, _items[index], index == selected),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
 
-    // Final fallback: return the first tab to keep UI in a valid state.
-    return 0;
+  Widget _buildNavItem(BuildContext context, _NavItem item, bool selected) {
+    return InkWell(
+      onTap: () {
+        closeCurrentBottomSheet();
+        widget.child.goBranch(item.shellIndex, initialLocation: selected);
+        setState(() {});
+      },
+      borderRadius: BorderRadius.circular(38),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 220),
+        curve: Curves.easeOutCubic,
+        margin: const EdgeInsets.symmetric(horizontal: 2),
+        decoration: BoxDecoration(
+          color: selected ? const Color(0xFF303039) : Colors.transparent,
+          borderRadius: BorderRadius.circular(36),
+          border: selected
+              ? Border.all(color: Colors.white.withValues(alpha: .05))
+              : null,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              selected ? item.selectedIcon : item.icon,
+              color: selected ? Colors.white : const Color(0xFFD1D0D8),
+              size: 25,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              item.label,
+              style: TextStyle(
+                color: selected ? Colors.white : const Color(0xFFD1D0D8),
+                fontSize: 12,
+                fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
-class _NavigationItem {
-  const _NavigationItem({
-    required this.icon,
-    required this.selectedIcon,
-    required this.label,
-    required this.shellIndex,
-  });
-
+class _NavItem {
+  const _NavItem(this.label, this.icon, this.selectedIcon, this.shellIndex);
+  final String label;
   final IconData icon;
   final IconData selectedIcon;
-  final String label;
   final int shellIndex;
 }
