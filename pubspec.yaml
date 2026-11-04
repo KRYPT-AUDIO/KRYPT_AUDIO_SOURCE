@@ -33,6 +33,7 @@ dependencies:
   html: ^0.15.7
   http: ^1.6.0
   intl: ^0.20.2
+  js: ^0.7.2
   just_audio: ^0.10.6
   just_audio_media_kit:
     path: ./packages/just_audio_media_kit

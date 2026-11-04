@@ -12,6 +12,7 @@ The frontend expects these endpoints:
 GET https://synapselabs.uk/krypt-audio/api/health.php
 GET/POST/HEAD https://synapselabs.uk/krypt-audio/api/proxy.php?url=<encoded-upstream-url>
 GET https://synapselabs.uk/krypt-audio/api/search.php?q=<query>&type=video
+GET/HEAD https://synapselabs.uk/krypt-audio/api/stream.php?id=<youtube-video-id>
 ```
 
 The proxy is intentionally allow-listed. It accepts only YouTube, YouTube image, Google Video and related media hosts. It forwards YouTube JSON/page requests and supports HTTP Range requests so browser audio playback can seek and buffer correctly.
@@ -22,6 +23,7 @@ Requirements:
 - PHP cURL extension enabled.
 - HTTPS enabled on the domain.
 - `proxy.php` must be allowed to make outbound HTTPS requests.
+- `stream.php` requires `yt-dlp` installed on the server, or `KRYPT_YTDLP_BIN` pointing to its absolute path, and PHP cURL for range-capable audio streaming.
 - No PHP login or rewrite rule is required for the initial version.
 
 ## Official Google search configuration
@@ -35,7 +37,7 @@ ALLOWED_ORIGIN=https://krypt-audio.github.io
 
 The key is read only by `search.php` and is never sent to the browser. The Web app uses this endpoint for official video, playlist and channel search when the key is configured. If the key is not configured, it falls back to the existing KRYPT API bridge.
 
-Official YouTube Web playback uses the YouTube iframe player with the returned video ID. The Data API does not expose audio-only stream URLs.
+The browser audio player uses `stream.php`, which resolves the same audio-only YouTube stream family as the Android client and proxies it with HTTP Range support. The Data API remains for search only.
 
 After uploading, open `health.php`. It should return JSON with `ok: true` and `curl: true`.
 

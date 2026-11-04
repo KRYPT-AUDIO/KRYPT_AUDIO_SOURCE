@@ -43,6 +43,8 @@ import 'package:musify/utilities/platform_utils.dart';
 import 'package:musify/utilities/queue_entry_utils.dart';
 import 'package:rxdart/rxdart.dart';
 
+final playbackErrorNotifier = ValueNotifier<String?>(null);
+
 class MusifyAudioHandler extends BaseAudioHandler implements AndroidAutoHost {
   MusifyAudioHandler() {
     final androidEqualizer = isAndroidPlatform ? AndroidEqualizer() : null;
@@ -1527,14 +1529,16 @@ class MusifyAudioHandler extends BaseAudioHandler implements AndroidAutoHost {
         // Never preload through the retired YouTube/PHP path on Web.
         preloadUrl = kIsWeb
             ? null
-            : await fetchSongStreamUrl(ytid, nextSong['isLive'] ?? false)
-            .timeout(
-              const Duration(seconds: 8),
-              onTimeout: () {
-                logger.log('Preload timeout for song $ytid');
-                return null;
-              },
-            );
+            : await fetchSongStreamUrl(
+                ytid,
+                nextSong['isLive'] ?? false,
+              ).timeout(
+                const Duration(seconds: 8),
+                onTimeout: () {
+                  logger.log('Preload timeout for song $ytid');
+                  return null;
+                },
+              );
       }
     } catch (e, stackTrace) {
       logger.log(
@@ -1775,11 +1779,7 @@ class MusifyAudioHandler extends BaseAudioHandler implements AndroidAutoHost {
   Future<void> pause() async {
     if (kIsWeb && spotifyTrackIdFromSong(currentSong ?? {}) != null) {
       await spotifyWebService.pause();
-      playbackState.add(
-        playbackState.value.copyWith(
-          playing: false,
-        ),
-      );
+      playbackState.add(playbackState.value.copyWith(playing: false));
       return;
     }
     if (isDesktopPlatform && _currentLoadingIndex >= 0)
@@ -2085,7 +2085,19 @@ class MusifyAudioHandler extends BaseAudioHandler implements AndroidAutoHost {
     final previewUrl = song['previewUrl']?.toString();
     if (previewUrl != null && previewUrl.isNotEmpty) return previewUrl;
 
-    if (kIsWeb) return null;
+    if (kIsWeb) {
+      const apiBase = String.fromEnvironment(
+        'KRYPT_WEB_API_BASE_URL',
+        defaultValue: 'https://synapselabs.uk/krypt-audio/api',
+      );
+      final uri = Uri.parse('$apiBase/stream.php').replace(
+        queryParameters: {
+          'id': song['ytid']?.toString() ?? '',
+          if (song['isLive'] == true) 'live': '1',
+        },
+      );
+      return uri.toString();
+    }
 
     return fetchSongStreamUrl(song['ytid'], song['isLive'] ?? false);
   }

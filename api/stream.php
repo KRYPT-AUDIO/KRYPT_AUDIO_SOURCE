@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-$action = (string)($_GET['action'] ?? 'health');
+$action = 'stream';
 $id = trim((string)($_GET['id'] ?? ''));
 
 if ($action === 'health') {

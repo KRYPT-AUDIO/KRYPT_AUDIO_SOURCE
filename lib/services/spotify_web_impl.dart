@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:html' as html;
-import 'dart:js_util' as js_util;
+
 import 'dart:math';
 
 import 'package:crypto/crypto.dart';
@@ -135,9 +135,13 @@ class SpotifyWebService {
     await initialize();
     if (_accessToken == null || _deviceId == null) return false;
     final response = await http.put(
-      Uri.parse('https://api.spotify.com/v1/me/player/play?device_id=$_deviceId'),
+      Uri.parse(
+        'https://api.spotify.com/v1/me/player/play?device_id=$_deviceId',
+      ),
       headers: _headers,
-      body: jsonEncode({'uris': ['spotify:track:$spotifyTrackId']}),
+      body: jsonEncode({
+        'uris': ['spotify:track:$spotifyTrackId'],
+      }),
     );
     return response.statusCode == 204;
   }
@@ -146,16 +150,18 @@ class SpotifyWebService {
     await initialize();
     if (_accessToken == null || _deviceId == null) return false;
     final response = await http.put(
-      Uri.parse('https://api.spotify.com/v1/me/player/pause?device_id=$_deviceId'),
+      Uri.parse(
+        'https://api.spotify.com/v1/me/player/pause?device_id=$_deviceId',
+      ),
       headers: _headers,
     );
     return response.statusCode == 204;
   }
 
   Map<String, String> get _headers => {
-        'Authorization': 'Bearer $_accessToken',
-        'Content-Type': 'application/json',
-      };
+    'Authorization': 'Bearer $_accessToken',
+    'Content-Type': 'application/json',
+  };
 
   Future<Map<String, dynamic>?> _apiGet(
     String path,
@@ -168,52 +174,11 @@ class SpotifyWebService {
   }
 
   Future<void> _loadSdk() async {
-    if (_player != null) return;
-    final completer = Completer<void>();
-    void createPlayer() {
-      if (_player != null) return;
-      final spotify = js_util.getProperty(js_util.globalThis, 'Spotify');
-      final playerClass = js_util.getProperty(spotify, 'Player');
-      _player = js_util.callConstructor(playerClass, [
-        js_util.jsify({
-          'name': 'KRYPT AUDIO Web',
-          'getOAuthToken': js_util.allowInterop((dynamic callback) {
-            js_util.callMethod(callback, 'call', [null, _accessToken]);
-          }),
-          'volume': 0.8,
-        }),
-      ]);
-      js_util.callMethod(_player, 'addListener', [
-        'ready',
-        js_util.allowInterop((dynamic data) {
-          _deviceId = js_util.getProperty(data, 'device_id')?.toString();
-          if (!completer.isCompleted) completer.complete();
-        }),
-      ]);
-      js_util.callMethod(_player, 'addListener', [
-        'initialization_error',
-        js_util.allowInterop((dynamic _) {
-          if (!completer.isCompleted) completer.complete();
-        }),
-      ]);
-      js_util.callMethod(_player, 'connect', []);
-    }
-
-    js_util.setProperty(
-      js_util.globalThis,
-      'onSpotifyWebPlaybackSDKReady',
-      js_util.allowInterop(createPlayer),
-    );
-    final existing = html.document.querySelector('script[src="https://sdk.scdn.co/spotify-player.js"]');
-    if (existing == null) {
-      final script = html.ScriptElement()
-        ..src = 'https://sdk.scdn.co/spotify-player.js'
-        ..async = true;
-      html.document.body?.append(script);
-    } else {
-      createPlayer();
-    }
-    await completer.future.timeout(const Duration(seconds: 12), onTimeout: () {});
+    // Spotify Web Playback SDK startup was removed because its legacy
+    // dart:js_util bridge is not supported by the current Dart toolchain.
+    // OAuth, library sync and search remain available; KRYPT browser audio
+    // uses the first-party PHP stream bridge instead.
+    return;
   }
 
   String _randomString(int length) {
