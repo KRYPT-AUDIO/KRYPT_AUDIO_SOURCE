@@ -5,7 +5,7 @@ repository: https://github.com/gokadzev/Musify
 issue_tracker: https://github.com/gokadzev/Musify/issues
 
 publish_to: 'none'
-version: 2.2.3+31 # Now Playing refinement and polish
+version: 2.2.4+32 # Galaxy S24 mini-player positioning fix
 
 environment:
   sdk: '>=3.13.0 <4.0.0'

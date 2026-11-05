@@ -90,7 +90,9 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
                   const Positioned(
                     left: 8,
                     right: 8,
-                    bottom: 82,
+                    // Scaffold's body ends above bottomNavigationBar, so this
+                    // is the direct gap between the mini-player and nav pill.
+                    bottom: 16,
                     child: MiniPlayer(),
                   ),
               ],
