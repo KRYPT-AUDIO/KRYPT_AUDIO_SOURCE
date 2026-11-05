@@ -52,10 +52,10 @@ final Stream<FullPlayerState> _fullPlayerStateStream =
 class MiniPlayer extends StatelessWidget {
   const MiniPlayer({super.key});
 
-  static const double playerHeight = 72;
-  static const double _borderRadius = 20;
+  static const double playerHeight = 76;
+  static const double _borderRadius = 24;
   static const double _artworkSize = 52;
-  static const double _artworkRadius = 14;
+  static const double _artworkRadius = 16;
 
   @override
   Widget build(BuildContext context) {
@@ -351,7 +351,7 @@ class _MetadataWidget extends StatelessWidget {
             child: Text(
               title,
               style: TextStyle(
-                color: colorScheme.secondary,
+                color: Colors.white,
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
                 letterSpacing: 0.1,
@@ -451,8 +451,8 @@ class _CircularPlayButton extends StatelessWidget {
             size: const Size(48, 48),
             painter: _CircularProgressPainter(
               progress: progress,
-              backgroundColor: colorScheme.surfaceContainerHighest,
-              progressColor: colorScheme.primary,
+              backgroundColor: const Color(0xFF4A4850),
+              progressColor: Colors.white,
               strokeWidth: 3,
             ),
           ),
@@ -478,7 +478,7 @@ class _CircularPlayButton extends StatelessWidget {
                     : (isPlaying
                           ? FluentIcons.pause_16_filled
                           : FluentIcons.play_16_filled),
-                color: colorScheme.primary,
+                color: Colors.black,
                 size: 22,
               ),
               visualDensity: VisualDensity.compact,

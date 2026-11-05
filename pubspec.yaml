@@ -5,7 +5,7 @@ repository: https://github.com/gokadzev/Musify
 issue_tracker: https://github.com/gokadzev/Musify/issues
 
 publish_to: 'none'
-version: 2.2.1+29 # Global KRYPT UI consistency pass
+version: 2.2.2+30 # Complete Now Playing screen rebuild
 
 environment:
   sdk: '>=3.13.0 <4.0.0'
