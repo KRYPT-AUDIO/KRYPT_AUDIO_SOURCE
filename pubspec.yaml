@@ -5,7 +5,7 @@ repository: https://github.com/gokadzev/Musify
 issue_tracker: https://github.com/gokadzev/Musify/issues
 
 publish_to: 'none'
-version: 2.2.2+30 # Complete Now Playing screen rebuild
+version: 2.2.3+31 # Now Playing refinement and polish
 
 environment:
   sdk: '>=3.13.0 <4.0.0'

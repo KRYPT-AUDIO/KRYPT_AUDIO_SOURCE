@@ -159,7 +159,9 @@ class _SyncedLyricsViewState extends State<SyncedLyricsView> {
               builder: (context, constraints) {
                 // Blank space above and below lets the first and last lines
                 // reach the vertical middle of the card.
-                final edgePadding = constraints.maxHeight * 0.4;
+                final edgePadding = (constraints.maxHeight * 0.22)
+                    .clamp(48.0, 120.0)
+                    .toDouble();
                 return SingleChildScrollView(
                   padding: EdgeInsets.fromLTRB(
                     20,
@@ -201,14 +203,14 @@ class _SyncedLyricsViewState extends State<SyncedLyricsView> {
       behavior: HitTestBehavior.opaque,
       onTap: () => _seekToLine(line),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 6),
+        padding: const EdgeInsets.symmetric(vertical: 8),
         child: AnimatedDefaultTextStyle(
           duration: const Duration(milliseconds: 200),
           style: TextStyle(
-            fontSize: 20,
-            height: 1.4,
+            fontSize: isActive ? 21 : 19,
+            height: 1.45,
             fontWeight: isActive ? FontWeight.w800 : FontWeight.w500,
-            color: baseColor.withValues(alpha: isActive ? 1 : 0.45),
+            color: baseColor.withValues(alpha: isActive ? 1 : 0.38),
           ),
           textAlign: TextAlign.center,
           child: Text(line.text.isEmpty ? '♪' : line.text),

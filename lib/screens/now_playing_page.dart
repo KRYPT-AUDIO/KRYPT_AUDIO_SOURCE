@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:audio_service/audio_service.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
@@ -49,7 +50,7 @@ class _NowPlayingPageState extends State<NowPlayingPage> {
   Widget _buildPlayer(BuildContext context, MediaItem metadata) {
     final size = MediaQuery.sizeOf(context);
     final compact = size.height < 700;
-    final artworkWidth = (size.width - 40).clamp(260.0, 520.0);
+    final artworkWidth = (size.width - 40).clamp(260.0, 520.0).toDouble();
     final isLive = metadata.extras?['isLive'] == true;
 
     return SafeArea(
@@ -114,6 +115,7 @@ class _NowPlayingPageState extends State<NowPlayingPage> {
   }
 
   Widget _buildArtwork(MediaItem metadata, double width, bool compact) {
+    final artworkSize = math.min(width, compact ? 300.0 : 480.0);
     return Center(
       child: Hero(
         tag: 'now_playing_artwork',
@@ -123,9 +125,8 @@ class _NowPlayingPageState extends State<NowPlayingPage> {
           switchOutCurve: Curves.easeInCubic,
           child: Container(
             key: ValueKey(metadata.id),
-            width: width,
-            height: width,
-            constraints: BoxConstraints(maxHeight: compact ? 300 : 480),
+            width: artworkSize,
+            height: artworkSize,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(28),
               boxShadow: const [
@@ -139,7 +140,7 @@ class _NowPlayingPageState extends State<NowPlayingPage> {
             clipBehavior: Clip.antiAlias,
             child: SongArtworkWidget(
               metadata: metadata,
-              size: width,
+              size: artworkSize,
               borderRadius: 28,
               errorWidgetIconSize: 64,
             ),
@@ -373,9 +374,20 @@ class _NowPlayingPageState extends State<NowPlayingPage> {
 
   Widget _buildTechnicalDetails(BuildContext context, MediaItem metadata) {
     final extras = metadata.extras ?? const <String, dynamic>{};
-    final codec =
-        extras['audioCodec'] ?? extras['codec'] ?? 'Available from source';
-    final bitrate = extras['audioBitrateKbps'] ?? extras['bitrateKbps'];
+    final source = _metadataValue(extras['source']);
+    final codec = _metadataValue(extras['audioCodec'] ?? extras['codec']);
+    final bitrate = _metadataValue(
+      extras['audioBitrateKbps'] ?? extras['bitrateKbps'],
+    );
+    final sampleRate = _metadataValue(
+      extras['sampleRate'] ?? extras['sampleRateHz'],
+    );
+    final rows = <Widget>[
+      if (source != null) _detailLine('Source', source),
+      if (codec != null) _detailLine('Format', codec),
+      if (bitrate != null) _detailLine('Bitrate', '$bitrate kbps'),
+      if (sampleRate != null) _detailLine('Sample rate', '$sampleRate Hz'),
+    ];
     return GlassSurface(
       padding: const EdgeInsets.all(16),
       borderRadius: BorderRadius.circular(22),
@@ -393,18 +405,22 @@ class _NowPlayingPageState extends State<NowPlayingPage> {
             ),
           ),
           const SizedBox(height: 12),
-          _detailLine(
-            'Source',
-            extras['source']?.toString() ?? 'KRYPT AUDIO stream',
-          ),
-          _detailLine('Format', codec.toString()),
-          _detailLine(
-            'Bitrate',
-            bitrate == null ? 'Not reported' : '$bitrate kbps',
-          ),
+          if (rows.isEmpty)
+            const Text(
+              'No additional playback metadata is available for this track.',
+              style: TextStyle(color: Color(0xFFAAA8B2)),
+            )
+          else
+            ...rows,
         ],
       ),
     );
+  }
+
+  String? _metadataValue(Object? value) {
+    if (value == null) return null;
+    final text = value.toString().trim();
+    return text.isEmpty ? null : text;
   }
 
   Widget _detailLine(String label, String value) {
@@ -556,10 +572,34 @@ class _NowPlayingPageState extends State<NowPlayingPage> {
   }
 
   Widget _railButton(IconData icon, String label, VoidCallback onTap) {
-    return IconButton(
-      onPressed: onTap,
-      tooltip: label,
-      icon: Icon(icon, color: const Color(0xFFD1CFD8), size: 23),
+    return Expanded(
+      child: Tooltip(
+        message: label,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 5),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(icon, color: const Color(0xFFD1CFD8), size: 22),
+                const SizedBox(height: 3),
+                Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Color(0xFFAAA8B2),
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 
