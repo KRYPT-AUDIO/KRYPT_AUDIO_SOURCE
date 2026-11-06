@@ -1,28 +1,20 @@
-# KRYPT AUDIO iOS port
 
-The Flutter application already contains the shared mobile UI, playback service, deep-link handling, sharing intent handling, account services, and iOS-safe platform branches. The iOS work in this branch adds the missing Flutter iOS host target and CI packaging path.
+## TestFlight workflow
 
-## Local preparation
+`.github/workflows/ios-testflight.yml` is a separate signed-build workflow. It runs manually or when an `ios-v*` tag is pushed, signs the app with an Apple Distribution certificate, exports an App Store IPA, uploads the IPA artifact, and submits it to TestFlight.
 
-Run this on macOS with Xcode and the Flutter SDK version declared in `pubspec.yaml`:
+Configure these GitHub Actions secrets before running it:
 
-```bash
-bash scripts/prepare_ios.sh
-open ios/Runner.xcworkspace
-```
+- `IOS_DISTRIBUTION_CERTIFICATE_BASE64`: base64-encoded `.p12` Apple Distribution certificate.
+- `IOS_DISTRIBUTION_CERTIFICATE_PASSWORD`: password for that `.p12` file.
+- `IOS_PROVISIONING_PROFILE_BASE64`: base64-encoded App Store provisioning profile for `com.synapselabs.kryptaudio`.
+- `IOS_TEAM_ID`: Apple Developer Team ID.
+- `APP_STORE_CONNECT_ISSUER_ID`: App Store Connect API issuer ID.
+- `APP_STORE_CONNECT_API_KEY_ID`: App Store Connect API key ID.
+- `APP_STORE_CONNECT_API_PRIVATE_KEY`: the complete multiline `.p8` private-key contents.
 
-The script generates the standard Flutter `ios/` host project, sets the KRYPT AUDIO display name, and registers the existing `kryptaudio://` and `musify://` URL schemes. CocoaPods dependencies are resolved by `flutter pub get`.
+Create the certificate and provisioning profile in the Apple Developer portal, and create the App Store Connect API key in App Store Connect. Store them only as GitHub Actions secrets; do not commit `.p12`, `.mobileprovision`, `.p8`, passwords, or Apple account credentials to the repository.
 
-Apple service configuration remains environment-specific. A real device/App Store build still requires the owning Apple Developer Team, bundle identifier provisioning, and any provider-specific values such as the Google Sign-In iOS client configuration.
+To run it manually, open **Actions → Build and upload KRYPT AUDIO to TestFlight → Run workflow**. To trigger it from Git, push a tag such as `ios-v2.2.4`. The workflow requires the repository's Apple bundle ID to match `com.synapselabs.kryptaudio`.
 
-## GitHub Actions
-
-`.github/workflows/ios-unsigned-ipa.yml` runs on a macOS GitHub-hosted runner. It generates the iOS host target, resolves packages, analyzes Dart, runs:
-
-```bash
-flutter build ios --release --no-codesign
-```
-
-and packages the resulting `Runner.app` into `build/ios/ipa/KRYPT-AUDIO-<sha>-unsigned.ipa` as a downloadable workflow artifact. No Apple signing certificate, provisioning profile, or GitHub secret is used.
-
-An unsigned IPA cannot be installed on a normal iPhone until it is signed and provisioned. It is intended for downstream signing, inspection, or CI handoff.
+A normal Apple ID login or 2FA code is not needed in the workflow. TestFlight upload uses the App Store Connect API key, while code signing uses the certificate and provisioning profile secrets.
