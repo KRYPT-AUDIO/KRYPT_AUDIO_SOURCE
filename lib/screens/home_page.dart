@@ -20,6 +20,7 @@
  */
 
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
+import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:musify/constants/app_constants.dart';
@@ -27,21 +28,22 @@ import 'package:musify/constants/brand_links.dart';
 import 'package:musify/extensions/l10n.dart';
 import 'package:musify/main.dart';
 import 'package:musify/services/common_services.dart';
-import 'package:musify/services/listening_stats_service.dart';
 import 'package:musify/services/home_customization_service.dart';
-import 'package:musify/services/plugin_service.dart';
+import 'package:musify/services/listening_stats_service.dart';
 import 'package:musify/services/playlists_manager.dart';
+import 'package:musify/services/plugin_service.dart';
 import 'package:musify/services/settings_manager.dart';
+import 'package:musify/services/web_audio_resolver.dart';
 import 'package:musify/utilities/app_utils.dart';
 import 'package:musify/utilities/async_loader.dart';
 import 'package:musify/utilities/listening_stats_utils.dart';
 import 'package:musify/widgets/announcement_box.dart';
+import 'package:musify/widgets/glass_surface.dart';
 import 'package:musify/widgets/listening_recap_card.dart';
 import 'package:musify/widgets/mini_player_bottom_space.dart';
 import 'package:musify/widgets/playlist_cube.dart';
 import 'package:musify/widgets/recommended_songs_section.dart';
 import 'package:musify/widgets/section_header.dart';
-import 'package:musify/widgets/glass_surface.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -129,13 +131,15 @@ class _HomePageState extends State<HomePage> {
                           ),
                           SizedBox(height: 5),
                           Text(
-                            'A space for every sound.',
+                            kIsWeb && kryptWebDemoMode
+                                ? 'Browser demo · bundled sample audio'
+                                : 'A space for every sound.',
                             style: TextStyle(fontSize: 15),
                           ),
                         ],
                       ),
                     ),
-                    Icon(FluentIcons.chevron_right_24_regular, size: 20),
+                    const Icon(FluentIcons.chevron_right_24_regular, size: 20),
                   ],
                 ),
               ),

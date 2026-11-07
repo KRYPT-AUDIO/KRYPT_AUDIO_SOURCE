@@ -25,7 +25,6 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:musify/constants/clients.dart';
@@ -37,6 +36,7 @@ import 'package:musify/services/playlists_manager.dart';
 import 'package:musify/services/proxy_manager.dart';
 import 'package:musify/services/settings_manager.dart';
 import 'package:musify/services/spotify_web.dart';
+import 'package:musify/services/web_audio_resolver.dart';
 import 'package:musify/services/web_catalog.dart';
 import 'package:musify/services/web_provider_service.dart';
 import 'package:musify/utilities/app_utils.dart';
@@ -179,6 +179,8 @@ Future<bool> _validateCachedUrl(String songId, String cachedUrl) async {
 Future<List> fetchSongsList(String searchQuery) async {
   try {
     if (kIsWeb) {
+      if (kryptWebDemoMode) return searchKryptCatalog(searchQuery);
+
       final spotifySongs = await spotifyWebService.searchTracks(searchQuery);
       if (spotifySongs.isNotEmpty) return spotifySongs;
 

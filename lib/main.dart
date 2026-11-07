@@ -46,6 +46,7 @@ import 'package:musify/services/router_service.dart';
 import 'package:musify/services/settings_manager.dart';
 import 'package:musify/services/spotify_web.dart';
 import 'package:musify/services/update_manager.dart';
+import 'package:musify/services/web_audio_resolver.dart';
 import 'package:musify/services/windows_media_controls.dart';
 import 'package:musify/theme/app_themes.dart';
 import 'package:musify/utilities/flutter_toast.dart';
@@ -290,7 +291,9 @@ class _MusifyState extends State<Musify> with WidgetsBindingObserver {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initialisation();
-  if (kIsWeb) unawaited(spotifyWebService.initialize());
+  if (kIsWeb && !kryptWebDemoMode) {
+    unawaited(spotifyWebService.initialize());
+  }
 
   runApp(const Musify());
 }

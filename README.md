@@ -114,11 +114,12 @@ Always verify that an APK came from the official [KRYPT-AUDIO/KRYPT_AUDIO_SOURCE
 | Platform | Status |
 | --- | --- |
 | Android | Supported and actively released |
+| Web | Installable Flutter web demo on the `web` branch; bundled sample playback, no audio API required |
 | iOS | Not currently supported |
 | Linux | Source contains inherited desktop support; no V2 Android release is provided for Linux |
 | Windows | Source contains inherited desktop support; no V2 Android release is provided for Windows |
 
-V2 development and release validation are Android-only for now.
+Android release validation remains Android-specific. See [WEB.md](WEB.md) for the browser demo and future audio API setup.
 
 ## Building from source
 

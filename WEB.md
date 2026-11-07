@@ -1,16 +1,17 @@
 # KRYPT AUDIO Web
 
-The `web` branch packages the existing KRYPT AUDIO Flutter application for browsers and installable progressive web app use. It preserves the shared Dart application, theme, playback screens, search, library, playlists, lyrics, radio, settings, donation flow and Synapse Labs branding rather than maintaining a separate reduced web client.
+The `web` branch packages the existing KRYPT AUDIO Flutter application for browsers and installable progressive web app use. It preserves the shared Dart application, theme, playback screens, search, library, playlists, lyrics, radio, settings, donation flow and Synapse Labs branding rather than maintaining a separate reduced web client. Web builds default to an API-free demo with bundled sample audio; the Android app and its playback sources are unchanged.
 
 ## Local production build
 
 ```bash
 flutter config --enable-web
 flutter pub get
-flutter build web --release --base-href /KRYPT_AUDIO_SOURCE/ --dart-define=KRYPT_AUDIO_API_BASE=https://synapselabs.uk/api/krypt-audio/
+flutter build web --release --base-href /KRYPT_AUDIO_SOURCE/ \
+  --dart-define=KRYPT_WEB_DEMO_MODE=true
 ```
 
-The output is written to `build/web`.
+The output is written to `build/web`. To connect a hosted streaming API later, see [WEB_API.md](WEB_API.md).
 
 ## GitHub Pages
 
@@ -20,7 +21,7 @@ The output is written to `build/web`.
 https://krypt-audio.github.io/KRYPT_AUDIO_SOURCE/
 ```
 
-The workflow adds a `404.html` SPA fallback and `.nojekyll` so Flutter routes work when users refresh a deep link.
+The workflow adds a `404.html` SPA fallback and `.nojekyll` so Flutter routes work when users refresh a deep link. Its demo build does not require PHP hosting, Spotify credentials or audio API keys.
 
 ## Browser behavior
 

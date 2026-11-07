@@ -36,6 +36,7 @@ import 'package:musify/services/data_manager.dart';
 import 'package:musify/services/listening_stats_service.dart';
 import 'package:musify/services/settings_manager.dart';
 import 'package:musify/services/spotify_web.dart';
+import 'package:musify/services/web_audio_resolver.dart';
 import 'package:musify/utilities/map_utils.dart';
 import 'package:musify/utilities/media_duration.dart';
 import 'package:musify/utilities/mediaitem.dart';
@@ -2026,7 +2027,11 @@ class MusifyAudioHandler extends BaseAudioHandler implements AndroidAutoHost {
 
   Future<_PlaybackSource?> _resolvePlaybackSource(Map songData) async {
     final isOffline = await _resolveOfflineAndSetPaths(songData);
-    if (!isOffline && offlineMode.value) {
+    final isBundledDemoTrack =
+        kIsWeb &&
+        songData['source'] == 'krypt-web-demo' &&
+        songData['demoAsset'] != null;
+    if (!isOffline && offlineMode.value && !isBundledDemoTrack) {
       logger.log(
         'Offline mode enabled and no local file found for ${songData['ytid']}',
       );
@@ -2082,22 +2087,10 @@ class MusifyAudioHandler extends BaseAudioHandler implements AndroidAutoHost {
       return _getOfflineSongUrl(song);
     }
 
+    if (kIsWeb) return WebAudioResolver.resolve(song);
+
     final previewUrl = song['previewUrl']?.toString();
     if (previewUrl != null && previewUrl.isNotEmpty) return previewUrl;
-
-    if (kIsWeb) {
-      const apiBase = String.fromEnvironment(
-        'KRYPT_WEB_API_BASE_URL',
-        defaultValue: 'https://synapselabs.uk/krypt-audio/api',
-      );
-      final uri = Uri.parse('$apiBase/stream.php').replace(
-        queryParameters: {
-          'id': song['ytid']?.toString() ?? '',
-          if (song['isLive'] == true) 'live': '1',
-        },
-      );
-      return uri.toString();
-    }
 
     return fetchSongStreamUrl(song['ytid'], song['isLive'] ?? false);
   }

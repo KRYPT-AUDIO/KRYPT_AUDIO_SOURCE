@@ -825,6 +825,10 @@ class _OnlineArtwork extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isImageSmall = lowResImageUrl.contains('default.jpg');
+    final isBundledAsset = lowResImageUrl.startsWith('asset://');
+    final assetPath = isBundledAsset
+        ? Uri.parse(lowResImageUrl).path.replaceFirst(RegExp('^/'), '')
+        : '';
 
     return SizedBox(
       width: size,
@@ -832,68 +836,77 @@ class _OnlineArtwork extends StatelessWidget {
       child: Stack(
         alignment: Alignment.center,
         children: <Widget>[
-          CachedNetworkImage(
-            imageUrl: lowResImageUrl,
-            width: size,
-            height: size,
-            fit: BoxFit.cover,
-            memCacheWidth: 256,
-            memCacheHeight: 256,
-            imageBuilder: (context, imageProvider) => ClipRRect(
+          if (isBundledAsset)
+            ClipRRect(
               borderRadius: BorderRadius.circular(10),
-              child: Stack(
-                children: [
-                  Image(
-                    image: imageProvider,
-                    fit: isImageSmall ? BoxFit.fill : BoxFit.cover,
-                    width: size,
-                    height: size,
-                    centerSlice: isImageSmall
-                        ? const Rect.fromLTRB(1, 1, 1, 1)
-                        : null,
-                  ),
-                  if (isOffline)
-                    Positioned(
-                      top: 3,
-                      right: 3,
-                      child: Container(
-                        width: 20,
-                        height: 20,
-                        decoration: BoxDecoration(
-                          color: colorScheme.tertiaryContainer,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          FluentIcons.cloud_off_24_filled,
-                          size: 11,
-                          color: colorScheme.onTertiaryContainer,
-                        ),
-                      ),
-                    )
-                  else if (isLiked)
-                    Positioned(
-                      top: 3,
-                      right: 3,
-                      child: Container(
-                        width: 20,
-                        height: 20,
-                        decoration: BoxDecoration(
-                          color: colorScheme.primaryContainer,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          FluentIcons.heart_24_filled,
-                          size: 11,
-                          color: colorScheme.onPrimaryContainer,
-                        ),
-                      ),
-                    ),
-                ],
+              child: Image.asset(
+                assetPath,
+                width: size,
+                height: size,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) =>
+                    NullArtworkWidget(iconSize: 30, size: size),
+              ),
+            )
+          else
+            CachedNetworkImage(
+              imageUrl: lowResImageUrl,
+              width: size,
+              height: size,
+              fit: BoxFit.cover,
+              memCacheWidth: 256,
+              memCacheHeight: 256,
+              imageBuilder: (context, imageProvider) => ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Image(
+                  image: imageProvider,
+                  fit: isImageSmall ? BoxFit.fill : BoxFit.cover,
+                  width: size,
+                  height: size,
+                  centerSlice: isImageSmall
+                      ? const Rect.fromLTRB(1, 1, 1, 1)
+                      : null,
+                ),
+              ),
+              errorWidget: (context, url, error) =>
+                  NullArtworkWidget(iconSize: 30, size: size),
+            ),
+          if (isOffline)
+            Positioned(
+              top: 3,
+              right: 3,
+              child: Container(
+                width: 20,
+                height: 20,
+                decoration: BoxDecoration(
+                  color: colorScheme.tertiaryContainer,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  FluentIcons.cloud_off_24_filled,
+                  size: 11,
+                  color: colorScheme.onTertiaryContainer,
+                ),
+              ),
+            )
+          else if (isLiked)
+            Positioned(
+              top: 3,
+              right: 3,
+              child: Container(
+                width: 20,
+                height: 20,
+                decoration: BoxDecoration(
+                  color: colorScheme.primaryContainer,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  FluentIcons.heart_24_filled,
+                  size: 11,
+                  color: colorScheme.onPrimaryContainer,
+                ),
               ),
             ),
-            errorWidget: (context, url, error) =>
-                NullArtworkWidget(iconSize: 30, size: size),
-          ),
           if (isDurationAvailable && !isOffline)
             Positioned(
               bottom: 4,

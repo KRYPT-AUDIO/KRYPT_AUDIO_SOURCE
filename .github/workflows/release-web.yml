@@ -32,7 +32,7 @@ jobs:
         run: flutter pub get
 
       - name: Build Flutter Web
-        run: flutter build web --release --base-href /KRYPT_AUDIO_SOURCE/ --dart-define=KRYPT_WEB_API_BASE_URL=https://synapselabs.uk/krypt-audio/api --dart-define=KRYPT_SPOTIFY_CLIENT_ID=abb77bc3863f4f8fab60434b4a86e2f5
+        run: flutter build web --release --base-href /KRYPT_AUDIO_SOURCE/ --dart-define=KRYPT_WEB_DEMO_MODE=true
 
       - name: Add GitHub Pages fallback files
         run: |

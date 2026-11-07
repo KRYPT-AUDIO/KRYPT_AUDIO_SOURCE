@@ -1,12 +1,14 @@
 # KRYPT AUDIO PHP Web API
 
+This API is retained as an optional future integration. The `web` branch currently builds in self-contained demo mode and does not call this service.
+
 Upload the contents of this directory to:
 
 ```text
 https://synapselabs.uk/krypt-audio/api/
 ```
 
-The frontend expects these endpoints:
+When live web-provider mode is explicitly enabled, the client can use these endpoints:
 
 ```text
 GET https://synapselabs.uk/krypt-audio/api/health.php
@@ -35,9 +37,9 @@ YOUTUBE_DATA_API_KEY=your_key_here
 ALLOWED_ORIGIN=https://krypt-audio.github.io
 ```
 
-The key is read only by `search.php` and is never sent to the browser. The Web app uses this endpoint for official video, playlist and channel search when the key is configured. If the key is not configured, it falls back to the existing KRYPT API bridge.
+The key is read only by `search.php` and is never sent to the browser. The current web demo uses a bundled catalog and does not call this endpoint. A future search-provider integration can use the endpoint when configured.
 
-The browser audio player uses `stream.php`, which forwards to Cloud Run and proxies the same audio-only YouTube stream family as the Android client with HTTP Range support. The Data API remains for search only.
+When `KRYPT_WEB_DEMO_MODE=false` and `KRYPT_WEB_AUDIO_API_BASE_URL` points to this API, the browser audio player uses `stream.php`, which forwards to Cloud Run and proxies an audio stream with HTTP Range support. The Data API remains for search only.
 
 After uploading, open `health.php`. It should return JSON with `ok: true` and `curl: true`.
 

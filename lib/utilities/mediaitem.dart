@@ -33,6 +33,8 @@ Map mediaItemToMap(MediaItem mediaItem) {
     'title': mediaItem.title,
     'artistId': extras?['artistId'],
     'videoAuthor': extras?['videoAuthor'],
+    'source': extras?['source'],
+    'demoAsset': extras?['demoAsset'],
     'highResImage': extras?['highResImage'] ?? mediaItem.artUri.toString(),
     'lowResImage': extras?['lowResImage'],
     'isLive': extras?['isLive'] ?? false,
@@ -62,6 +64,8 @@ MediaItem mapToMediaItem(Map song) {
       'ytid': song['ytid'],
       'artistId': song['artistId'],
       'videoAuthor': song['videoAuthor'],
+      'source': song['source'],
+      'demoAsset': song['demoAsset'],
       'isLive': song['isLive'],
       'highResImage': song['highResImage'],
       'artWorkPath':

@@ -42,7 +42,19 @@ class SongArtworkWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return metadata.artUri?.scheme == 'file'
+    return metadata.artUri?.scheme == 'asset'
+        ? SizedBox(
+            width: size,
+            height: size,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(borderRadius),
+              child: Image.asset(
+                metadata.artUri!.path.replaceFirst(RegExp('^/'), ''),
+                fit: BoxFit.cover,
+              ),
+            ),
+          )
+        : metadata.artUri?.scheme == 'file'
         ? SizedBox(
             width: size,
             height: size,

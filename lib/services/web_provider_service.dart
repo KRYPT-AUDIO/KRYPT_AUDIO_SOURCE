@@ -2,10 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:musify/services/web_audio_resolver.dart';
 
 class WebProviderService {
   static Future<List<Map<String, dynamic>>> search(String query) async {
-    if (!kIsWeb || query.trim().isEmpty) return [];
+    if (!kIsWeb || kryptWebDemoMode || query.trim().isEmpty) return [];
     final results = await Future.wait([
       _searchDeezer(query),
       _searchItunes(query),
@@ -27,20 +28,24 @@ class WebProviderService {
       final decoded = jsonDecode(response.body);
       final data = decoded is Map ? decoded['data'] : null;
       if (data is! List) return [];
-      return data.whereType<Map>().map((item) {
-        final artist = item['artist'] is Map ? item['artist']['name'] : '';
-        final album = item['album'] is Map ? item['album'] : const {};
-        final id = item['id']?.toString() ?? '';
-        final image = album['cover_xl'] ?? album['cover_medium'];
-        return _song(
-          id: 'deezer:$id',
-          title: item['title']?.toString() ?? 'Unknown track',
-          artist: artist.toString(),
-          image: image?.toString(),
-          previewUrl: item['preview']?.toString(),
-          source: 'deezer',
-        );
-      }).where((song) => song['previewUrl'].toString().isNotEmpty).toList();
+      return data
+          .whereType<Map>()
+          .map((item) {
+            final artist = item['artist'] is Map ? item['artist']['name'] : '';
+            final album = item['album'] is Map ? item['album'] : const {};
+            final id = item['id']?.toString() ?? '';
+            final image = album['cover_xl'] ?? album['cover_medium'];
+            return _song(
+              id: 'deezer:$id',
+              title: item['title']?.toString() ?? 'Unknown track',
+              artist: artist.toString(),
+              image: image?.toString(),
+              previewUrl: item['preview']?.toString(),
+              source: 'deezer',
+            );
+          })
+          .where((song) => song['previewUrl'].toString().isNotEmpty)
+          .toList();
     } catch (_) {
       return [];
     }
@@ -59,17 +64,24 @@ class WebProviderService {
       final decoded = jsonDecode(response.body);
       final results = decoded is Map ? decoded['results'] : null;
       if (results is! List) return [];
-      return results.whereType<Map>().map((item) {
-        final id = item['trackId']?.toString() ?? '';
-        return _song(
-          id: 'itunes:$id',
-          title: item['trackName']?.toString() ?? 'Unknown track',
-          artist: item['artistName']?.toString() ?? '',
-          image: item['artworkUrl100']?.toString()?.replaceFirst('100x100', '600x600'),
-          previewUrl: item['previewUrl']?.toString(),
-          source: 'itunes',
-        );
-      }).where((song) => song['previewUrl'].toString().isNotEmpty).toList();
+      return results
+          .whereType<Map>()
+          .map((item) {
+            final id = item['trackId']?.toString() ?? '';
+            return _song(
+              id: 'itunes:$id',
+              title: item['trackName']?.toString() ?? 'Unknown track',
+              artist: item['artistName']?.toString() ?? '',
+              image: item['artworkUrl100']?.toString().replaceFirst(
+                '100x100',
+                '600x600',
+              ),
+              previewUrl: item['previewUrl']?.toString(),
+              source: 'itunes',
+            );
+          })
+          .where((song) => song['previewUrl'].toString().isNotEmpty)
+          .toList();
     } catch (_) {
       return [];
     }

@@ -41,6 +41,10 @@ class ArtworkProvider {
     try {
       if (artwork.startsWith('http')) {
         provider = CachedNetworkImageProvider(artwork);
+      } else if (artwork.startsWith('asset://')) {
+        final assetPath = Uri.parse(artwork).path
+            .replaceFirst(RegExp('^/'), '');
+        provider = AssetImage(assetPath);
       } else if (artwork.startsWith('data:image')) {
         final commaIdx = artwork.indexOf(',');
         if (commaIdx == -1) throw Exception('invalid base64 image');

@@ -535,6 +535,19 @@ class _ArtworkThumbnail extends StatelessWidget {
     }
     final imageUrl = song['lowResImage']?.toString() ?? '';
     if (imageUrl.isEmpty) return _fallback();
+    if (imageUrl.startsWith('asset://')) {
+      final assetPath = Uri.parse(imageUrl).path.replaceFirst(RegExp('^/'), '');
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(radius),
+        child: Image.asset(
+          assetPath,
+          width: size,
+          height: size,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => _fallback(),
+        ),
+      );
+    }
     // Low-res YouTube 'default.jpg' thumbnails ship with baked-in black
     // letterbox bars, so BoxFit.cover keeps them visible. Detect that case and
     // stretch over the bars with fill + centerSlice, otherwise crop with cover —
