@@ -37,11 +37,11 @@ final playNextSongAutomatically = ValueNotifier<bool>(
 );
 
 final useSystemColor = ValueNotifier<bool>(
-  Hive.box('settings').get('useSystemColor', defaultValue: true),
+  Hive.box('settings').get('useSystemColor', defaultValue: false),
 );
 
 final usePureBlackColor = ValueNotifier<bool>(
-  Hive.box('settings').get('usePureBlackColor', defaultValue: false),
+  Hive.box('settings').get('usePureBlackColor', defaultValue: true),
 );
 
 final offlineMode = ValueNotifier<bool>(
@@ -110,7 +110,7 @@ Locale languageSetting = getLocaleFromLanguageCode(
 );
 
 int themeModeSetting =
-    Hive.box('settings').get('themeIndex', defaultValue: 0) as int;
+    Hive.box('settings').get('themeIndex', defaultValue: 2) as int;
 
 String playlistSortSetting = Hive.box('settings')
     .get('playlistSortType', defaultValue: PlaylistSortType.default_.name);
@@ -119,7 +119,7 @@ String offlineSortSetting = Hive.box('settings')
     .get('offlineSortType', defaultValue: OfflineSortType.default_.name);
 
 Color primaryColorSetting = Color(
-  Hive.box('settings').get('accentColor', defaultValue: 0xff91cef4),
+  Hive.box('settings').get('accentColor', defaultValue: 0xffb58cff),
 );
 
 final shuffleNotifier = ValueNotifier<bool>(
@@ -150,10 +150,10 @@ void reloadSettingsFromStorage() {
     'playNextSongAutomatically',
     defaultValue: false,
   );
-  useSystemColor.value = settings.get('useSystemColor', defaultValue: true);
+  useSystemColor.value = settings.get('useSystemColor', defaultValue: false);
   usePureBlackColor.value = settings.get(
     'usePureBlackColor',
-    defaultValue: false,
+    defaultValue: true,
   );
   offlineMode.value = settings.get('offlineMode', defaultValue: false);
   wrappedEnabled.value = settings.get('wrappedEnabled', defaultValue: true);
@@ -196,7 +196,7 @@ void reloadSettingsFromStorage() {
   );
   equalizerBandGains.value = _readEqualizerGains();
 
-  final restoredThemeIndex = settings.get('themeIndex', defaultValue: 0);
+  final restoredThemeIndex = settings.get('themeIndex', defaultValue: 2);
   if (restoredThemeIndex is int) themeModeSetting = restoredThemeIndex;
 
   final restoredLanguageCode = settings.get('languageCode', defaultValue: 'en');
@@ -222,7 +222,7 @@ void reloadSettingsFromStorage() {
 
   final restoredAccentColor = settings.get(
     'accentColor',
-    defaultValue: 0xff91cef4,
+    defaultValue: 0xffb58cff,
   );
   if (restoredAccentColor is int) {
     primaryColorSetting = Color(restoredAccentColor);

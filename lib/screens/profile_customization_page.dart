@@ -22,22 +22,47 @@ class _ProfileCustomizationPageState extends State<ProfileCustomizationPage> {
   String? _avatar;
   String _accent = 'electric-violet';
   bool _saving = false;
+  bool _loading = true;
+  bool _loadError = false;
 
   static const _accentOptions = <String, Color>{
-    'electric-violet': Color(0xff9d7cff),
-    'cyber-blue': Color(0xff4cc9ff),
-    'signal-green': Color(0xff7dffb2),
-    'infrared': Color(0xffff6f91),
+    'electric-violet': KryptDesign.violet,
+    'cyber-blue': KryptDesign.electricBlue,
+    'signal-green': KryptDesign.cyan,
+    'infrared': KryptDesign.pink,
+  };
+  static const _accentLabels = <String, String>{
+    'electric-violet': 'Electric violet',
+    'cyber-blue': 'Electric blue',
+    'signal-green': 'Cyber cyan',
+    'infrared': 'Signal magenta',
   };
 
   @override
   void initState() {
     super.initState();
+    _loadProfile();
+  }
+
+  Future<void> _loadProfile() async {
     final profile = KryptProfileCustomizationService.instance;
-    _nameController.text = profile.displayName;
-    _bioController.text = profile.bio;
-    _avatar = profile.avatar;
-    _accent = profile.accent;
+    try {
+      await profile.ready;
+      if (!mounted) return;
+      setState(() {
+        _nameController.text = profile.displayName;
+        _bioController.text = profile.bio;
+        _avatar = profile.avatar;
+        _accent = profile.accent;
+        _loading = false;
+      });
+    } catch (_) {
+      if (mounted)
+        setState(() {
+          _loading = false;
+          _loadError = true;
+        });
+    }
   }
 
   @override
@@ -54,12 +79,22 @@ class _ProfileCustomizationPageState extends State<ProfileCustomizationPage> {
 
   Future<void> _save() async {
     setState(() => _saving = true);
-    await KryptProfileCustomizationService.instance.save(
-      displayName: _nameController.text,
-      bio: _bioController.text,
-      avatar: _avatar,
-      accent: _accent,
-    );
+    try {
+      await KryptProfileCustomizationService.instance.save(
+        displayName: _nameController.text,
+        bio: _bioController.text,
+        avatar: _avatar,
+        accent: _accent,
+      );
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _saving = false);
+      showToast(
+        context,
+        'Unable to save your KRYPT profile. Please try again.',
+      );
+      return;
+    }
     if (!mounted) return;
     setState(() => _saving = false);
     showToast(context, 'KRYPT profile updated');
@@ -90,123 +125,139 @@ class _ProfileCustomizationPageState extends State<ProfileCustomizationPage> {
     final accentColor = _accentOptions[_accent] ?? KryptDesign.violet;
     return Scaffold(
       appBar: AppBar(title: const Text('Customize profile')),
-      body: AmbientBackdrop(
-        child: ListView(
-          padding: KryptDesign.pagePadding,
-          children: [
-            GlassSurface(
-              padding: const EdgeInsets.fromLTRB(20, 22, 20, 20),
-              borderRadius: BorderRadius.circular(KryptDesign.radiusLarge),
-              opacity: .78,
-              child: Column(
+      body: _loading
+          ? const Center(child: CircularProgressIndicator())
+          : _loadError
+          ? const Center(child: Text('Unable to load your saved profile.'))
+          : AmbientBackdrop(
+              child: ListView(
+                padding: KryptDesign.pagePadding,
                 children: [
-                  Stack(
-                    children: [
-                      CircleAvatar(
-                        radius: 54,
-                        backgroundColor: accentColor.withValues(alpha: .2),
-                        child: _avatarView(),
-                      ),
-                      Positioned(
-                        right: 0,
-                        bottom: 0,
-                        child: IconButton.filled(
-                          onPressed: _pickAvatar,
-                          icon: const Icon(FluentIcons.camera_add_24_regular),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 14),
-                  Text(
-                    'Your KRYPT identity',
-                    style: Theme.of(context).textTheme.titleMedium
-                        ?.copyWith(fontWeight: FontWeight.w700),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Personalise how your profile appears inside the app.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: colors.onSurfaceVariant),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: KryptDesign.sectionGap),
-            const KryptSectionHeader(
-              title: 'Profile details',
-              icon: FluentIcons.person_24_filled,
-            ),
-            GlassCard(
-              child: Column(
-                children: [
-                  TextField(
-                    controller: _nameController,
-                    maxLength: 32,
-                    decoration: const InputDecoration(
-                      labelText: 'Display name',
-                      hintText: 'Your KRYPT identity',
-                      prefixIcon: Icon(FluentIcons.person_24_regular),
+                  GlassSurface(
+                    padding: const EdgeInsets.fromLTRB(20, 22, 20, 20),
+                    borderRadius: BorderRadius.circular(
+                      KryptDesign.radiusLarge,
                     ),
+                    opacity: .78,
+                    child: Column(
+                      children: [
+                        Stack(
+                          children: [
+                            CircleAvatar(
+                              radius: 54,
+                              backgroundColor: accentColor.withValues(
+                                alpha: .2,
+                              ),
+                              child: _avatarView(),
+                            ),
+                            Positioned(
+                              right: 0,
+                              bottom: 0,
+                              child: IconButton.filled(
+                                onPressed: _pickAvatar,
+                                icon: const Icon(
+                                  FluentIcons.camera_add_24_regular,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 14),
+                        Text(
+                          'Your KRYPT identity',
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.w700),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Personalise how your profile appears inside the app.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: colors.onSurfaceVariant),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: KryptDesign.sectionGap),
+                  const KryptSectionHeader(
+                    title: 'Profile details',
+                    icon: FluentIcons.person_24_filled,
+                  ),
+                  GlassCard(
+                    child: Column(
+                      children: [
+                        TextField(
+                          controller: _nameController,
+                          maxLength: 32,
+                          decoration: const InputDecoration(
+                            labelText: 'Display name',
+                            hintText: 'Your KRYPT identity',
+                            prefixIcon: Icon(FluentIcons.person_24_regular),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        TextField(
+                          controller: _bioController,
+                          maxLength: 120,
+                          maxLines: 3,
+                          decoration: const InputDecoration(
+                            labelText: 'Bio',
+                            hintText: 'Tell the frequency who you are',
+                            prefixIcon: Icon(
+                              FluentIcons.text_description_24_regular,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: KryptDesign.sectionGap),
+                  const KryptSectionHeader(
+                    title: 'Profile accent',
+                    icon: FluentIcons.color_24_filled,
+                  ),
+                  GlassCard(
+                    child: Wrap(
+                      spacing: 10,
+                      runSpacing: 10,
+                      children: _accentOptions.entries.map((entry) {
+                        final selected = entry.key == _accent;
+                        return ChoiceChip(
+                          label: Text(_accentLabels[entry.key]!),
+                          selected: selected,
+                          avatar: CircleAvatar(
+                            backgroundColor: entry.value,
+                            radius: 8,
+                          ),
+                          onSelected: (_) =>
+                              setState(() => _accent = entry.key),
+                          selectedColor: entry.value.withValues(alpha: .3),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  FilledButton.icon(
+                    onPressed: _saving ? null : _save,
+                    icon: _saving
+                        ? const SizedBox.square(
+                            dimension: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(FluentIcons.save_24_regular),
+                    label: const Text('Save profile'),
                   ),
                   const SizedBox(height: 12),
-                  TextField(
-                    controller: _bioController,
-                    maxLength: 120,
-                    maxLines: 3,
-                    decoration: const InputDecoration(
-                      labelText: 'Bio',
-                      hintText: 'Tell the frequency who you are',
-                      prefixIcon: Icon(FluentIcons.text_description_24_regular),
+                  Text(
+                    'Your custom profile stays on this device. Google account details remain available for sign-in and sync.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: colors.onSurfaceVariant,
+                      fontSize: 12,
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: KryptDesign.sectionGap),
-            const KryptSectionHeader(
-              title: 'Profile accent',
-              icon: FluentIcons.color_24_filled,
-            ),
-            GlassCard(
-              child: Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                children: _accentOptions.entries.map((entry) {
-                  final selected = entry.key == _accent;
-                  return ChoiceChip(
-                    label: Text(entry.key.replaceAll('-', ' ')),
-                    selected: selected,
-                    avatar: CircleAvatar(
-                      backgroundColor: entry.value,
-                      radius: 8,
-                    ),
-                    onSelected: (_) => setState(() => _accent = entry.key),
-                    selectedColor: entry.value.withValues(alpha: .3),
-                  );
-                }).toList(),
-              ),
-            ),
-            const SizedBox(height: 24),
-            FilledButton.icon(
-              onPressed: _saving ? null : _save,
-              icon: _saving
-                  ? const SizedBox.square(
-                      dimension: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(FluentIcons.save_24_regular),
-              label: const Text('Save profile'),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'Your custom profile stays on this device. Google account details remain available for sign-in and sync.',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: colors.onSurfaceVariant, fontSize: 12),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

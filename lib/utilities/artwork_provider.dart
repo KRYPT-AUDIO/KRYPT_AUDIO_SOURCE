@@ -29,13 +29,22 @@ import 'package:flutter/widgets.dart';
 class ArtworkProvider {
   ArtworkProvider._();
 
+  static const maxCacheEntries = 256;
   static final Map<String, ImageProvider> _cache = {};
 
   static ImageProvider get(String artwork) {
     if (artwork.isEmpty) throw ArgumentError('artwork must not be empty');
 
-    final cached = _cache[artwork];
-    if (cached != null) return cached;
+    // Inline artwork can have very large base64 keys; let the widget/image
+    // cache own those providers rather than pinning both key and bytes here.
+    final shouldCache = !artwork.startsWith('data:image');
+    if (shouldCache) {
+      final cached = _cache.remove(artwork);
+      if (cached != null) {
+        _cache[artwork] = cached;
+        return cached;
+      }
+    }
 
     late ImageProvider provider;
     try {
@@ -57,7 +66,12 @@ class ArtworkProvider {
       provider = const AssetImage('assets/placeholder.png');
     }
 
-    _cache[artwork] = provider;
+    if (shouldCache) {
+      _cache[artwork] = provider;
+      while (_cache.length > maxCacheEntries) {
+        _cache.remove(_cache.keys.first);
+      }
+    }
     return provider;
   }
 

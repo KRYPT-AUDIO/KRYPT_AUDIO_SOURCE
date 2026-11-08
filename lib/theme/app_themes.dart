@@ -14,9 +14,8 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
- *
- *     For more information about Musify, including how to contribute,
- *     please visit: https://github.com/gokadzev/Musify
+ *     This KRYPT AUDIO visual reskin is based on the Musify upstream project.
+ *     Upstream: https://github.com/gokadzev/Musify
  */
 
 import 'package:flutter/scheduler.dart';
@@ -56,202 +55,236 @@ ColorScheme getAppColorScheme(
       ? lightColorScheme
       : darkColorScheme;
 
+  final brandScheme = ColorScheme.fromSeed(
+    seedColor: primaryColorSetting == const Color(0xFF009688)
+        ? kryptViolet
+        : primaryColorSetting,
+    brightness: brightness,
+  );
   final baseScheme = useSystemColor.value && selectedScheme != null
       ? selectedScheme
-      : ColorScheme.fromSeed(
-          seedColor: primaryColorSetting == const Color(0xFF009688)
-              ? kryptViolet
-              : primaryColorSetting,
-          brightness: brightness,
-        );
+      : brandScheme;
   final primary = _pluginColor('--krypt-primary');
   final secondary = _pluginColor('--krypt-secondary');
   return baseScheme.copyWith(primary: primary, secondary: secondary);
 }
 
 ThemeData getAppTheme(ColorScheme colorScheme) {
-  final base = colorScheme.brightness == Brightness.light
-      ? ThemeData.light()
-      : ThemeData.dark();
-
   final isLight = colorScheme.brightness == Brightness.light;
-  // Pure black theme colors
-  const pureBlack = Color(0xFF000000);
-  const pureBlackElevated = Color(0xFF151519);
-  const pureBlackContainer = Color(0xFF121217);
-  const pureBlackContainerHigh = Color(0xFF1B1B22);
-
-  final bgColor = isLight ? colorScheme.surface : pureBlack;
-
-  final cardBgColor = isLight
-      ? colorScheme.surfaceContainerLow
-      : pureBlackElevated;
-
-  // modified color scheme for pure black theme
-  final effectiveColorScheme = colorScheme.brightness == Brightness.dark
+  final pureBlack = !isLight && usePureBlackColor.value;
+  final defaultTheme = isLight ? ThemeData.light() : ThemeData.dark();
+  final scheme = isLight
       ? colorScheme.copyWith(
-          surface: pureBlack,
-          surfaceContainerLowest: pureBlack,
-          surfaceContainerLow: pureBlackElevated,
-          surfaceContainer: pureBlackContainer,
-          surfaceContainerHigh: pureBlackContainerHigh,
-          surfaceContainerHighest: pureBlackContainerHigh,
+          surface: KryptDesign.lightSurface,
+          surfaceContainerLowest: KryptDesign.lightSurface,
+          surfaceContainerLow: KryptDesign.lightSurfaceLow,
+          surfaceContainer: KryptDesign.lightSurfaceLow,
+          surfaceContainerHigh: KryptDesign.lightSurfaceHigh,
+          surfaceContainerHighest: KryptDesign.lightSurfaceHigh,
+          outline: KryptDesign.lightOutline,
+          outlineVariant: KryptDesign.lightOutline.withValues(alpha: 0.55),
         )
-      : colorScheme;
+      : colorScheme.copyWith(
+          surface: pureBlack
+              ? const Color(0xFF000000)
+              : KryptDesign.darkBackdrop,
+          surfaceContainerLowest: pureBlack
+              ? const Color(0xFF000000)
+              : KryptDesign.darkBackdrop,
+          surfaceContainerLow: pureBlack
+              ? const Color(0xFF0D0D12)
+              : KryptDesign.darkSurface,
+          surfaceContainer: pureBlack
+              ? const Color(0xFF121218)
+              : KryptDesign.darkSurface,
+          surfaceContainerHigh: pureBlack
+              ? const Color(0xFF191920)
+              : KryptDesign.darkSurfaceHigh,
+          surfaceContainerHighest: pureBlack
+              ? const Color(0xFF202027)
+              : KryptDesign.darkSurfaceHigh,
+          outline: Colors.white.withValues(alpha: 0.16),
+          outlineVariant: Colors.white.withValues(alpha: 0.10),
+        );
+  final foreground = scheme.onSurface;
+  final background = scheme.surface;
+  final cardBackground = scheme.surfaceContainerLow;
+  final radius = BorderRadius.circular(KryptDesign.radiusMedium);
 
   return ThemeData(
-    scaffoldBackgroundColor: bgColor,
-    colorScheme: effectiveColorScheme,
-    cardColor: cardBgColor,
-    cardTheme: base.cardTheme.copyWith(
+    scaffoldBackgroundColor: background,
+    colorScheme: scheme,
+    textTheme: defaultTheme.textTheme.apply(
+      bodyColor: foreground,
+      displayColor: foreground,
+    ),
+    iconTheme: IconThemeData(color: scheme.onSurfaceVariant),
+    cardColor: cardBackground,
+    cardTheme: defaultTheme.cardTheme.copyWith(
       elevation: 0,
-      color: cardBgColor,
+      color: cardBackground,
+      margin: const EdgeInsets.symmetric(vertical: 6),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(KryptDesign.radiusMedium),
-        side: BorderSide(
-          color: effectiveColorScheme.onSurface.withValues(alpha: 0.08),
-        ),
+        borderRadius: radius,
+        side: BorderSide(color: scheme.outlineVariant),
       ),
     ),
-    appBarTheme: base.appBarTheme.copyWith(
-      backgroundColor: bgColor,
-      foregroundColor: effectiveColorScheme.onSurface,
+    appBarTheme: defaultTheme.appBarTheme.copyWith(
+      backgroundColor: background,
+      foregroundColor: foreground,
       elevation: 0,
       scrolledUnderElevation: 0,
       centerTitle: false,
       titleTextStyle: TextStyle(
         fontSize: 21,
         fontWeight: FontWeight.w700,
-        color: effectiveColorScheme.onSurface,
-        letterSpacing: 0.1,
+        color: foreground,
+        letterSpacing: -0.2,
       ),
       toolbarHeight: 64,
-      iconTheme: IconThemeData(
-        color: effectiveColorScheme.onSurfaceVariant,
-        size: 24,
-      ),
-      actionsIconTheme: IconThemeData(
-        color: effectiveColorScheme.onSurfaceVariant,
-        size: 24,
+      iconTheme: IconThemeData(color: scheme.onSurfaceVariant, size: 24),
+      actionsIconTheme: IconThemeData(color: scheme.onSurfaceVariant, size: 24),
+    ),
+    listTileTheme: defaultTheme.listTileTheme.copyWith(
+      textColor: foreground,
+      iconColor: scheme.primary,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      minLeadingWidth: 36,
+    ),
+    filledButtonTheme: FilledButtonThemeData(
+      style: FilledButton.styleFrom(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 13),
+        textStyle: const TextStyle(fontWeight: FontWeight.w700),
       ),
     ),
-    listTileTheme: base.listTileTheme.copyWith(
-      textColor: effectiveColorScheme.onSurface,
-      iconColor: effectiveColorScheme.primary,
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        side: BorderSide(color: scheme.outlineVariant),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+      ),
     ),
-    sliderTheme: base.sliderTheme.copyWith(
+    sliderTheme: defaultTheme.sliderTheme.copyWith(
       year2023: false,
-      trackHeight: 12,
-      thumbSize: WidgetStateProperty.all(const Size(6, 30)),
+      trackHeight: 6,
+      thumbSize: WidgetStateProperty.all(const Size(7, 28)),
+      activeTrackColor: scheme.primary,
+      inactiveTrackColor: scheme.outlineVariant,
+      thumbColor: scheme.primary,
+      overlayColor: scheme.primary.withValues(alpha: 0.14),
     ),
-    bottomSheetTheme: base.bottomSheetTheme.copyWith(
-      backgroundColor: isLight
-          ? colorScheme.surfaceContainerLow
-          : pureBlackElevated,
-      modalBackgroundColor: isLight
-          ? colorScheme.surfaceContainerLow
-          : pureBlackElevated,
+    switchTheme: SwitchThemeData(
+      thumbColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) return scheme.onPrimary;
+        return scheme.onSurfaceVariant;
+      }),
+      trackColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return scheme.primary.withValues(alpha: 0.72);
+        }
+        return scheme.surfaceContainerHigh;
+      }),
+      trackOutlineColor: WidgetStateProperty.all(scheme.outlineVariant),
     ),
-    inputDecorationTheme: base.inputDecorationTheme.copyWith(
+    bottomSheetTheme: defaultTheme.bottomSheetTheme.copyWith(
+      backgroundColor: cardBackground,
+      modalBackgroundColor: cardBackground,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+    ),
+    inputDecorationTheme: defaultTheme.inputDecorationTheme.copyWith(
       filled: true,
       isDense: true,
-      fillColor: isLight
-          ? colorScheme.surfaceContainerHighest
-          : pureBlackContainerHigh,
+      fillColor: scheme.surfaceContainerHigh,
+      hintStyle: TextStyle(color: scheme.onSurfaceVariant),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(KryptDesign.radiusSmall),
         borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(KryptDesign.radiusSmall),
+        borderSide: BorderSide(color: scheme.outlineVariant),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(KryptDesign.radiusSmall),
+        borderSide: BorderSide(color: scheme.primary, width: 1.5),
       ),
       contentPadding: const EdgeInsets.fromLTRB(18, 14, 20, 14),
     ),
-    dialogTheme: base.dialogTheme.copyWith(
-      backgroundColor: isLight
-          ? colorScheme.surfaceContainerLow
-          : pureBlackContainer,
+    dialogTheme: defaultTheme.dialogTheme.copyWith(
+      backgroundColor: cardBackground,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(KryptDesign.radiusLarge),
+        borderRadius: KryptDesign.radiusLargeAsRadius,
       ),
     ),
-    navigationBarTheme: base.navigationBarTheme.copyWith(
+    navigationBarTheme: defaultTheme.navigationBarTheme.copyWith(
       backgroundColor: Colors.transparent,
       elevation: 0,
       height: 70,
-      indicatorColor: effectiveColorScheme.primary.withValues(alpha: 0.20),
+      indicatorColor: scheme.primary.withValues(alpha: 0.20),
       iconTheme: WidgetStateProperty.resolveWith((states) {
-        if (states.contains(WidgetState.selected)) {
-          return IconThemeData(
-            color: effectiveColorScheme.onPrimaryContainer,
-            size: 24,
-          );
-        }
         return IconThemeData(
-          color: effectiveColorScheme.onSurfaceVariant,
+          color: states.contains(WidgetState.selected)
+              ? scheme.onPrimaryContainer
+              : scheme.onSurfaceVariant,
           size: 24,
         );
       }),
       labelTextStyle: WidgetStateProperty.resolveWith((states) {
-        if (states.contains(WidgetState.selected)) {
-          return TextStyle(
-            color: effectiveColorScheme.onSurface,
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-          );
-        }
         return TextStyle(
-          color: effectiveColorScheme.onSurfaceVariant,
+          color: states.contains(WidgetState.selected)
+              ? foreground
+              : scheme.onSurfaceVariant,
           fontSize: 12,
-          fontWeight: FontWeight.w500,
+          fontWeight: states.contains(WidgetState.selected)
+              ? FontWeight.w600
+              : FontWeight.w500,
         );
       }),
     ),
-    navigationRailTheme: base.navigationRailTheme.copyWith(
+    navigationRailTheme: defaultTheme.navigationRailTheme.copyWith(
       backgroundColor: Colors.transparent,
       elevation: 0,
-      indicatorColor: effectiveColorScheme.primary.withValues(alpha: 0.20),
-      selectedIconTheme: IconThemeData(
-        color: effectiveColorScheme.onPrimaryContainer,
-        size: 24,
-      ),
-      unselectedIconTheme: IconThemeData(
-        color: effectiveColorScheme.onSurfaceVariant,
-        size: 24,
-      ),
+      indicatorColor: scheme.primary.withValues(alpha: 0.20),
+      selectedIconTheme: IconThemeData(color: scheme.onPrimaryContainer),
+      unselectedIconTheme: IconThemeData(color: scheme.onSurfaceVariant),
       selectedLabelTextStyle: TextStyle(
-        color: effectiveColorScheme.onSurface,
-        fontSize: 12,
+        color: foreground,
         fontWeight: FontWeight.w600,
       ),
-      unselectedLabelTextStyle: TextStyle(
-        color: effectiveColorScheme.onSurfaceVariant,
-        fontSize: 12,
-        fontWeight: FontWeight.w500,
+      unselectedLabelTextStyle: TextStyle(color: scheme.onSurfaceVariant),
+    ),
+    popupMenuTheme: defaultTheme.popupMenuTheme.copyWith(
+      color: cardBackground,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(KryptDesign.radiusSmall),
       ),
     ),
-    popupMenuTheme: base.popupMenuTheme.copyWith(
-      color: isLight ? colorScheme.surfaceContainerLow : pureBlackContainer,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-    ),
-    dividerTheme: base.dividerTheme.copyWith(
-      color: effectiveColorScheme.outlineVariant,
+    dividerTheme: defaultTheme.dividerTheme.copyWith(
+      color: scheme.outlineVariant,
       thickness: 1,
     ),
     snackBarTheme: SnackBarThemeData(
-      backgroundColor: effectiveColorScheme.secondaryContainer,
-      closeIconColor: effectiveColorScheme.onSecondaryContainer,
+      backgroundColor: scheme.secondaryContainer,
+      closeIconColor: scheme.onSecondaryContainer,
       contentTextStyle: TextStyle(
-        color: effectiveColorScheme.onSecondaryContainer,
+        color: scheme.onSecondaryContainer,
         fontWeight: FontWeight.w500,
       ),
       behavior: SnackBarBehavior.floating,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(
-          color: effectiveColorScheme.outlineVariant,
-          width: 0.2,
-        ),
+        borderRadius: BorderRadius.circular(KryptDesign.radiusSmall),
+        side: BorderSide(color: scheme.outlineVariant, width: 0.5),
       ),
       elevation: 0,
-      actionTextColor: effectiveColorScheme.secondary,
+      actionTextColor: scheme.secondary,
+    ),
+    progressIndicatorTheme: ProgressIndicatorThemeData(
+      color: scheme.primary,
+      linearTrackColor: scheme.outlineVariant,
+      circularTrackColor: scheme.outlineVariant,
     ),
     visualDensity: VisualDensity.adaptivePlatformDensity,
     useMaterial3: true,

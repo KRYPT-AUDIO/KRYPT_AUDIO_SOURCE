@@ -130,8 +130,9 @@ class _ImportSpotifyPlaylistPageState extends State<ImportSpotifyPlaylistPage> {
 
     // Key results by their CSV position so retry results remain ordered.
     final foundByIndex = <int, Map>{};
-    List<_ImportRow> missingRows;
+    var missingRows = <_ImportRow>[];
     var rateLimited = false;
+    Object? importError;
     try {
       final firstPass = await _searchBatch(
         rows,
@@ -157,8 +158,23 @@ class _ImportSpotifyPlaylistPageState extends State<ImportSpotifyPlaylistPage> {
         missingRows = retryPass.missing;
         rateLimited = retryPass.rateLimited;
       }
+    } catch (error, stackTrace) {
+      importError = error;
+      logger.log(
+        'Spotify CSV import search failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
     } finally {
       _importRunning = false;
+    }
+
+    if (importError != null) {
+      if (mounted) {
+        setState(() => _isImporting = false);
+        showToast(context, context.l10n!.spotifyPlaylistImportFailed);
+      }
+      return;
     }
 
     final foundSongs = [
@@ -167,8 +183,19 @@ class _ImportSpotifyPlaylistPageState extends State<ImportSpotifyPlaylistPage> {
     ];
 
     if (!mounted) return;
-    final (_, playlistId) = createCustomPlaylist(playlistName, null, context);
-    addSongsInCustomPlaylist(context, playlistId, foundSongs);
+    try {
+      final (_, playlistId) = createCustomPlaylist(playlistName, null, context);
+      addSongsInCustomPlaylist(context, playlistId, foundSongs);
+    } catch (error, stackTrace) {
+      logger.log(
+        'Spotify CSV import playlist creation failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      setState(() => _isImporting = false);
+      showToast(context, context.l10n!.spotifyPlaylistImportFailed);
+      return;
+    }
     setState(() => _isImporting = false);
 
     final resultText = rateLimited

@@ -26,6 +26,7 @@ import 'package:musify/constants/app_constants.dart';
 import 'package:musify/extensions/l10n.dart';
 import 'package:musify/main.dart';
 import 'package:musify/services/settings_manager.dart';
+import 'package:musify/utilities/platform_utils.dart';
 import 'package:musify/widgets/mini_player_bottom_space.dart';
 
 class EqualizerPage extends StatefulWidget {
@@ -198,19 +199,29 @@ class _EqualizerPageState extends State<EqualizerPage> {
       appBar: AppBar(
         title: Text(context.l10n!.equalizer),
         actions: [
-          IconButton(
-            icon: const Icon(FluentIcons.arrow_clockwise_24_filled),
-            tooltip: context.l10n!.equalizerResetBands,
-            onPressed: () async {
-              await audioHandler.resetEqualizerBands();
-              final params = _params;
-              if (!mounted || params == null) return;
-              setState(() {
-                _gains = List<double>.filled(params.bands.length, 0);
-                _activePreset = null;
-              });
-            },
-          ),
+          if (isAndroidPlatform)
+            IconButton(
+              icon: const Icon(FluentIcons.arrow_clockwise_24_filled),
+              tooltip: _params == null
+                  ? context.l10n!.equalizerInitFailed
+                  : context.l10n!.equalizerResetBands,
+              onPressed: _isLoading
+                  ? null
+                  : () async {
+                      if (_params == null) {
+                        setState(() => _isLoading = true);
+                        await _loadEqualizer();
+                        return;
+                      }
+                      await audioHandler.resetEqualizerBands();
+                      final params = _params;
+                      if (!mounted || params == null) return;
+                      setState(() {
+                        _gains = List<double>.filled(params.bands.length, 0);
+                        _activePreset = null;
+                      });
+                    },
+            ),
         ],
       ),
       body: _isLoading
@@ -219,10 +230,33 @@ class _EqualizerPageState extends State<EqualizerPage> {
           ? Center(
               child: Padding(
                 padding: commonSingleChildScrollViewPadding,
-                child: Text(
-                  context.l10n!.equalizerInitFailed,
-                  style: Theme.of(context).textTheme.bodyLarge,
-                  textAlign: TextAlign.center,
+                child: Card.filled(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          FluentIcons.speaker_2_24_regular,
+                          size: 40,
+                          color: colorScheme.primary,
+                        ),
+                        const SizedBox(height: 14),
+                        Text(
+                          context.l10n!.equalizer,
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          isAndroidPlatform
+                              ? context.l10n!.equalizerInitFailed
+                              : context.l10n!.equalizerAndroidOnly,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             )

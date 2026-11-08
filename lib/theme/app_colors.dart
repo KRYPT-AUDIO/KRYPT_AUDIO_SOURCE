@@ -11,22 +11,16 @@
  */
 
 import 'package:material_ui/material_ui.dart';
+import 'package:musify/theme/krypt_design.dart';
 
-const kryptViolet = Color(0xFFB58CFF);
-const kryptElectricBlue = Color(0xFF55B8FF);
-const kryptDeepSpace = Color(0xFF080A14);
-const kryptGlass = Color(0xFF171A2A);
+const kryptViolet = KryptDesign.violet;
+const kryptElectricBlue = KryptDesign.electricBlue;
+const kryptDeepSpace = KryptDesign.darkBackdrop;
+const kryptGlass = KryptDesign.darkSurface;
 
 const availableColors = <Color>[
   kryptViolet,
   kryptElectricBlue,
-  Color(0xFF9D7BFF),
-  Color(0xFF6D8CFF),
-  Color(0xFF00BCD4),
-  Color(0xFFBA68C8),
-  Color(0xFF4CAF50),
-  Color(0xFFF08080),
-  Color(0xFFFF9800),
-  Color(0xFFF8C733),
-  Color(0xFFAABBCC),
+  KryptDesign.cyan,
+  KryptDesign.pink,
 ];

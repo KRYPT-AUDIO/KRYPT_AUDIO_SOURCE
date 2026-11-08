@@ -77,7 +77,7 @@ class HomeCustomizationPage extends StatelessWidget {
                 service,
                 'showLiked',
                 'Your favourites',
-                'Show playlists you have liked.',
+                'Show songs you have liked.',
                 FluentIcons.heart_24_filled,
               ),
               _toggle(
@@ -136,7 +136,19 @@ class HomeCustomizationPage extends StatelessWidget {
         title: Text(title),
         subtitle: Text(description),
         value: value,
-        onChanged: (next) => service.setValue(key, next),
+        onChanged: (next) async {
+          try {
+            await service.setValue(key, next);
+          } catch (_) {
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Could not save Home customization.'),
+                ),
+              );
+            }
+          }
+        },
       ),
     );
   }
