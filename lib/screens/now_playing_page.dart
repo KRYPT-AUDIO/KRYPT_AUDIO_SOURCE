@@ -292,8 +292,8 @@ class _NowPlayingPageState extends State<NowPlayingPage> {
                   ],
                 ),
                 child: loading
-                    ? const Padding(
-                        padding: EdgeInsets.all(24),
+                    ? Padding(
+                        padding: const EdgeInsets.all(24),
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
                           color: colors.onPrimary,

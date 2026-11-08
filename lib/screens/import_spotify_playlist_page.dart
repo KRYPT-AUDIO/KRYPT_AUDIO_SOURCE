@@ -130,7 +130,7 @@ class _ImportSpotifyPlaylistPageState extends State<ImportSpotifyPlaylistPage> {
 
     // Key results by their CSV position so retry results remain ordered.
     final foundByIndex = <int, Map>{};
-    List<_ImportRow> missingRows;
+    var missingRows = <_ImportRow>[];
     var rateLimited = false;
     Object? importError;
     try {
