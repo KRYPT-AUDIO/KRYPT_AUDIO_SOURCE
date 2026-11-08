@@ -5,6 +5,12 @@ on:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      publish_release:
+        description: Publish a public release (requires production signing)
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -56,6 +62,7 @@ jobs:
         run: flutter analyze --no-fatal-infos
 
       - name: Prepare Android signing key
+        id: signing
         env:
           SIGNING_KEYSTORE_BASE64: ${{ secrets.KRYPT_ANDROID_KEYSTORE_BASE64 }}
           SIGNING_STORE_PASSWORD: ${{ secrets.KRYPT_ANDROID_STORE_PASSWORD }}
@@ -67,12 +74,13 @@ jobs:
           if [[ -n "${SIGNING_KEYSTORE_BASE64:-}" && -n "${SIGNING_STORE_PASSWORD:-}" && -n "${SIGNING_KEY_PASSWORD:-}" && -n "${SIGNING_KEY_ALIAS:-}" ]]; then
             echo "$SIGNING_KEYSTORE_BASE64" | base64 --decode > android/app/key.jks
             cat > android/key.properties <<EOF
-          storePassword=$SIGNING_STORE_PASSWORD
-          keyPassword=$SIGNING_KEY_PASSWORD
-          keyAlias=$SIGNING_KEY_ALIAS
-          storeFile=key.jks
-          EOF
+storePassword=$SIGNING_STORE_PASSWORD
+keyPassword=$SIGNING_KEY_PASSWORD
+keyAlias=$SIGNING_KEY_ALIAS
+storeFile=app/key.jks
+EOF
             echo 'Using the configured KRYPT Android release signing key.'
+            echo 'production_signing=true' >> "$GITHUB_OUTPUT"
           else
             echo 'Production signing secrets are not configured; generating a CI-only signing key.'
             keytool -genkeypair -v \
@@ -85,11 +93,12 @@ jobs:
               -validity 3650 \
               -dname 'CN=KRYPT AUDIO CI, O=Synapse Labs UK Ltd, C=GB'
             cat > android/key.properties <<'EOF'
-          storePassword=krypt-ci-only
-          keyPassword=krypt-ci-only
-          keyAlias=krypt-audio-ci
-          storeFile=key.jks
-          EOF
+storePassword=krypt-ci-only
+keyPassword=krypt-ci-only
+keyAlias=krypt-audio-ci
+storeFile=app/key.jks
+EOF
+            echo 'production_signing=false' >> "$GITHUB_OUTPUT"
           fi
 
       - name: Build universal APK
@@ -119,6 +128,7 @@ jobs:
           retention-days: 30
 
       - name: Publish GitHub release
+        if: steps.signing.outputs.production_signing == 'true' && (github.event_name == 'push' || inputs.publish_release)
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.app_version.outputs.tag }}
