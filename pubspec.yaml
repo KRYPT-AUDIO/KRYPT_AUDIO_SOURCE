@@ -1,8 +1,8 @@
 name: musify
 description: KRYPT AUDIO — a premium music streaming experience by Synapse Labs UK Ltd.
-homepage: https://github.com/gokadzev/Musify
-repository: https://github.com/gokadzev/Musify
-issue_tracker: https://github.com/gokadzev/Musify/issues
+homepage: https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE
+repository: https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE
+issue_tracker: https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/issues
 
 publish_to: 'none'
 version: 2.2.4+32 # Galaxy S24 mini-player positioning fix

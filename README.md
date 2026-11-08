@@ -10,7 +10,7 @@
   [![License](https://img.shields.io/github/license/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE?style=flat-square&color=38BDF8)](LICENSE)
   [![Stars](https://img.shields.io/github/stars/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE?style=flat-square&color=E879F9)](https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/stargazers)
 
-  **Current release: V2.0.3 · Android build 23**
+  **Current app version: 2.2.4 · Android build 32**
 </div>
 
 ---
@@ -23,36 +23,8 @@ KRYPT AUDIO is maintained as an independent project by Synapse Labs UK Ltd in th
 
 KRYPT AUDIO does not host or distribute copyrighted audio. Music is resolved from configured external sources, and users are responsible for complying with the laws and terms that apply to their use of those sources.
 
-## V2.0.3 release status
-
-V2.0.3 is the current Android maintenance release. It includes the V2.0.2 GitHub updater fix plus a branded Android boot experience:
-
-- Full KRYPT AUDIO splash artwork is shown while the Android app process starts on legacy and API 21+ launch paths.
-- Android 12+ system splash colors are dark KRYPT navy instead of the default light system flash.
-- The post-splash Android window remains dark while Flutter initializes, preventing a mismatched light transition.
-- The Settings update button now checks the KRYPT AUDIO GitHub Releases API instead of opening the Synapse Labs website.
-- Manual checks report whether the app is up to date, offline, unavailable, or has a newer APK to install.
-- New APK releases open the existing Android package installer flow with download progress and retry handling.
-- A dedicated Discover destination with Apple Music-inspired browse structure, mood filters and refreshable content.
-- Discover playlists and playable recommendations are connected to the existing source and playback services.
-- A live KRYPT playback visualiser in Now Playing, driven by the current playback state.
-- Five-part Android navigation: Home, Discover, Search, Library and Settings.
-- Consistent KRYPT Liquid Glass styling across the new profile and Home customisation surfaces.
-- Actionable playback recovery with an in-player **Retry** and **Dismiss** control when a stream is interrupted.
-- Permanent KRYPT AUDIO Android release signing configuration.
-- Google account sign-in state and profile access.
-- Spotify account integration for importing playlists and saved-song metadata into the local library.
-- Configurable music sources, including YouTube, Audius and Jamendo where available.
-- Custom `.kryptplugin` packages with an in-app marketplace and author guide.
-- Local Smart DJ queue curation with optional spoken introductions using on-device Android text-to-speech.
-- Custom profile display name, bio, avatar and accent colour.
-- Home screen section customisation.
-- Custom playlist artwork uploads.
-- Listening statistics, recaps and recently played history.
-- Offline playlists and download management.
-- Lyrics, radio stations, equaliser controls and playback transitions.
-- Android background playback, notification controls, home-screen playback widget and Android Auto support where supported by the device.
-- Built-in release update checking and APK installation flow.
+## Current version
+The app version is **2.2.4** (Android build **32**), as defined by the repository's Flutter version metadata. See the [GitHub Releases page](https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/releases) for published release notes and downloadable builds.
 
 ## Main features
 
@@ -101,7 +73,7 @@ Plugins can declare supported hooks and theme tokens. The current safe runtime a
 
 Download the latest signed Android APK from the [GitHub Releases page](https://github.com/KRYPT-AUDIO/KRYPT_AUDIO_SOURCE/releases/latest).
 
-The V2.0.3 APK built from this repository is signed with the KRYPT AUDIO release certificate and uses the Android package ID:
+The Android APK built from this repository uses the Android package ID:
 
 ```text
 com.synapselabs.kryptaudio
@@ -115,10 +87,10 @@ Always verify that an APK came from the official [KRYPT-AUDIO/KRYPT_AUDIO_SOURCE
 | --- | --- |
 | Android | Supported and actively released |
 | iOS | Not currently supported |
-| Linux | Source contains inherited desktop support; no V2 Android release is provided for Linux |
-| Windows | Source contains inherited desktop support; no V2 Android release is provided for Windows |
+| Linux | Source contains inherited desktop support; no Android release is provided for Linux |
+| Windows | Source contains inherited desktop support; no Android release is provided for Windows |
 
-V2 development and release validation are Android-only for now.
+App release validation is Android-only for now.
 
 ## Building from source
 
@@ -145,7 +117,7 @@ The repository's release build uses the Android `github` flavour. A locally conf
 
 ### Tests and network checks
 
-The normal test suite is deterministic and does not require YouTube access. The current suite contains 89 passing tests, with external YouTube stream checks disabled by default because they depend on provider and proxy availability.
+The normal test suite is deterministic and does not require YouTube access. External YouTube stream checks are disabled by default because they depend on provider and proxy availability.
 
 To intentionally run the live YouTube smoke tests:
 
