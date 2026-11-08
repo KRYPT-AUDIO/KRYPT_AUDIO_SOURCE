@@ -55,6 +55,9 @@ jobs:
       - name: Analyze Dart source
         run: flutter analyze --no-fatal-infos
 
+      - name: Run Flutter tests
+        run: flutter test
+
       - name: Prepare Android signing key
         id: signing
         env:

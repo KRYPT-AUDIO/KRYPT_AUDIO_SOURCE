@@ -57,6 +57,7 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return PopScope(
       canPop: widget.child.currentIndex == 0,
       onPopInvokedWithResult: (didPop, _) {
@@ -68,7 +69,7 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
         }
       },
       child: Scaffold(
-        backgroundColor: Colors.black,
+        backgroundColor: colors.surface,
         body: StreamBuilder<bool>(
           initialData: audioHandler.mediaItem.value != null,
           stream: _miniPlayerStream,
@@ -115,8 +116,11 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(44),
-          color: const Color(0xFF151519).withValues(alpha: .96),
-          border: Border.all(color: Colors.white.withValues(alpha: .18)),
+          color: Theme.of(context).colorScheme.surfaceContainerHigh
+              .withValues(alpha: .96),
+          border: Border.all(
+            color: Theme.of(context).colorScheme.outlineVariant,
+          ),
           boxShadow: const [
             BoxShadow(
               color: Colors.black54,
@@ -150,10 +154,15 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
         curve: Curves.easeOutCubic,
         margin: const EdgeInsets.symmetric(horizontal: 2),
         decoration: BoxDecoration(
-          color: selected ? const Color(0xFF303039) : Colors.transparent,
+          color: selected
+              ? Theme.of(context).colorScheme.primary.withValues(alpha: .18)
+              : Colors.transparent,
           borderRadius: BorderRadius.circular(36),
           border: selected
-              ? Border.all(color: Colors.white.withValues(alpha: .05))
+              ? Border.all(
+                  color: Theme.of(context).colorScheme.primary
+                      .withValues(alpha: .24),
+                )
               : null,
         ),
         child: Column(
@@ -161,14 +170,18 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
           children: [
             Icon(
               selected ? item.selectedIcon : item.icon,
-              color: selected ? Colors.white : const Color(0xFFD1D0D8),
+              color: selected
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(context).colorScheme.onSurfaceVariant,
               size: 25,
             ),
             const SizedBox(height: 4),
             Text(
               item.label,
               style: TextStyle(
-                color: selected ? Colors.white : const Color(0xFFD1D0D8),
+                color: selected
+                    ? Theme.of(context).colorScheme.onSurface
+                    : Theme.of(context).colorScheme.onSurfaceVariant,
                 fontSize: 12,
                 fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
               ),

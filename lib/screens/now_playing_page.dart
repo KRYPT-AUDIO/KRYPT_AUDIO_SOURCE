@@ -32,7 +32,7 @@ class _NowPlayingPageState extends State<NowPlayingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: StreamBuilder<MediaItem?>(
         stream: audioHandler.mediaItem,
         initialData: audioHandler.mediaItem.value,
@@ -151,6 +151,7 @@ class _NowPlayingPageState extends State<NowPlayingPage> {
   }
 
   Widget _buildTrackInfo(BuildContext context, MediaItem metadata) {
+    final colors = Theme.of(context).colorScheme;
     final artist = metadata.artist?.trim();
     final album = metadata.album?.trim();
     return Row(
@@ -164,8 +165,8 @@ class _NowPlayingPageState extends State<NowPlayingPage> {
                 metadata.title,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: colors.onSurface,
                   fontSize: 24,
                   height: 1.12,
                   fontWeight: FontWeight.w700,
@@ -180,8 +181,8 @@ class _NowPlayingPageState extends State<NowPlayingPage> {
                 ].join('  ·  '),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: Color(0xFFAAA8B2),
+                style: TextStyle(
+                  color: colors.onSurfaceVariant,
                   fontSize: 15,
                   fontWeight: FontWeight.w500,
                 ),
@@ -200,6 +201,7 @@ class _NowPlayingPageState extends State<NowPlayingPage> {
       stream: audioHandler.positionDataStream,
       initialData: audioHandler.currentPositionData,
       builder: (context, snapshot) {
+        final colors = Theme.of(context).colorScheme;
         final data = snapshot.data ?? audioHandler.currentPositionData;
         final duration = data.duration > Duration.zero
             ? data.duration
@@ -219,10 +221,10 @@ class _NowPlayingPageState extends State<NowPlayingPage> {
                 trackHeight: 4,
                 thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
                 overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
-                activeTrackColor: Colors.white,
-                inactiveTrackColor: const Color(0xFF424149),
-                thumbColor: Colors.white,
-                overlayColor: Colors.white.withValues(alpha: .12),
+                activeTrackColor: colors.primary,
+                inactiveTrackColor: colors.outlineVariant,
+                thumbColor: colors.primary,
+                overlayColor: colors.primary.withValues(alpha: .12),
               ),
               child: Slider(
                 value: position,
@@ -249,6 +251,7 @@ class _NowPlayingPageState extends State<NowPlayingPage> {
       stream: audioHandler.playbackState,
       initialData: audioHandler.playbackState.value,
       builder: (context, snapshot) {
+        final colors = Theme.of(context).colorScheme;
         final state = snapshot.data ?? audioHandler.playbackState.value;
         final loading =
             state.processingState == AudioProcessingState.loading ||
@@ -280,10 +283,10 @@ class _NowPlayingPageState extends State<NowPlayingPage> {
                 height: 72,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.white,
+                  color: colors.primary,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.white.withValues(alpha: .14),
+                      color: colors.primary.withValues(alpha: .24),
                       blurRadius: 26,
                     ),
                   ],
@@ -293,14 +296,14 @@ class _NowPlayingPageState extends State<NowPlayingPage> {
                         padding: EdgeInsets.all(24),
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          color: Colors.black,
+                          color: colors.onPrimary,
                         ),
                       )
                     : Icon(
                         playing
                             ? FluentIcons.pause_24_filled
                             : FluentIcons.play_24_filled,
-                        color: Colors.black,
+                        color: colors.onPrimary,
                         size: 32,
                       ),
               ),

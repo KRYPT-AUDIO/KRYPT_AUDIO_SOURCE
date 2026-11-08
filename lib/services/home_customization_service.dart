@@ -1,14 +1,13 @@
-import 'dart:async';
-
 import 'package:flutter/foundation.dart';
 import 'package:musify/services/data_manager.dart';
 
 class KryptHomeCustomizationService extends ChangeNotifier {
   KryptHomeCustomizationService._() {
-    _load();
+    _ready = _load();
   }
 
   static final instance = KryptHomeCustomizationService._();
+  late final Future<void> _ready;
 
   bool showSmartDj = true;
   bool showSuggested = true;
@@ -16,6 +15,8 @@ class KryptHomeCustomizationService extends ChangeNotifier {
   bool showRecap = true;
   bool showRecommendations = true;
   bool showPluginBadges = true;
+
+  Future<void> get ready => _ready;
 
   Future<void> _load() async {
     final data = await getData('settings', 'homeCustomization');
@@ -31,6 +32,32 @@ class KryptHomeCustomizationService extends ChangeNotifier {
   }
 
   Future<void> setValue(String key, bool value) async {
+    await _ready;
+    final previousValue = _valueFor(key);
+    if (previousValue == null) throw ArgumentError.value(key, 'key');
+
+    _assignValue(key, value);
+    notifyListeners();
+    try {
+      await _persist();
+    } catch (_) {
+      _assignValue(key, previousValue);
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  bool? _valueFor(String key) => switch (key) {
+    'showSmartDj' => showSmartDj,
+    'showSuggested' => showSuggested,
+    'showLiked' => showLiked,
+    'showRecap' => showRecap,
+    'showRecommendations' => showRecommendations,
+    'showPluginBadges' => showPluginBadges,
+    _ => null,
+  };
+
+  void _assignValue(String key, bool value) {
     switch (key) {
       case 'showSmartDj':
         showSmartDj = value;
@@ -44,9 +71,12 @@ class KryptHomeCustomizationService extends ChangeNotifier {
         showRecommendations = value;
       case 'showPluginBadges':
         showPluginBadges = value;
+      default:
+        throw ArgumentError.value(key, 'key');
     }
-    notifyListeners();
-    unawaited(
+  }
+
+  Future<void> _persist() =>
       addOrUpdateData<Map<String, dynamic>>('settings', 'homeCustomization', {
         'showSmartDj': showSmartDj,
         'showSuggested': showSuggested,
@@ -54,7 +84,5 @@ class KryptHomeCustomizationService extends ChangeNotifier {
         'showRecap': showRecap,
         'showRecommendations': showRecommendations,
         'showPluginBadges': showPluginBadges,
-      }),
-    );
-  }
+      });
 }

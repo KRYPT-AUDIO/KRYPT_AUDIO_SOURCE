@@ -242,15 +242,18 @@ class SpotifyService extends ChangeNotifier {
   Future<Map<String, dynamic>> _getJson(
     String path, {
     Map<String, String>? query,
+    bool allowRefreshRetry = true,
   }) async {
     await _ensureToken();
     final response = await http.get(
       Uri.https('api.spotify.com', path, query),
       headers: {'Authorization': 'Bearer $_accessToken'},
     );
-    if (response.statusCode == 401 && _refreshToken != null) {
+    if (response.statusCode == 401 &&
+        _refreshToken != null &&
+        allowRefreshRetry) {
       await _refreshAccessToken();
-      return _getJson(path, query: query);
+      return _getJson(path, query: query, allowRefreshRetry: false);
     }
     if (response.statusCode < 200 || response.statusCode >= 300) {
       var detail = response.body.trim();

@@ -8,16 +8,26 @@ abstract final class KryptDesign {
   static const radiusSmall = 14.0;
   static const radiusMedium = 22.0;
   static const radiusLarge = 30.0;
+  static const radiusLargeAsRadius = BorderRadius.all(
+    Radius.circular(radiusLarge),
+  );
   static const pagePadding = EdgeInsets.fromLTRB(18, 12, 18, 28);
   static const sectionGap = 24.0;
   static const fastMotion = Duration(milliseconds: 180);
   static const standardMotion = Duration(milliseconds: 320);
   static const slowMotion = Duration(milliseconds: 520);
 
-  static const darkBackdrop = Color(0xFF070810);
-  static const lightBackdrop = Color(0xFFF5F6FB);
-  static const violet = Color(0xFF8B5CF6);
-  static const cyan = Color(0xFF38BDF8);
+  static const darkBackdrop = Color(0xFF080A14);
+  static const darkSurface = Color(0xFF131521);
+  static const darkSurfaceHigh = Color(0xFF1B1E2D);
+  static const lightBackdrop = Color(0xFFF7F5FC);
+  static const lightSurface = Color(0xFFFFFFFF);
+  static const lightSurfaceLow = Color(0xFFF3F0F8);
+  static const lightSurfaceHigh = Color(0xFFECE8F3);
+  static const lightOutline = Color(0xFF777184);
+  static const violet = Color(0xFFB58CFF);
+  static const electricBlue = Color(0xFF55B8FF);
+  static const cyan = Color(0xFF42D9E8);
   static const pink = Color(0xFFE879F9);
 }
 

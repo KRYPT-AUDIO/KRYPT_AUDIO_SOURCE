@@ -66,7 +66,10 @@ class _QueueWidgetState extends State<QueueWidget> {
     _mediaSubscription = audioHandler.mediaItem
         .distinct((prev, next) => prev?.id == next?.id)
         .listen((_) {
-          if (mounted && !_isDismissing) setState(() {});
+          if (mounted && !_isDismissing) {
+            setState(() {});
+            _scrollToCurrentSong();
+          }
         });
   }
 
@@ -74,7 +77,7 @@ class _QueueWidgetState extends State<QueueWidget> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!_scrollController.hasClients) return;
       final currentIndex = audioHandler.currentQueueIndex;
-      if (currentIndex <= 0) return;
+      if (currentIndex < 0) return;
       const estimatedItemHeight = 68.0;
       const topPadding = 4.0;
       final targetOffset = currentIndex * estimatedItemHeight + topPadding;
@@ -321,22 +324,13 @@ class _QueueWidgetState extends State<QueueWidget> {
       padding: const EdgeInsets.only(top: 4, bottom: 24, left: 8, right: 8),
       itemCount: _queue.length,
       onReorderItem: (oldIndex, newIndex) {
-        final movingId =
-            _queue[oldIndex]['queueEntryId']?.toString() ??
-            'legacy_${_queue[oldIndex]['ytid']}_$oldIndex';
+        final targetIndex = newIndex.clamp(0, _queue.length - 1);
 
         setState(() {
           final item = _queue.removeAt(oldIndex);
-          var insertIndex = newIndex;
-          if (insertIndex < 0) insertIndex = 0;
-          if (insertIndex > _queue.length) insertIndex = _queue.length;
-          _queue.insert(insertIndex, item);
+          _queue.insert(targetIndex, item);
         });
-
-        final actualIndex = _queue.indexWhere(
-          (item) => item['queueEntryId']?.toString() == movingId,
-        );
-        audioHandler.reorderQueueById(movingId, actualIndex);
+        audioHandler.reorderQueue(oldIndex, targetIndex);
       },
       proxyDecorator: (child, index, animation) => Material(
         elevation: 8,

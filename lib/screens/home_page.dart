@@ -6,6 +6,8 @@ import 'package:musify/services/common_services.dart';
 import 'package:musify/services/home_customization_service.dart';
 import 'package:musify/services/listening_stats_service.dart';
 import 'package:musify/services/playlists_manager.dart';
+import 'package:musify/services/plugin_service.dart';
+import 'package:musify/theme/krypt_design.dart';
 import 'package:musify/utilities/app_utils.dart';
 import 'package:musify/utilities/async_loader.dart';
 import 'package:musify/utilities/listening_stats_utils.dart';
@@ -36,14 +38,14 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final customization = KryptHomeCustomizationService.instance;
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: AnimatedBuilder(
         animation: customization,
         builder: (context, _) => CustomScrollView(
           physics: const BouncingScrollPhysics(),
           slivers: [
             SliverPadding(
-              padding: const EdgeInsets.fromLTRB(28, 16, 28, 28),
+              padding: KryptDesign.pagePadding,
               sliver: SliverList(
                 delegate: SliverChildListDelegate([
                   _buildHeader(context),
@@ -52,6 +54,10 @@ class _HomePageState extends State<HomePage> {
                   if (customization.showSmartDj) ...[
                     const SizedBox(height: 14),
                     _buildSmartDjCard(context),
+                  ],
+                  if (customization.showPluginBadges) ...[
+                    const SizedBox(height: 14),
+                    _buildPluginStatus(context),
                   ],
                   const SizedBox(height: 30),
                   if (customization.showSuggested) ...[
@@ -64,6 +70,18 @@ class _HomePageState extends State<HomePage> {
                     ),
                     const SizedBox(height: 12),
                     _buildPlaylistShelf(),
+                    const SizedBox(height: 30),
+                  ],
+                  if (customization.showLiked) ...[
+                    _buildSectionTitle(
+                      context,
+                      icon: FluentIcons.heart_24_regular,
+                      title: 'Your favourites',
+                      action: 'See all',
+                      onAction: () => context.go('/library'),
+                    ),
+                    const SizedBox(height: 12),
+                    _buildLikedSongs(),
                     const SizedBox(height: 30),
                   ],
                   if (customization.showRecap) ...[
@@ -102,15 +120,11 @@ class _HomePageState extends State<HomePage> {
   Widget _buildHeader(BuildContext context) {
     return Row(
       children: [
-        const Expanded(
+        Expanded(
           child: Text(
             'KRYPT AUDIO',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 24,
-              fontWeight: FontWeight.w800,
-              letterSpacing: -1.2,
-            ),
+            style: Theme.of(context).textTheme.headlineSmall
+                ?.copyWith(fontWeight: FontWeight.w800, letterSpacing: -1.2),
           ),
         ),
         _roundHeaderButton(
@@ -162,10 +176,16 @@ class _HomePageState extends State<HomePage> {
           height: 58,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: const Color(0xFF151519),
-            border: Border.all(color: Colors.white.withValues(alpha: .08)),
+            color: Theme.of(context).colorScheme.surfaceContainerHigh,
+            border: Border.all(
+              color: Theme.of(context).colorScheme.outlineVariant,
+            ),
           ),
-          child: Icon(icon, color: Colors.white, size: 25),
+          child: Icon(
+            icon,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+            size: 25,
+          ),
         ),
       ),
     );
@@ -239,6 +259,123 @@ class _HomePageState extends State<HomePage> {
           const Icon(FluentIcons.chevron_right_24_regular, color: Colors.white),
         ],
       ),
+    );
+  }
+
+  Widget _buildPluginStatus(BuildContext context) {
+    final pluginService = KryptPluginService.instance;
+    return AnimatedBuilder(
+      animation: pluginService,
+      builder: (context, _) {
+        final enabledPlugins = pluginService.installed
+            .where((plugin) => plugin.enabled)
+            .toList(growable: false);
+        return InkWell(
+          onTap: () => context.push('/settings/plugins'),
+          borderRadius: BorderRadius.circular(22),
+          child: GlassSurface(
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+            borderRadius: BorderRadius.circular(22),
+            opacity: .68,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      FluentIcons.puzzle_cube_24_regular,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        enabledPlugins.isEmpty
+                            ? 'No enabled plugins'
+                            : 'Active plugins',
+                        style: Theme.of(context).textTheme.titleSmall
+                            ?.copyWith(fontWeight: FontWeight.w700),
+                      ),
+                    ),
+                    if (enabledPlugins.isEmpty)
+                      Icon(
+                        FluentIcons.chevron_right_24_regular,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                  ],
+                ),
+                if (enabledPlugins.isNotEmpty) ...[
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: enabledPlugins.take(3).map((plugin) {
+                      return Chip(
+                        label: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 160),
+                          child: Text(
+                            plugin.manifest.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        visualDensity: VisualDensity.compact,
+                        padding: EdgeInsets.zero,
+                      );
+                    }).toList(),
+                  ),
+                  if (enabledPlugins.length > 3)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 6),
+                      child: Text(
+                        '+${enabledPlugins.length - 3} more',
+                        style: Theme.of(context).textTheme.labelSmall,
+                      ),
+                    ),
+                ],
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildLikedSongs() {
+    return ValueListenableBuilder<List>(
+      valueListenable: userLikedSongsList,
+      builder: (context, songs, _) {
+        if (songs.isEmpty) {
+          return GlassSurface(
+            padding: const EdgeInsets.all(18),
+            borderRadius: BorderRadius.circular(22),
+            opacity: .62,
+            child: Text(
+              'Like a song and it will appear here.',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          );
+        }
+        return GlassSurface(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          borderRadius: BorderRadius.circular(22),
+          opacity: .62,
+          child: Column(
+            children: songs.take(4).map<Widget>((song) {
+              return SongBar(
+                song,
+                true,
+                isFromLikedSongs: true,
+                showQueueActions: false,
+                borderRadius: BorderRadius.circular(16),
+                barPadding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+              );
+            }).toList(),
+          ),
+        );
+      },
     );
   }
 

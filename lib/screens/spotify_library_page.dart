@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:musify/services/playlists_manager.dart';
 import 'package:musify/services/spotify_service.dart';
+import 'package:musify/theme/krypt_design.dart';
 import 'package:musify/utilities/flutter_toast.dart';
 
 class SpotifyLibraryPage extends StatefulWidget {
@@ -155,58 +156,98 @@ class _SpotifyLibraryPageState extends State<SpotifyLibraryPage> {
           onPressed: () => context.pop(),
         ),
       ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
-        children: [
-          Card(
-            child: ListTile(
-              leading: const CircleAvatar(
-                child: Icon(FluentIcons.music_note_2_24_filled),
-              ),
-              title: Text(
-                connected
-                    ? (service.displayName ?? 'Spotify connected')
-                    : 'Connect Spotify',
-              ),
-              subtitle: Text(
-                connected
-                    ? (service.email ?? 'Your Spotify account is connected.')
-                    : 'Import playlists and Liked Songs into your KRYPT library.',
-              ),
-              trailing: connected
-                  ? IconButton(
+      body: AmbientBackdrop(
+        child: ListView(
+          padding: KryptDesign.pagePadding,
+          children: [
+            GlassCard(
+              padding: const EdgeInsets.all(18),
+              child: Row(
+                children: [
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        colors: [
+                          Theme.of(context).colorScheme.primary,
+                          Theme.of(context).colorScheme.secondary,
+                        ],
+                      ),
+                    ),
+                    child: const Padding(
+                      padding: EdgeInsets.all(14),
+                      child: Icon(FluentIcons.music_note_2_24_filled),
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          connected
+                              ? (service.displayName ?? 'Spotify connected')
+                              : 'Connect Spotify',
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.w700),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          connected
+                              ? (service.email ??
+                                    'Your Spotify account is connected.')
+                              : 'Import playlists and Liked Songs into your KRYPT library.',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  if (connected)
+                    IconButton(
                       tooltip: 'Disconnect Spotify',
                       icon: const Icon(FluentIcons.sign_out_24_regular),
                       onPressed: service.disconnect,
                     )
-                  : FilledButton(
+                  else
+                    FilledButton(
                       onPressed: service.isBusy ? null : _connect,
                       child: const Text('Connect'),
                     ),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
-          if (connected)
-            FilledButton.icon(
-              onPressed: _syncing ? null : _sync,
-              icon: _syncing
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(FluentIcons.arrow_sync_24_regular),
-              label: Text(_syncing ? 'Syncing…' : 'Sync Spotify library'),
-            ),
-          if (_status != null) ...[
             const SizedBox(height: 16),
-            Text(_status!, style: Theme.of(context).textTheme.bodyMedium),
+            if (connected)
+              FilledButton.icon(
+                onPressed: _syncing ? null : _sync,
+                icon: _syncing
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(FluentIcons.arrow_sync_24_regular),
+                label: Text(_syncing ? 'Syncing…' : 'Sync Spotify library'),
+              ),
+            if (_status != null) ...[
+              const SizedBox(height: 16),
+              GlassCard(
+                child: Text(
+                  _status!,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ),
+            ],
+            const SizedBox(height: 20),
+            GlassCard(
+              child: Text(
+                'KRYPT AUDIO imports Spotify library metadata only. Existing KRYPT playback sources remain unchanged; Spotify audio is not streamed by this app.',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ),
           ],
-          const SizedBox(height: 20),
-          const Text(
-            'KRYPT AUDIO imports Spotify library metadata only. Existing KRYPT playback sources remain unchanged; Spotify audio is not streamed by this app.',
-          ),
-        ],
+        ),
       ),
     );
   }
